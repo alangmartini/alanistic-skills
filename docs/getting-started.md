@@ -1,142 +1,83 @@
-# Getting Started with agent-skills
+# Getting Started with Codex Agent Skills
 
-agent-skills works with any AI coding agent that accepts Markdown instructions. This guide covers the universal approach. For tool-specific setup, see the dedicated guides.
+Codex skills are self-contained folders with a required `SKILL.md`. Codex uses the frontmatter metadata to decide when a skill applies, then loads the skill body only when needed.
 
-## How Skills Work
+## Install Skills
 
-Each skill is a Markdown file (`SKILL.md`) that describes a specific engineering workflow. When loaded into an agent's context, the agent follows the workflow — including verification steps, anti-patterns to avoid, and exit criteria.
+Install a single skill on Windows:
 
-**Skills are not reference docs.** They're step-by-step processes the agent follows.
+```powershell
+$dest = "$env:USERPROFILE\.codex\skills"
+New-Item -ItemType Directory -Force $dest
+Copy-Item -Recurse .\skills\test-driven-development $dest
+```
 
-## Quick Start (Any Agent)
+Install all skills on Windows:
 
-### 1. Clone the repository
+```powershell
+$dest = "$env:USERPROFILE\.codex\skills"
+New-Item -ItemType Directory -Force $dest
+Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+```
+
+Install all skills on macOS/Linux:
 
 ```bash
-git clone https://github.com/addyosmani/agent-skills.git
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
-### 2. Choose a skill
+Restart Codex after installing or updating skills.
 
-Browse the `skills/` directory. Each subdirectory contains a `SKILL.md` with:
-- **When to use** — triggers that indicate this skill applies
-- **Process** — step-by-step workflow
-- **Verification** — how to confirm the work is done
-- **Common rationalizations** — excuses the agent might use to skip steps
-- **Red flags** — signs the skill is being violated
+## Use Skills
 
-### 3. Load the skill into your agent
+Start with `using-agent-skills` if you are not sure which workflow applies. Otherwise, name the skill in your request or let Codex choose from the metadata.
 
-Copy the relevant `SKILL.md` content into your agent's system prompt, rules file, or conversation. The most common approaches:
+Examples:
 
-**System prompt:** Paste the skill content at the start of the session.
-
-**Rules file:** Add skill content to your project's rules file (CLAUDE.md, .cursorrules, etc.).
-
-**Conversation:** Reference the skill when giving instructions: "Follow the test-driven-development process for this change."
-
-### 4. Use the meta-skill for discovery
-
-Start with the `using-agent-skills` skill loaded. It contains a flowchart that maps task types to the appropriate skill.
-
-## Recommended Setup
-
-### Minimal (Start here)
-
-Load three essential skills into your rules file:
-
-1. **spec-driven-development** — For defining what to build
-2. **test-driven-development** — For proving it works
-3. **code-review-and-quality** — For verifying quality before merge
-
-These three cover the most critical quality gaps in AI-assisted development.
-
-### Full Lifecycle
-
-For comprehensive coverage, load skills by phase:
-
-```
-Starting a project:  spec-driven-development → planning-and-task-breakdown
-During development:  incremental-implementation + test-driven-development
-Before merge:        code-review-and-quality + security-and-hardening
-Before deploy:       shipping-and-launch
+```text
+Use the spec-driven-development skill for this feature.
 ```
 
-### Context-Aware Loading
-
-Don't load all skills at once — it wastes context. Load skills relevant to the current task:
-
-- Working on UI? Load `frontend-ui-engineering`
-- Debugging? Load `debugging-and-error-recovery`
-- Setting up CI? Load `ci-cd-and-automation`
-
-## Skill Anatomy
-
-Every skill follows the same structure:
-
-```
-YAML frontmatter (name, description)
-├── Overview — What this skill does
-├── When to Use — Triggers and conditions
-├── Core Process — Step-by-step workflow
-├── Examples — Code samples and patterns
-├── Common Rationalizations — Excuses and rebuttals
-├── Red Flags — Signs the skill is being violated
-└── Verification — Exit criteria checklist
+```text
+Use test-driven-development to reproduce and fix this bug.
 ```
 
-See [skill-anatomy.md](skill-anatomy.md) for the full specification.
+```text
+Use code-review-and-quality to review the current diff.
+```
 
-## Using Agents
+## Recommended Baseline
 
-The `agents/` directory contains pre-configured agent personas:
+For day-to-day coding, install these first:
 
-| Agent | Purpose |
-|-------|---------|
-| `code-reviewer.md` | Five-axis code review |
-| `test-engineer.md` | Test strategy and writing |
-| `security-auditor.md` | Vulnerability detection |
+- `using-agent-skills`
+- `spec-driven-development`
+- `planning-and-task-breakdown`
+- `incremental-implementation`
+- `test-driven-development`
+- `code-review-and-quality`
 
-Load an agent definition when you need specialized review. For example, ask your coding agent to "review this change using the code-reviewer agent persona" and provide the agent definition.
+Add the rest as your work needs them.
 
-## Using Commands
+## Skill Loading Strategy
 
-The `.claude/commands/` directory contains slash commands for Claude Code:
+Do not load every skill body into a prompt manually. Codex skills are designed for progressive disclosure:
 
-| Command | Skill Invoked |
-|---------|---------------|
-| `/spec` | spec-driven-development |
-| `/plan` | planning-and-task-breakdown |
-| `/build` | incremental-implementation + test-driven-development |
-| `/test` | test-driven-development |
-| `/review` | code-review-and-quality |
-| `/ship` | shipping-and-launch |
+1. Metadata stays visible for routing.
+2. `SKILL.md` loads only when the skill applies.
+3. References load only when the active skill needs deeper material.
 
-## Using References
+This keeps context smaller and makes skill selection more reliable.
 
-The `references/` directory contains supplementary checklists:
+## Working Artifacts
 
-| Reference | Use With |
-|-----------|----------|
-| `testing-patterns.md` | test-driven-development |
-| `performance-checklist.md` | performance-optimization |
-| `security-checklist.md` | security-and-hardening |
-| `accessibility-checklist.md` | frontend-ui-engineering |
+Some skills may create files such as `SPEC.md`, `tasks/plan.md`, or `tasks/todo.md`. Treat them as living project artifacts while the work is active:
 
-Load a reference when you need detailed patterns beyond what the skill covers.
-
-## Spec and task artifacts
-
-The `/spec` and `/plan` commands create working artifacts (`SPEC.md`, `tasks/plan.md`, `tasks/todo.md`). Treat them as **living documents** while the work is in progress:
-
-- Keep them in version control during development so the human and the agent have a shared source of truth.
+- Commit them when they are useful for team coordination.
 - Update them when scope or decisions change.
-- If your repo doesn’t want these files long‑term, delete them before merge or add the folder to `.gitignore` — the workflow doesn’t require them to be permanent.
+- Delete them before merge if the project does not want long-lived planning files.
 
-## Tips
+## Plugin Manifest
 
-1. **Start with spec-driven-development** for any non-trivial work
-2. **Always load test-driven-development** when writing code
-3. **Don't skip verification steps** — they're the whole point
-4. **Load skills selectively** — more context isn't always better
-5. **Use the agents for review** — different perspectives catch different issues
+The repository includes `.codex-plugin/plugin.json` for Codex plugin environments. The manifest points at `./skills/`, so the same skill folders are used whether you install them manually or through a plugin flow.
