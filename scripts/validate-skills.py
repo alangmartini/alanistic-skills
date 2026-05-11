@@ -77,6 +77,36 @@ def validate_claude_plugin() -> None:
         fail(".claude-plugin/plugin.json must include a description")
 
 
+def validate_claude_marketplace() -> None:
+    marketplace_path = ROOT / ".claude-plugin" / "marketplace.json"
+    if not marketplace_path.is_file():
+        fail(".claude-plugin/marketplace.json is missing")
+
+    with marketplace_path.open(encoding="utf-8") as handle:
+        marketplace = json.load(handle)
+
+    if marketplace.get("name") != "agent-skills-codex":
+        fail(".claude-plugin/marketplace.json name must be agent-skills-codex")
+
+    plugins = marketplace.get("plugins")
+    if not isinstance(plugins, list) or not plugins:
+        fail(".claude-plugin/marketplace.json must declare at least one plugin")
+
+    plugin_names = {entry.get("name") for entry in plugins if isinstance(entry, dict)}
+    if "agent-skills-codex" not in plugin_names:
+        fail(".claude-plugin/marketplace.json must list a plugin named agent-skills-codex")
+
+    for entry in plugins:
+        if not isinstance(entry, dict):
+            continue
+        source = entry.get("source")
+        if not isinstance(source, str):
+            fail(
+                ".claude-plugin/marketplace.json plugin source must be a path string; "
+                "object-form sources (github, etc.) are not portable across Claude Code versions"
+            )
+
+
 def validate_removed_artifacts() -> None:
     for relative in REMOVED_ARTIFACTS:
         if (ROOT / relative).exists():
@@ -113,6 +143,7 @@ def validate_skills() -> None:
 def main() -> None:
     validate_codex_plugin()
     validate_claude_plugin()
+    validate_claude_marketplace()
     validate_removed_artifacts()
     validate_skills()
     print("Skill bundle validation passed (Codex + Claude Code manifests).")
