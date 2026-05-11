@@ -1,18 +1,20 @@
 {
-  "name": "agent-skills",
-  "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship.",
-  "version": "1.0.0",
+  "name": "agent-skills-codex",
+  "version": "1.0.3",
+  "description": "Production-grade software engineering skills for Claude Code (also packaged for OpenAI Codex).",
   "author": {
-    "name": "Addy Osmani"
+    "name": "Addy Osmani; Codex fork maintained by Alan Martini",
+    "url": "https://github.com/alangmartini"
   },
-  "homepage": "https://github.com/addyosmani/agent-skills",
-  "repository": "https://github.com/addyosmani/agent-skills",
+  "homepage": "https://github.com/alangmartini/agent-skills",
+  "repository": "https://github.com/alangmartini/agent-skills",
   "license": "MIT",
-  "commands": "./.claude/commands",
-  "skills": "./skills",
-  "agents": [
-    "./agents/code-reviewer.md",
-    "./agents/security-auditor.md",
-    "./agents/test-engineer.md"
+  "keywords": [
+    "claude-code",
+    "codex",
+    "skills",
+    "software-engineering",
+    "workflow",
+    "quality"
   ]
 }

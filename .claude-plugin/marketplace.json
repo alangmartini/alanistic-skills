@@ -1,19 +1,17 @@
 {
-  "name": "addy-agent-skills",
+  "name": "agent-skills-codex",
   "owner": {
-    "name": "Addy Osmani"
+    "name": "Alan Martini",
+    "url": "https://github.com/alangmartini"
   },
   "metadata": {
-    "description": "Production-grade engineering skills for AI coding agents — covering the full software development lifecycle from spec to ship."
+    "description": "Production-grade software engineering skills packaged for OpenAI Codex and Claude Code."
   },
   "plugins": [
     {
-      "name": "agent-skills",
-      "source": {
-        "source": "github",
-        "repo": "addyosmani/agent-skills"
-      },
-      "description": "Production-grade engineering skills covering every phase of software development: spec, plan, build, verify, review, and ship."
+      "name": "agent-skills-codex",
+      "source": "./",
+      "description": "Codex + Claude Code skills covering spec, plan, build, verify, review, and ship — plus handoff, caveman compression, changelog fragments, and version release."
     }
   ]
 }

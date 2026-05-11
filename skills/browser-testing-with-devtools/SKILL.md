@@ -26,16 +26,7 @@ Use Chrome DevTools MCP to give your agent eyes into the browser. This bridges t
 ### Installation
 
 ```bash
-# Add Chrome DevTools MCP server to your Claude Code config
-# In your project's .mcp.json or Claude Code settings:
-{
-  "mcpServers": {
-    "chrome-devtools": {
-      "command": "npx",
-      "args": ["@anthropic/chrome-devtools-mcp@latest"]
-    }
-  }
-}
+codex mcp add chrome-devtools -- npx chrome-devtools-mcp@latest
 ```
 
 ### Available Tools
