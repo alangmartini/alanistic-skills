@@ -1,8 +1,8 @@
-# Getting Started with Codex Agent Skills
+# Getting Started with Agent Skills
 
-Codex skills are self-contained folders with a required `SKILL.md`. Codex uses the frontmatter metadata to decide when a skill applies, then loads the skill body only when needed.
+Agent skills are self-contained folders with a required `SKILL.md`. Codex and Claude Code both read the frontmatter metadata to decide when a skill applies, then load the skill body only when needed. The same skill folder works for both agents.
 
-## Install Skills
+## Install Skills (Codex)
 
 Install a single skill on Windows:
 
@@ -29,9 +29,35 @@ cp -R skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
 
 Restart Codex after installing or updating skills.
 
+## Install Skills (Claude Code)
+
+**Plugin install (recommended):**
+
+```text
+/plugin marketplace add alangmartini/agent-skills
+/plugin install agent-skills-codex
+```
+
+**User-level copy on Windows:**
+
+```powershell
+$dest = "$env:USERPROFILE\.claude\skills"
+New-Item -ItemType Directory -Force $dest
+Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+```
+
+**User-level copy on macOS/Linux:**
+
+```bash
+mkdir -p "$HOME/.claude/skills"
+cp -R skills/* "$HOME/.claude/skills/"
+```
+
+For project-scoped skills, copy into `.claude/skills/` inside the target project instead. Restart Claude Code after installing or updating skills.
+
 ## Use Skills
 
-Start with `using-agent-skills` if you are not sure which workflow applies. Otherwise, name the skill in your request or let Codex choose from the metadata.
+Start with `using-agent-skills` if you are not sure which workflow applies. Otherwise, name the skill in your request or let the agent choose from the metadata.
 
 Examples:
 
@@ -45,6 +71,22 @@ Use test-driven-development to reproduce and fix this bug.
 
 ```text
 Use code-review-and-quality to review the current diff.
+```
+
+```text
+Use handoff to prepare the next Codex session.
+```
+
+```text
+Use caveman full for compressed answers.
+```
+
+```text
+Use create-changelog-fragment for the completed change.
+```
+
+```text
+Use create-version-release to prepare a patch release.
 ```
 
 ## Recommended Baseline
@@ -62,13 +104,13 @@ Add the rest as your work needs them.
 
 ## Skill Loading Strategy
 
-Do not load every skill body into a prompt manually. Codex skills are designed for progressive disclosure:
+Do not load every skill body into a prompt manually. Agent skills are designed for progressive disclosure:
 
 1. Metadata stays visible for routing.
 2. `SKILL.md` loads only when the skill applies.
 3. References load only when the active skill needs deeper material.
 
-This keeps context smaller and makes skill selection more reliable.
+This keeps context smaller and makes skill selection more reliable across both Codex and Claude Code.
 
 ## Working Artifacts
 
@@ -78,6 +120,16 @@ Some skills may create files such as `SPEC.md`, `tasks/plan.md`, or `tasks/todo.
 - Update them when scope or decisions change.
 - Delete them before merge if the project does not want long-lived planning files.
 
-## Plugin Manifest
+## Plugin Manifests
 
-The repository includes `.codex-plugin/plugin.json` for Codex plugin environments. The manifest points at `./skills/`, so the same skill folders are used whether you install them manually or through a plugin flow.
+The repository ships two plugin manifests so the same skill tree can be installed either way:
+
+- `.codex-plugin/plugin.json` for Codex plugin environments. Points at `./skills/`.
+- `.claude-plugin/plugin.json` for Claude Code. Claude Code auto-discovers `skills/*/SKILL.md` from the plugin root.
+
+Both manifests name the plugin `agent-skills-codex`. Manual copy into `~/.codex/skills` or `~/.claude/skills` remains supported when plugin installation is not available.
+
+For per-agent install details, see:
+
+- [codex-setup.md](codex-setup.md)
+- [claude-setup.md](claude-setup.md)

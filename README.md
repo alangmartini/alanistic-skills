@@ -1,8 +1,8 @@
-# Codex Agent Skills
+# Agent Skills (Codex + Claude Code)
 
-Production-grade engineering skills packaged for OpenAI Codex.
+Production-grade engineering skills packaged for OpenAI Codex and Claude Code.
 
-This fork keeps the reusable skill workflows from `addyosmani/agent-skills` and removes non-Codex packaging, commands, hooks, setup guides, and persona scaffolding. The result is a Codex-only skill bundle: `SKILL.md` files plus a Codex plugin manifest.
+This fork keeps the reusable skill workflows from `addyosmani/agent-skills` and strips packaging for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, …). Both Codex and Claude Code consume the same `SKILL.md` format, so a single `skills/` tree drives both — paired with a Codex plugin manifest (`.codex-plugin/plugin.json`) and a Claude Code plugin manifest (`.claude-plugin/plugin.json`).
 
 ## Quick Start
 
@@ -14,7 +14,9 @@ cd agent-skills
 git switch codex-only
 ```
 
-Install one skill into Codex:
+### Codex
+
+Install one skill on Windows:
 
 ```powershell
 $dest = "$env:USERPROFILE\.codex\skills"
@@ -22,7 +24,7 @@ New-Item -ItemType Directory -Force $dest
 Copy-Item -Recurse .\skills\test-driven-development $dest
 ```
 
-Install all skills:
+Install all skills on Windows:
 
 ```powershell
 $dest = "$env:USERPROFILE\.codex\skills"
@@ -39,26 +41,64 @@ mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
 cp -R skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
-## Codex Plugin
+### Claude Code
 
-This repo is also structured as a Codex plugin root:
+Claude Code reads `SKILL.md` files with the same frontmatter Codex uses, so the same `skills/` folder works unchanged. Pick one path:
+
+**As a plugin (recommended).** Add this repo as a marketplace and install:
 
 ```text
-.codex-plugin/plugin.json
+/plugin marketplace add alangmartini/agent-skills
+/plugin install agent-skills-codex
+```
+
+Claude Code auto-discovers `skills/*/SKILL.md` from the plugin root declared in `.claude-plugin/plugin.json`.
+
+**As user-level skills.** Copy skills into `~/.claude/skills/`:
+
+```powershell
+$dest = "$env:USERPROFILE\.claude\skills"
+New-Item -ItemType Directory -Force $dest
+Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+```
+
+```bash
+mkdir -p "$HOME/.claude/skills"
+cp -R skills/* "$HOME/.claude/skills/"
+```
+
+**As project-level skills.** Copy into `.claude/skills/` inside your project to share them via version control.
+
+Restart Claude Code after installing or updating skills.
+
+## Plugin Manifests
+
+This repo is structured as a plugin root for both agents:
+
+```text
+.codex-plugin/plugin.json   # Codex
+.claude-plugin/plugin.json  # Claude Code
 skills/
 references/
 docs/
 ```
 
-The manifest declares `./skills/` as the skill bundle. Use the plugin manifest when your Codex environment supports plugin installation; otherwise copy the desired skill directories into `~/.codex/skills`.
+Both manifests name the plugin `agent-skills-codex` and point at the same `skills/` tree. Use whichever manifest your agent supports; otherwise copy the desired skill directories into the agent's user-skills folder.
+
+Per-agent setup details:
+
+- [docs/codex-setup.md](docs/codex-setup.md) — Codex install paths and plugin layout
+- [docs/claude-setup.md](docs/claude-setup.md) — Claude Code marketplace install, user/project skill folders, troubleshooting
 
 ## Skill Routing
 
-Codex reads each skill's `name` and `description` metadata to decide when to load the full instructions. Keep the `description` field specific: it should say what the skill does and when Codex should use it.
+Both Codex and Claude Code read each skill's `name` and `description` metadata to decide when to load the full instructions. Keep the `description` field specific: it should say what the skill does and when the agent should use it.
 
 | Work type | Start with |
 |---|---|
 | Unsure which workflow applies | `using-agent-skills` |
+| Explicit compressed communication | `caveman` |
+| Handing work to a fresh session | `handoff` |
 | Vague idea or product concept | `idea-refine` |
 | New project, feature, or significant change | `spec-driven-development` |
 | Turning a spec into tasks | `planning-and-task-breakdown` |
@@ -69,6 +109,8 @@ Codex reads each skill's `name` and `description` metadata to decide when to loa
 | Reviewing before merge | `code-review-and-quality` |
 | Security-sensitive work | `security-and-hardening` |
 | Performance-sensitive work | `performance-optimization` |
+| Capturing release notes | `create-changelog-fragment` |
+| Preparing a version release | `create-version-release` |
 | Preparing a release | `shipping-and-launch` |
 
 ## Skills
@@ -78,6 +120,8 @@ Codex reads each skill's `name` and `description` metadata to decide when to loa
 | Skill | Purpose |
 |---|---|
 | [using-agent-skills](skills/using-agent-skills/SKILL.md) | Discover which skill applies to a task |
+| [caveman](skills/caveman/SKILL.md) | Switch to explicit compressed communication modes |
+| [handoff](skills/handoff/SKILL.md) | Compact current context for a fresh agent session |
 
 ### Define
 
@@ -127,11 +171,13 @@ Codex reads each skill's `name` and `description` metadata to decide when to loa
 | [ci-cd-and-automation](skills/ci-cd-and-automation/SKILL.md) | Build quality gates and release automation |
 | [deprecation-and-migration](skills/deprecation-and-migration/SKILL.md) | Remove or migrate systems deliberately |
 | [documentation-and-adrs](skills/documentation-and-adrs/SKILL.md) | Document decisions, APIs, and operating context |
+| [create-changelog-fragment](skills/create-changelog-fragment/SKILL.md) | Write release-ready changelog fragments from completed work |
+| [create-version-release](skills/create-version-release/SKILL.md) | Prepare version bumps and release notes from repo history |
 | [shipping-and-launch](skills/shipping-and-launch/SKILL.md) | Launch with monitoring, rollout gates, and rollback plans |
 
 ## References
 
-Reference material is intentionally separate from skill entry points so Codex can load it only when needed:
+Reference material is intentionally separate from skill entry points so the agent can load it only when needed:
 
 | Reference | Used for |
 |---|---|
@@ -150,4 +196,4 @@ Run the validator before committing:
 python scripts/validate-skills.py
 ```
 
-Keep this branch Codex-only. Do not add platform-specific command folders, manifests, hooks, or setup guides for other coding agents.
+Keep this branch scoped to Codex and Claude Code. Do not add command folders, manifests, hooks, or setup guides for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, …).

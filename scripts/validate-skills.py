@@ -14,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[1]
 
 REMOVED_ARTIFACTS = [
     ".claude",
-    ".claude-plugin",
     ".gemini",
     ".opencode",
     "CLAUDE.md",
@@ -50,7 +49,7 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
     return data
 
 
-def validate_plugin() -> None:
+def validate_codex_plugin() -> None:
     manifest_path = ROOT / ".codex-plugin" / "plugin.json"
     if not manifest_path.is_file():
         fail(".codex-plugin/plugin.json is missing")
@@ -62,6 +61,20 @@ def validate_plugin() -> None:
         fail(".codex-plugin/plugin.json name must be agent-skills-codex")
     if manifest.get("skills") != "./skills/":
         fail(".codex-plugin/plugin.json must point skills at ./skills/")
+
+
+def validate_claude_plugin() -> None:
+    manifest_path = ROOT / ".claude-plugin" / "plugin.json"
+    if not manifest_path.is_file():
+        fail(".claude-plugin/plugin.json is missing")
+
+    with manifest_path.open(encoding="utf-8") as handle:
+        manifest = json.load(handle)
+
+    if manifest.get("name") != "agent-skills-codex":
+        fail(".claude-plugin/plugin.json name must be agent-skills-codex")
+    if not manifest.get("description"):
+        fail(".claude-plugin/plugin.json must include a description")
 
 
 def validate_removed_artifacts() -> None:
@@ -98,10 +111,11 @@ def validate_skills() -> None:
 
 
 def main() -> None:
-    validate_plugin()
+    validate_codex_plugin()
+    validate_claude_plugin()
     validate_removed_artifacts()
     validate_skills()
-    print("Codex skill bundle validation passed.")
+    print("Skill bundle validation passed (Codex + Claude Code manifests).")
 
 
 if __name__ == "__main__":
