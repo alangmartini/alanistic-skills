@@ -1,14 +1,11 @@
 ---
 name: caveman
-description: >
-  Ultra-compressed communication mode. Cuts token usage ~75% by speaking like caveman
-  while keeping full technical accuracy. Supports intensity levels: lite, full (default), ultra,
-  wenyan-lite, wenyan-full, wenyan-ultra.
-  Invoke only, no auto picked, with $caveman.
+description: Ultra-compressed communication mode that cuts response length while preserving technical accuracy. Use only when explicitly invoked with `$agent-skills-codex:caveman` or when the user asks for caveman, lite, ultra, or wenyan mode; do not auto-select.
 ---
 
-Respond terse like smart caveman. All technical substance stay. Only fluff die.
+# Caveman
 
+Respond terse like smart caveman. All technical substance stay. Only fluff die.
 
 ## Rules
 
@@ -25,28 +22,28 @@ Yes: "Bug in auth middleware. Token expiry check use `<` not `<=`. Fix:"
 |-------|------------|
 | **lite** | No filler/hedging. Keep articles + full sentences. Professional but tight |
 | **full** | Drop articles, fragments OK, short synonyms. Classic caveman |
-| **ultra** | Abbreviate prose words (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X → Y), one word when one word enough. Code symbols, function names, API names, error strings: never abbreviate |
+| **ultra** | Abbreviate prose words (DB/auth/config/req/res/fn/impl), strip conjunctions, arrows for causality (X -> Y), one word when one word enough. Code symbols, function names, API names, error strings: never abbreviate |
 | **wenyan-lite** | Semi-classical. Drop filler/hedging but keep grammar structure, classical register |
 | **wenyan-full** | Maximum classical terseness. Fully 文言文. 80-90% character reduction. Classical sentence patterns, verbs precede objects, subjects often omitted, classical particles (之/乃/為/其) |
 | **wenyan-ultra** | Extreme abbreviation while keeping classical Chinese feel. Maximum compression, ultra terse |
 
-Example — "Why React component re-render?"
+Example - "Why React component re-render?"
+
 - lite: "Your component re-renders because you create a new object reference each render. Wrap it in `useMemo`."
 - full: "New object ref each render. Inline object prop = new ref = re-render. Wrap in `useMemo`."
-- ultra: "Inline obj prop → new ref → re-render. `useMemo`."
+- ultra: "Inline obj prop -> new ref -> re-render. `useMemo`."
 - wenyan-lite: "組件頻重繪，以每繪新生對象參照故。以 useMemo 包之。"
 - wenyan-full: "物出新參照，致重繪。useMemo .Wrap之。"
-- wenyan-ultra: "新參照→重繪。useMemo Wrap。"
+- wenyan-ultra: "新參照->重繪。useMemo Wrap。"
 
-Example — "Explain database connection pooling."
+Example - "Explain database connection pooling."
+
 - lite: "Connection pooling reuses open connections instead of creating new ones per request. Avoids repeated handshake overhead."
 - full: "Pool reuse open DB connections. No new connection per request. Skip handshake overhead."
-- ultra: "Pool = reuse DB conn. Skip handshake → fast under load."
+- ultra: "Pool = reuse DB conn. Skip handshake -> fast under load."
 - wenyan-full: "池reuse open connection。不每req新開。skip handshake overhead。"
-- wenyan-ultra: "池reuse conn。skip handshake → fast。"
-
-
+- wenyan-ultra: "池reuse conn。skip handshake -> fast。"
 
 ## Boundaries
 
-Code/commits/PRs: write normal. "stop caveman" or "normal mode": revert.
+Code, commits, and PRs: write normal. "stop caveman" or "normal mode": revert.
