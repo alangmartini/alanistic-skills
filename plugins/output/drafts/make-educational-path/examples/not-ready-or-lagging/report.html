@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Not Ready or Lagging during HA upgrade, interactive diagnostic</title>
+<style>
+  :root {
+    --bg: #0a1020;
+    --panel: #111a30;
+    --panel-2: #17223e;
+    --panel-3: #1d2a4c;
+    --border: #28365c;
+    --border-strong: #3a4c7d;
+    --text: #e8efff;
+    --muted: #94a6cc;
+    --dim: #6c7fa5;
+    --accent: #7ab2ff;
+    --accent-2: #b78cff;
+    --ok: #46d39a;
+    --warn: #f3b54a;
+    --err: #ff7a82;
+    --info: #7ab2ff;
+    --code: #0c1428;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+  body {
+    font: 14px/1.55 ui-sans-serif, system-ui, "Segoe UI", Roboto, Inter, sans-serif;
+    overflow-x: hidden;
+  }
+  code, pre, .mono { font-family: ui-monospace, "JetBrains Mono", "Cascadia Code", Consolas, monospace; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* layout */
+  .app {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas:
+      "header header"
+      "controls controls"
+      "main side"
+      "footer footer";
+    min-height: 100vh;
+  }
+  header.top { grid-area: header; padding: 18px 22px 6px; border-bottom: 1px solid var(--border); }
+  .controls { grid-area: controls; padding: 10px 22px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  main.view { grid-area: main; padding: 18px 22px; min-height: 620px; position: relative; overflow: hidden; }
+  aside.side { grid-area: side; padding: 16px 18px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; max-height: calc(100vh - 0px); }
+  footer.bot { grid-area: footer; padding: 12px 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; }
+
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; grid-template-areas: "header" "controls" "main" "side" "footer"; }
+    aside.side { border-left: 0; border-top: 1px solid var(--border); max-height: none; }
+  }
+
+  /* header */
+  h1 { font-size: 22px; margin: 0; letter-spacing: 0.2px; }
+  .sub { color: var(--muted); margin: 4px 0 8px; font-size: 13px; }
+  .pills { display: inline-flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--border); color: var(--muted); background: var(--panel-2); }
+  .pill.ok   { color: var(--ok);   border-color: rgba(70, 211, 154, 0.4); }
+  .pill.warn { color: var(--warn); border-color: rgba(243, 181, 74, 0.4); }
+  .pill.err  { color: var(--err);  border-color: rgba(255, 122, 130, 0.45); }
+  .pill.info { color: var(--info); border-color: rgba(122, 178, 255, 0.4); }
+  .pill.dim  { color: var(--dim); }
+
+  /* controls */
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--panel-2); }
+  .seg button {
+    background: transparent; color: var(--muted); border: 0; padding: 7px 12px; font: inherit; cursor: pointer; border-right: 1px solid var(--border);
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button.active { background: var(--panel-3); color: var(--text); }
+  .seg button:hover { color: var(--text); }
+  .field { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  .field input[type="search"], .field select {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font: inherit;
+    min-width: 180px;
+  }
+  .legend-row { display: inline-flex; gap: 12px; flex-wrap: wrap; align-items: center; margin-left: auto; }
+  .lg { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+  .sw { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); display: inline-block; }
+  .sw.sym  { background: var(--err); }
+  .sw.hyp  { background: var(--accent-2); }
+  .sw.cause{ background: var(--warn); }
+  .sw.act  { background: var(--ok); }
+  .sw.sys  { background: var(--accent); }
+  .sw.state{ background: #8aa0d4; }
+  .sw.ext  { background: #c7a6ff; }
+
+  /* main canvas */
+  .view-pane { position: absolute; inset: 18px 22px; display: none; }
+  .view-pane.active { display: block; }
+  .view-pane h2 { font-size: 14px; color: var(--muted); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 1.2px; }
+
+  svg.canvas {
+    width: 100%;
+    height: 100%;
+    min-height: 580px;
+    display: block;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(122,178,255,0.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(183,140,255,0.06), transparent 40%),
+      var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  /* Node styles (graph view) */
+  .node rect {
+    fill: var(--panel-2);
+    stroke: var(--border-strong);
+    stroke-width: 1.2;
+    cursor: pointer;
+    transition: stroke 120ms, filter 120ms;
+  }
+  .node text { fill: var(--text); font-size: 12px; cursor: pointer; }
+  .node .sub { fill: var(--muted); font-size: 10.5px; }
+  .node.symptom rect    { stroke: var(--err); }
+  .node.hypothesis rect { stroke: var(--accent-2); }
+  .node.cause rect      { stroke: var(--warn); }
+  .node.action rect     { stroke: var(--ok); }
+  .node.system rect     { stroke: var(--accent); }
+  .node.state rect      { stroke: #8aa0d4; }
+  .node.external rect   { stroke: #c7a6ff; }
+  .node.dim rect, .node.dim text, .node.dim .sub { opacity: 0.18; }
+  .node.selected rect { stroke-width: 2.2; filter: drop-shadow(0 0 8px currentColor); }
+  .node.disputed rect { stroke-dasharray: 5 3; }
+  .node .badge {
+    font-size: 9.5px; fill: var(--muted);
+  }
+  .edge { stroke: var(--border-strong); stroke-width: 1.2; fill: none; marker-end: url(#arrow); }
+  .edge.low { stroke-dasharray: 4 4; opacity: 0.7; }
+  .edge.medium { opacity: 0.85; }
+  .edge.high { stroke: var(--accent); }
+  .edge.mit { stroke: var(--ok); }
+  .edge.disputed { stroke: var(--err); stroke-dasharray: 4 3; }
+  .edge-label { fill: var(--muted); font-size: 10.5px; }
+  .edge.faded, .edge-label.faded { opacity: 0.12; }
+  .edge.hot { stroke: var(--accent); stroke-width: 2; }
+
+  /* Timeline */
+  .tl-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; }
+  .tl-header { padding: 6px 4px 10px; display: flex; gap: 16px; align-items: center; color: var(--muted); font-size: 12px; }
+  .tl-canvas { flex: 1; min-height: 480px; position: relative; }
+  .lane { position: absolute; left: 0; right: 0; border-bottom: 1px dashed var(--border); display: flex; align-items: center; padding-left: 6px; color: var(--muted); font-size: 11px; }
+  .lane .lane-label { width: 110px; flex: 0 0 110px; opacity: 0.85; }
+  .lane-track { position: absolute; left: 110px; right: 8px; top: 0; bottom: 0; }
+  .ev {
+    position: absolute; width: 16px; height: 16px; border-radius: 50%;
+    transform: translate(-8px, -8px);
+    border: 2px solid var(--panel);
+    cursor: pointer;
+    box-shadow: 0 0 0 0 rgba(122,178,255,0.0);
+    transition: box-shadow 120ms, transform 120ms;
+  }
+  .ev.info { background: var(--info); }
+  .ev.high { background: var(--warn); }
+  .ev.critical { background: var(--err); }
+  .ev:hover, .ev.selected { box-shadow: 0 0 0 6px rgba(122,178,255,0.18); transform: translate(-8px, -8px) scale(1.08); }
+  .ev-tip {
+    position: absolute; max-width: 220px; padding: 6px 8px; border-radius: 6px;
+    background: var(--panel-3); border: 1px solid var(--border-strong); color: var(--text);
+    font-size: 11.5px; pointer-events: none; z-index: 5; box-shadow: 0 8px 18px rgba(0,0,0,0.4);
+    transform: translate(-50%, -100%);
+  }
+  .tl-axis { position: absolute; left: 110px; right: 8px; bottom: 0; height: 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 11px; }
+  .tl-axis .tick { position: absolute; top: 4px; transform: translateX(-50%); }
+  .tl-axis .tick:before { content: ""; display: block; width: 1px; height: 5px; background: var(--border-strong); margin: 0 auto 2px; }
+
+  .phase {
+    position: absolute; top: 0; bottom: 22px; opacity: 0.08; border-right: 1px dashed var(--border);
+  }
+  .phase.ok  { background: var(--ok); }
+  .phase.warn{ background: var(--warn); }
+  .phase.err { background: var(--err); }
+  .phase-label {
+    position: absolute; top: 4px; font-size: 10.5px; padding: 1px 6px; border-radius: 4px;
+    background: rgba(11,18,32,0.6); color: var(--muted);
+  }
+
+  /* side panel */
+  aside h3 { font-size: 12px; color: var(--muted); margin: 8px 0 6px; text-transform: uppercase; letter-spacing: 1.2px; }
+  .card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;
+    background: var(--panel-2);
+  }
+  .card.evidence { background: var(--panel-3); }
+  .card .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .card .kv { display: grid; grid-template-columns: 90px 1fr; gap: 4px 8px; font-size: 12px; color: var(--muted); }
+  .card .kv span.k { color: var(--dim); }
+  .ev-line {
+    border-left: 2px solid var(--border-strong); padding: 4px 8px; margin: 6px 0;
+    background: var(--code); border-radius: 0 6px 6px 0;
+  }
+  .ev-line .src { font-size: 11px; color: var(--muted); }
+  .ev-line.high { border-color: var(--ok); }
+  .ev-line.medium { border-color: var(--warn); }
+  .ev-line.low { border-color: var(--err); }
+
+  .empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+
+  pre.snippet { background: var(--code); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; overflow: auto; font-size: 12px; margin: 8px 0; color: #d8e3ff; }
+
+  /* takeaways */
+  .takeaways { padding: 8px 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px; }
+  .takeaways ol { margin: 6px 0 0 18px; padding: 0; }
+  .takeaways li { margin-bottom: 4px; }
+
+  details.unc { border: 1px solid rgba(243, 181, 74, 0.4); border-radius: 8px; padding: 6px 10px; background: rgba(243, 181, 74, 0.06); }
+  details.unc summary { cursor: pointer; color: var(--warn); font-size: 12px; }
+  details.unc ul { margin: 6px 0 4px 18px; padding: 0; color: var(--muted); font-size: 12px; }
+
+  .kbd { display: inline-block; padding: 0 5px; border: 1px solid var(--border-strong); border-radius: 4px; font-size: 11px; color: var(--muted); background: var(--code); }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="top">
+    <h1>"Not Ready or Lagging" during HA upgrade</h1>
+    <div class="sub">
+      Cluster <code>q0hjrx6742o1dfwpp</code> &middot; Typesense 30.2 &middot; 3-node HA &middot; DNS load balancing &middot; eu-west-2
+    </div>
+    <div class="pills">
+      <span class="pill err">symptom: HTTP 503</span>
+      <span class="pill warn">window: ~60 s after each node returns</span>
+      <span class="pill ok">root mechanism: confirmed in source</span>
+      <span class="pill info">grounded in: 13 evidence items</span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="seg" id="viewSeg" role="tablist" aria-label="View">
+      <button data-view="graph"  class="active">Causal graph</button>
+      <button data-view="time">Timeline</button>
+      <button data-view="arch">Architecture flow</button>
+    </div>
+    <span class="field">
+      <label for="q">Search</label>
+      <input id="q" type="search" placeholder="filter nodes, events, evidence">
+    </span>
+    <span class="field">
+      <label for="conf">Confidence</label>
+      <select id="conf">
+        <option value="all">all</option>
+        <option value="high">high only</option>
+        <option value="medium">high + medium</option>
+      </select>
+    </span>
+
+    <span class="legend-row" id="legend"></span>
+  </div>
+
+  <main class="view">
+
+    <!-- CAUSAL GRAPH -->
+    <section class="view-pane active" data-view="graph">
+      <h2>Causal graph: symptom &rarr; hypotheses &rarr; contributing factors &rarr; mitigations</h2>
+      <svg class="canvas" id="graphSvg" viewBox="0 0 1100 680" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+          <marker id="arrow-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#46d39a" />
+          </marker>
+          <marker id="arrow-err" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff7a82" />
+          </marker>
+        </defs>
+        <g id="graphLayer"></g>
+      </svg>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="view-pane" data-view="time">
+      <h2>Timeline: what happens after one node finishes upgrade</h2>
+      <div class="tl-wrap">
+        <div class="tl-header">
+          <span>0 to 70 seconds, illustrative</span>
+          <span class="pill warn">flap window</span>
+          <span class="pill dim">click an event for detail</span>
+        </div>
+        <div class="tl-canvas" id="tlCanvas"></div>
+      </div>
+    </section>
+
+    <!-- ARCH FLOW -->
+    <section class="view-pane" data-view="arch">
+      <h2>Architecture flow: how three different surfaces all read one atomic flag</h2>
+      <svg class="canvas" id="archSvg" viewBox="0 0 1100 680" preserveAspectRatio="xMidYMid meet">
+        <defs>
+          <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <g id="archLayer"></g>
+      </svg>
+    </section>
+
+  </main>
+
+  <aside class="side">
+
+    <div class="takeaways">
+      <h3 style="margin-top:0">Key takeaways</h3>
+      <ol id="takeaways"></ol>
+    </div>
+
+    <h3>Selected</h3>
+    <div id="selectPanel">
+      <div class="empty">Click any node or event to see details and evidence.</div>
+    </div>
+
+    <h3>Evidence</h3>
+    <div id="evidencePanel"></div>
+
+    <h3>Uncertainty</h3>
+    <details class="unc" open>
+      <summary>What is inferred, not measured</summary>
+      <ul id="uncList"></ul>
+    </details>
+
+  </aside>
+
+  <footer class="bot">
+    Self-contained artifact, no network calls. Source-grounded against typesense @ <code>a61e1c81</code>.
+    Sidecar data: <code>not-ready-or-lagging-data.json</code>.
+    Cluster log search 08:00 to 11:00 UTC on 2026-05-14 returned no matches for "Not Ready or Lagging";
+    verbose flip log only emits every 9th 1-second tick, so short flaps can fall between logged samples.
+    Keyboard: <span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span> switch views.
+  </footer>
+</div>
+
+<script>
+// ============================================================================
+// Data model. Mirrors not-ready-or-lagging-data.json.
+// ============================================================================
+const DATA = {
+  takeaways: [
+    "/health and the per-request 503 gate read the exact same atomic flag, read_caught_up.",
+    "The flag is refreshed by a background tick only every 3 seconds (typesense_server_utils.cpp:466).",
+    "A follower can fail the readiness check shortly after passing it: a fresh Raft batch can push apply_lag above 1000 between two refresh ticks.",
+    "External DNS-based LB plus client-side DNS TTL keep traffic targeted at the flapping node for ~1 minute.",
+    "DNS caching is amplification, not root cause. The trigger is a server-side flag flipping back to false."
+  ],
+  entities: [
+    { id: "sym",  label: "503 'Not Ready or Lagging'",         kind: "symptom",    severity: "high",   status: "observed", confidence: "high",   evidence: ["ev_thread", "ev_body"], desc: "Customer Andy saw ~1 minute of 503 responses after each node was rotated back during the cluster upgrade." },
+    { id: "hA",   label: "Hypothesis: pure DNS caching",       kind: "hypothesis", severity: "info",   status: "disputed", confidence: "low",    evidence: ["ev_thread", "ev_body"], desc: "Original reply suggested aggressive client DNS caching was the cause. Disputed because the 503 has a well-formed Typesense JSON body, so the connection completed and the server actively rejected the request." },
+    { id: "hB",   label: "Hypothesis: shared flag + temporal refresh gap",   kind: "hypothesis", severity: "info", status: "observed", confidence: "high", evidence: ["ev_health", "ev_alive", "ev_state", "ev_gate", "ev_refresh"], desc: "The /health endpoint and the per-request gate share one atomic flag. The flag refreshes every 3 seconds. A node can pass /health and then flip back to not-ready before the next external poll." },
+    { id: "f1",   label: "3-second refresh tick",              kind: "cause",      severity: "medium", status: "observed", confidence: "high",   evidence: ["ev_refresh"], desc: "refresh_catchup_status is invoked from the raft loop only every 3rd second (raft_counter % 3 == 0). Verbose flip logging fires every 9th tick." },
+    { id: "f2",   label: "apply_lag spike above 1000",         kind: "cause",      severity: "medium", status: "inferred", confidence: "medium", evidence: ["ev_thresh", "ev_defaults"], desc: "When the leader replicates a fresh batch of writes to a follower that just caught up, apply_lag can cross the healthy_read_lag threshold of 1000, flipping read_caught_up back to false at the next tick." },
+    { id: "f3",   label: "Cloud health-poll cache",            kind: "cause",      severity: "medium", status: "inferred", confidence: "medium", evidence: ["ev_dns_lb"], desc: "Typesense Cloud's external health poller hits /health on its own interval. Between polls, the node's last 'ok' result remains in DNS, even after the in-process flag has flipped back to false." },
+    { id: "f4",   label: "Client DNS TTL caching",             kind: "cause",      severity: "low",    status: "inferred", confidence: "medium", evidence: ["ev_dns_lb"], desc: "Client-side resolvers cache the DNS record. Even after Cloud removes the node from rotation, clients keep targeting it until their TTL expires." },
+    { id: "mit1", label: "SDK config: nearestNode + nodes[]",  kind: "action",     severity: "info",   status: "proposed", confidence: "high",   evidence: ["ev_ha_docs"], desc: "Documented mitigation. Lets the SDK fail over to another node immediately on 503 instead of waiting for DNS to update." },
+    { id: "mit2", label: "Upstream issue #665",                kind: "action",     severity: "info",   status: "proposed", confidence: "high",   evidence: ["ev_gh665"], desc: "Tracks the root design flaw, /health returning ok before the node is stably ready." },
+    { id: "mit3", label: "Upstream issue #729",                kind: "action",     severity: "info",   status: "proposed", confidence: "high",   evidence: ["ev_gh729"], desc: "Reports of nodes stuck at 'not ready or lagging' under various conditions." },
+
+    { id: "comp_health",  label: "/health endpoint",             kind: "system",   evidence: ["ev_health"],   desc: "Entry point at src/core_api.cpp:538-540." },
+    { id: "comp_gate",    label: "Per-request readiness gate",   kind: "system",   evidence: ["ev_gate"],     desc: "Checks is_read_caught_up/is_write_caught_up before any collection request, returns 503 'Not Ready or Lagging' otherwise. http_server.cpp:505-518." },
+    { id: "comp_alive",   label: "HttpServer::is_alive()",       kind: "system",   evidence: ["ev_alive"],    desc: "Returns !is_shutdown_triggered && replication_state->is_alive(). http_server.cpp:1123-1124." },
+    { id: "comp_state",   label: "ReplicationState::is_alive()", kind: "system",   evidence: ["ev_state"],    desc: "Returns read_caught_up. raft_server.cpp:917-918." },
+    { id: "comp_flag",    label: "read_caught_up (atomic bool)", kind: "state",    evidence: ["ev_state"],    desc: "Single atomic boolean. Defined in raft_server.h:130. The convergence point for all readiness reads." },
+    { id: "comp_refresh", label: "refresh_catchup_status()",     kind: "system",   evidence: ["ev_refresh", "ev_thresh", "ev_leader"], desc: "Sole writer of the flag. Runs every 3 seconds." },
+    { id: "comp_lag",     label: "apply_lag",                    kind: "state",    evidence: ["ev_thresh"],   desc: "last_index minus current applied index in the Raft log." },
+    { id: "comp_queue",   label: "num_queued_writes",            kind: "state",    evidence: ["ev_thresh"],   desc: "Depth of the in-process batched write queue. Either pressure can flip the flag." },
+    { id: "comp_leader",  label: "Raft leader /status check",    kind: "system",   evidence: ["ev_leader"],   desc: "For followers that just caught up, refresh issues an HTTP /status to the leader and compares committed_index. raft_server.cpp:857-888." },
+    { id: "comp_dns",     label: "Cluster DNS record",           kind: "external", evidence: ["ev_dns_lb"],   desc: "Cloud-managed A record for cluster hostname. Updated based on /health results." },
+    { id: "comp_poller",  label: "Cloud health poller",          kind: "external", evidence: ["ev_dns_lb"],   desc: "Typesense Cloud control plane that polls /health and toggles DNS records." },
+    { id: "comp_client",  label: "Customer SDK client",          kind: "external", evidence: ["ev_thread"],   desc: "Resolves the cluster hostname with DNS, sends API requests to whatever IP it has cached." }
+  ],
+  relations: [
+    { from: "sym",  to: "hA",  kind: "considered",   confidence: "low",    disputed: true },
+    { from: "sym",  to: "hB",  kind: "confirmed",    confidence: "high" },
+    { from: "hA",   to: "hB",  kind: "subsumed",     confidence: "medium" },
+    { from: "hB",   to: "f1",  kind: "contains",     confidence: "high" },
+    { from: "hB",   to: "f2",  kind: "contains",     confidence: "high" },
+    { from: "hB",   to: "f3",  kind: "amplified by", confidence: "medium" },
+    { from: "hB",   to: "f4",  kind: "amplified by", confidence: "medium" },
+    { from: "hB",   to: "mit1",kind: "mitigated by", confidence: "high", mit: true },
+    { from: "hB",   to: "mit2",kind: "tracked by",   confidence: "high", mit: true },
+    { from: "hB",   to: "mit3",kind: "tracked by",   confidence: "high", mit: true }
+  ],
+  // architecture-view relations
+  archRelations: [
+    { from: "comp_health", to: "comp_alive",  label: "calls" },
+    { from: "comp_gate",   to: "comp_state",  label: "reads" },
+    { from: "comp_alive",  to: "comp_state",  label: "delegates" },
+    { from: "comp_state",  to: "comp_flag",   label: "returns" },
+    { from: "comp_refresh",to: "comp_flag",   label: "writes (every 3s)", hot: true },
+    { from: "comp_refresh",to: "comp_lag",    label: "reads" },
+    { from: "comp_refresh",to: "comp_queue",  label: "reads" },
+    { from: "comp_refresh",to: "comp_leader", label: "calls when follower newly caught up" },
+    { from: "comp_poller", to: "comp_health", label: "polls" },
+    { from: "comp_poller", to: "comp_dns",    label: "updates A records" },
+    { from: "comp_client", to: "comp_dns",    label: "resolves (TTL cached)" },
+    { from: "comp_client", to: "comp_gate",   label: "API requests" }
+  ],
+  events: [
+    { id: "e0",  t: 0,  lane: "node",   label: "Restart finished, flag = false",                     severity: "info",     evidence: [] },
+    { id: "e1",  t: 1,  lane: "node",   label: "Begins replaying Raft log",                          severity: "info",     evidence: ["ev_thresh"] },
+    { id: "e2",  t: 20, lane: "node",   label: "apply_lag drops below 1000, flag flips true",        severity: "info",     evidence: ["ev_thresh", "ev_defaults"] },
+    { id: "e3",  t: 22, lane: "cloud",  label: "Health poller sees /health = 200",                   severity: "info",     evidence: ["ev_health", "ev_dns_lb"] },
+    { id: "e4",  t: 23, lane: "cloud",  label: "DNS A-record adds this node's IP",                   severity: "info",     evidence: ["ev_dns_lb"] },
+    { id: "e5",  t: 25, lane: "client", label: "Client resolver picks up new record",                severity: "info",     evidence: ["ev_dns_lb"] },
+    { id: "e6",  t: 26, lane: "client", label: "Customer requests start hitting this node",          severity: "info",     evidence: [] },
+    { id: "e7",  t: 28, lane: "node",   label: "Leader replicates a write batch, apply_lag > 1000",  severity: "high",     evidence: ["ev_thresh"] },
+    { id: "e8",  t: 30, lane: "node",   label: "Next 3s tick fires, flag flips back to false",       severity: "high",     evidence: ["ev_refresh"] },
+    { id: "e9",  t: 30, lane: "node",   label: "Per-request gate now returns 503",                   severity: "critical", evidence: ["ev_gate"] },
+    { id: "e10", t: 31, lane: "client", label: "Customer logs 'Not Ready or Lagging'",               severity: "critical", evidence: ["ev_thread", "ev_body"] },
+    { id: "e11", t: 52, lane: "cloud",  label: "Poller eventually sees 503",                         severity: "info",     evidence: ["ev_health"] },
+    { id: "e12", t: 55, lane: "cloud",  label: "DNS drops the IP, but TTL holds in client",          severity: "high",     evidence: ["ev_dns_lb"] },
+    { id: "e13", t: 60, lane: "node",   label: "Lag clears, flag = true again",                      severity: "info",     evidence: ["ev_thresh"] },
+    { id: "e14", t: 65, lane: "client", label: "Client DNS TTL expires, traffic re-balances",        severity: "info",     evidence: ["ev_dns_lb"] }
+  ],
+  phases: [
+    { from: 0,  to: 20, cls: "warn", label: "Catching up" },
+    { from: 20, to: 30, cls: "ok",   label: "Healthy window" },
+    { from: 30, to: 60, cls: "err",  label: "Flapped: 503 to real traffic" },
+    { from: 60, to: 70, cls: "ok",   label: "Recovers" }
+  ],
+  lanes: [
+    { id: "node",   label: "Restarted node" },
+    { id: "cloud",  label: "Cloud + DNS" },
+    { id: "client", label: "Customer client" }
+  ],
+  evidence: [
+    { id: "ev_health",      claim: "/health calls is_alive() and returns 200 only when alive == true",                 source: "src/core_api.cpp:538-540",                  confidence: "high",   status: "observed", code: "bool alive = server->is_alive();\nresult[\"ok\"] = alive;\nif (alive) res->set_body(200, ...); else res->set_body(503, ...);" },
+    { id: "ev_alive",       claim: "HttpServer::is_alive returns !is_shutdown_triggered && replication_state->is_alive()", source: "src/http_server.cpp:1123-1124",          confidence: "high",   status: "observed", code: "bool HttpServer::is_alive() const {\n    return !is_shutdown_triggered && replication_state->is_alive();\n}" },
+    { id: "ev_state",       claim: "ReplicationState::is_alive returns the atomic read_caught_up flag",                source: "src/raft_server.cpp:917-918",               confidence: "high",   status: "observed", code: "bool ReplicationState::is_alive() const {\n    return read_caught_up;\n}" },
+    { id: "ev_gate",        claim: "Per-request gate reads is_read_caught_up()/is_write_caught_up(), 503 with 'Not Ready or Lagging' on false", source: "src/http_server.cpp:505-518", confidence: "high", status: "observed", code: "if (needs_readiness_check) {\n  std::string message = \"{ \\\"message\\\": \\\"Not Ready or Lagging\\\"}\";\n  if (read_op && !replication_state->is_read_caught_up()) return send_response(req, 503, message);\n  if (write_op && !replication_state->is_write_caught_up()) return send_response(req, 503, message);\n}" },
+    { id: "ev_refresh",     claim: "Background tick refreshes the flag every 3 seconds, verbose log only every 9th tick", source: "src/typesense_server_utils.cpp:466-469", confidence: "high",   status: "observed", code: "if (raft_counter % 3 == 0) {\n    bool log_msg = (raft_counter % 9 == 0);\n    replication_state.refresh_catchup_status(log_msg);\n}" },
+    { id: "ev_thresh",      claim: "Either apply_lag > healthy_read_lag or num_queued_writes > healthy_read_lag flips read_caught_up to false", source: "src/raft_server.cpp:833-855", confidence: "high", status: "observed", code: "if (apply_lag > healthy_read_lag) {\n    read_caught_up = false;\n} else if (num_queued_writes > healthy_read_lag) {\n    read_caught_up = false;\n} else {\n    read_caught_up = true;\n}" },
+    { id: "ev_leader",      claim: "Newly-caught-up followers also verify against the leader via an HTTP /status call",  source: "src/raft_server.cpp:857-888",               confidence: "high",   status: "observed", code: "if (is_leader || !read_caught_up) return;\n// otherwise: HTTP GET leader/status, compare committed_index,\n// if (leader_committed_index - n_status.committed_index) >= healthy_read_lag set read_caught_up = false;" },
+    { id: "ev_defaults",    claim: "Default thresholds: healthy_read_lag = 1000, healthy_write_lag = 500",                source: "include/tsconfig.h:124-125",                confidence: "high",   status: "observed", code: "this->healthy_read_lag  = 1000;\nthis->healthy_write_lag =  500;" },
+    { id: "ev_dns_lb",      claim: "Cluster uses DNS load balancing across 3 nodes (no L4/L7 LB doing per-request polling)", source: "Typesense Cloud admin cluster info", confidence: "high",   status: "observed" },
+    { id: "ev_thread",      claim: "Customer reports ~1 minute of 503 'Not Ready or Lagging' after each node returned",   source: "Plain thread T-4006",                       confidence: "high",   status: "observed" },
+    { id: "ev_body",        claim: "Response is well-formed JSON 503, not connection failure, so back-pressure is server-side", source: "Plain thread T-4006 customer email",    confidence: "high",   status: "observed" },
+    { id: "ev_logs_absence",claim: "No 'Not Ready or Lagging' string in retained logs 08:00 to 11:00 UTC; verbose flip log emits only every 9th tick", source: "cloud_logs_search on 2026-05-14", confidence: "medium", status: "observed" },
+    { id: "ev_ha_docs",     claim: "HA docs recommend nearestNode + nodes[] in SDK config for transparent failover",      source: "typesense.org/docs/guide/high-availability.html", confidence: "high", status: "observed" },
+    { id: "ev_gh665",       claim: "Open issue: /health endpoint returns ok too soon",                                    source: "github.com/typesense/typesense/issues/665", confidence: "high",   status: "observed" },
+    { id: "ev_gh729",       claim: "Open issue: Typesense suddenly stuck at not ready or lagging",                        source: "github.com/typesense/typesense/issues/729", confidence: "high",   status: "observed" }
+  ],
+  uncertainties: [
+    "Exact Cloud health-poll interval and the cluster DNS TTL value are not directly measured, only typical magnitudes.",
+    "Exact apply_lag value at flip time is not in the retained logs; the spike above threshold is inferred from the 503 plus code mechanics.",
+    "T+0 to T+65 second numbers are illustrative magnitudes, not measurements from this specific upgrade."
+  ]
+};
+
+// ============================================================================
+// Utilities
+// ============================================================================
+const $ = (sel, root = document) => root.querySelector(sel);
+const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+function ensureSvgEl(name, attrs = {}, parent) {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+  for (const k in attrs) el.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(el);
+  return el;
+}
+
+function byId(id) { return DATA.entities.find(e => e.id === id); }
+function evById(id) { return DATA.evidence.find(e => e.id === id); }
+
+function kindKey(k) {
+  return ({
+    symptom: "sym",
+    hypothesis: "hyp",
+    cause: "cause",
+    action: "act",
+    system: "sys",
+    state: "state",
+    external: "ext"
+  })[k] || "sys";
+}
+
+// ============================================================================
+// Render: header sidebar pieces
+// ============================================================================
+function renderTakeaways() {
+  const ol = $("#takeaways");
+  ol.innerHTML = DATA.takeaways.map(t => `<li>${t}</li>`).join("");
+}
+function renderUnc() {
+  $("#uncList").innerHTML = DATA.uncertainties.map(u => `<li>${u}</li>`).join("");
+}
+function renderLegend() {
+  const items = [
+    ["sym",   "symptom"],
+    ["hyp",   "hypothesis"],
+    ["cause", "contributing cause"],
+    ["act",   "mitigation"],
+    ["sys",   "system"],
+    ["state", "state"],
+    ["ext",   "external"]
+  ];
+  $("#legend").innerHTML = items
+    .map(([c, label]) => `<span class="lg"><span class="sw ${c}"></span>${label}</span>`)
+    .join("");
+}
+
+// ============================================================================
+// Causal graph layout (hand-tuned)
+// ============================================================================
+const GRAPH_LAYOUT = {
+  sym:  { x: 540, y: 60,  w: 280, h: 56 },
+  hA:   { x: 200, y: 170, w: 240, h: 62 },
+  hB:   { x: 660, y: 170, w: 320, h: 62 },
+  f1:   { x: 460, y: 320, w: 220, h: 56 },
+  f2:   { x: 700, y: 320, w: 240, h: 56 },
+  f3:   { x: 460, y: 410, w: 220, h: 56 },
+  f4:   { x: 700, y: 410, w: 240, h: 56 },
+  mit1: { x: 240, y: 540, w: 280, h: 56 },
+  mit2: { x: 560, y: 540, w: 200, h: 56 },
+  mit3: { x: 800, y: 540, w: 200, h: 56 }
+};
+
+function renderGraph() {
+  const g = $("#graphLayer");
+  g.innerHTML = "";
+
+  // Edges
+  for (const r of DATA.relations) {
+    const a = GRAPH_LAYOUT[r.from], b = GRAPH_LAYOUT[r.to];
+    if (!a || !b) continue;
+
+    const x1 = a.x + a.w / 2;
+    const y1 = a.y + a.h;
+    const x2 = b.x + b.w / 2;
+    const y2 = b.y;
+    const dy = (y2 - y1) * 0.5;
+
+    const cls = ["edge"];
+    cls.push(r.confidence || "medium");
+    if (r.mit) cls.push("mit");
+    if (r.disputed) cls.push("disputed");
+
+    const path = ensureSvgEl("path", {
+      d: `M ${x1} ${y1} C ${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`,
+      class: cls.join(" "),
+      "data-from": r.from,
+      "data-to": r.to
+    }, g);
+    // marker color via currentColor would require fill, our paths are stroke-only.
+    // We use a single arrow marker filled by CSS via inherits. To keep marker visible, set marker manually:
+    if (r.mit) path.setAttribute("marker-end", "url(#arrow-ok)");
+    else if (r.disputed) path.setAttribute("marker-end", "url(#arrow-err)");
+    else path.setAttribute("marker-end", "url(#arrow)");
+
+    // Edge label
+    const mx = (x1 + x2) / 2;
+    const my = (y1 + y2) / 2;
+    const lbl = ensureSvgEl("text", { x: mx, y: my - 4, class: "edge-label", "text-anchor": "middle", "data-from": r.from, "data-to": r.to }, g);
+    lbl.textContent = r.kind;
+  }
+
+  // Nodes
+  for (const id in GRAPH_LAYOUT) {
+    const ent = byId(id);
+    if (!ent) continue;
+    const pos = GRAPH_LAYOUT[id];
+    const ng = ensureSvgEl("g", { class: `node ${ent.kind}${ent.status === "disputed" ? " disputed" : ""}`, "data-id": id }, g);
+    ensureSvgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 10, ry: 10 }, ng);
+
+    const labelLines = wrapText(ent.label, Math.floor(pos.w / 7.4));
+    const lh = 15;
+    const totalH = labelLines.length * lh;
+    const startY = pos.y + (pos.h - totalH) / 2 + 11;
+    labelLines.forEach((line, i) => {
+      const t = ensureSvgEl("text", { x: pos.x + pos.w / 2, y: startY + i * lh, "text-anchor": "middle" }, ng);
+      t.textContent = line;
+    });
+
+    // status / confidence pill
+    const meta = [];
+    if (ent.status) meta.push(ent.status);
+    if (ent.confidence) meta.push("conf " + ent.confidence);
+    if (meta.length) {
+      const b = ensureSvgEl("text", { x: pos.x + pos.w - 8, y: pos.y + pos.h - 6, class: "badge", "text-anchor": "end" }, ng);
+      b.textContent = meta.join(" · ");
+    }
+
+    ng.addEventListener("click", () => selectEntity(id));
+    ng.addEventListener("mouseenter", () => highlightEdges(id, true));
+    ng.addEventListener("mouseleave", () => highlightEdges(id, false));
+  }
+}
+
+function wrapText(text, maxChars) {
+  const words = text.split(/\s+/);
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    if ((line + " " + w).trim().length > maxChars) {
+      if (line) lines.push(line);
+      line = w;
+    } else {
+      line = (line ? line + " " : "") + w;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function highlightEdges(id, on) {
+  $$("#graphLayer .edge, #graphLayer .edge-label").forEach(el => {
+    const f = el.getAttribute("data-from"), t = el.getAttribute("data-to");
+    if (f === id || t === id) {
+      el.classList.toggle("hot", on);
+    } else {
+      el.classList.toggle("faded", on);
+    }
+  });
+}
+
+// ============================================================================
+// Timeline
+// ============================================================================
+function renderTimeline() {
+  const c = $("#tlCanvas");
+  c.innerHTML = "";
+  const TOTAL = 70;
+  const lanes = DATA.lanes;
+  const laneHeight = 90;
+  const topPad = 14;
+  c.style.minHeight = topPad + lanes.length * laneHeight + 30 + "px";
+
+  // phases
+  for (const p of DATA.phases) {
+    const ph = document.createElement("div");
+    ph.className = `phase ${p.cls}`;
+    ph.style.left = `calc(110px + ${(p.from / TOTAL) * 100}% * (1 - 118px / 100%))`;
+    // Use the lane-track width math via JS later; simpler approach: place using percentage of total minus offsets
+    c.appendChild(ph);
+  }
+
+  // Lanes
+  lanes.forEach((lane, i) => {
+    const top = topPad + i * laneHeight;
+    const div = document.createElement("div");
+    div.className = "lane";
+    div.style.top = top + "px";
+    div.style.height = laneHeight + "px";
+    div.innerHTML = `<span class="lane-label">${lane.label}</span>`;
+    const track = document.createElement("div");
+    track.className = "lane-track";
+    div.appendChild(track);
+    c.appendChild(div);
+
+    // Render events for this lane
+    DATA.events.filter(e => e.lane === lane.id).forEach(e => {
+      const el = document.createElement("div");
+      el.className = `ev ${e.severity}`;
+      el.title = e.label;
+      el.style.left = (e.t / TOTAL) * 100 + "%";
+      el.style.top = (laneHeight / 2) + "px";
+      el.setAttribute("data-id", e.id);
+      el.addEventListener("click", () => selectEvent(e.id));
+      const tip = document.createElement("div");
+      tip.className = "ev-tip";
+      tip.textContent = `T+${e.t}s ${e.label}`;
+      tip.style.display = "none";
+      el.addEventListener("mouseenter", () => {
+        tip.style.left = el.style.left;
+        tip.style.top = el.style.top;
+        tip.style.display = "block";
+      });
+      el.addEventListener("mouseleave", () => { tip.style.display = "none"; });
+      track.appendChild(el);
+      track.appendChild(tip);
+    });
+  });
+
+  // Axis
+  const axis = document.createElement("div");
+  axis.className = "tl-axis";
+  for (let t = 0; t <= TOTAL; t += 10) {
+    const tick = document.createElement("div");
+    tick.className = "tick";
+    tick.style.left = (t / TOTAL) * 100 + "%";
+    tick.textContent = `T+${t}s`;
+    axis.appendChild(tick);
+  }
+  c.appendChild(axis);
+
+  // Place phases now that we know geometry; reposition with absolute pixel math via lane-track
+  $$(".phase", c).forEach((node, idx) => {
+    const p = DATA.phases[idx];
+    const left = `calc(110px + (100% - 118px) * ${p.from / TOTAL})`;
+    const width = `calc((100% - 118px) * ${(p.to - p.from) / TOTAL})`;
+    node.style.left = left;
+    node.style.width = width;
+    node.style.top = "0";
+    node.style.bottom = "22px";
+    const lbl = document.createElement("div");
+    lbl.className = "phase-label";
+    lbl.textContent = p.label;
+    lbl.style.left = "4px";
+    node.appendChild(lbl);
+  });
+}
+
+// ============================================================================
+// Architecture flow view
+// ============================================================================
+const ARCH_LAYOUT = {
+  comp_client:  { x: 60,  y: 60,  w: 220, h: 60 },
+  comp_dns:     { x: 60,  y: 200, w: 220, h: 60 },
+  comp_poller:  { x: 60,  y: 340, w: 220, h: 60 },
+
+  comp_health:  { x: 380, y: 60,  w: 250, h: 60 },
+  comp_gate:    { x: 380, y: 200, w: 250, h: 60 },
+  comp_alive:   { x: 380, y: 340, w: 250, h: 60 },
+
+  comp_state:   { x: 720, y: 200, w: 260, h: 60 },
+  comp_flag:    { x: 720, y: 340, w: 260, h: 80 },
+
+  comp_refresh: { x: 380, y: 470, w: 250, h: 60 },
+  comp_lag:     { x: 720, y: 480, w: 120, h: 50 },
+  comp_queue:   { x: 860, y: 480, w: 120, h: 50 },
+  comp_leader:  { x: 380, y: 560, w: 250, h: 50 }
+};
+
+function renderArch() {
+  const g = $("#archLayer");
+  g.innerHTML = "";
+
+  for (const r of DATA.archRelations) {
+    const a = ARCH_LAYOUT[r.from], b = ARCH_LAYOUT[r.to];
+    if (!a || !b) continue;
+
+    // Decide anchor: horizontal centers
+    const ax = a.x + a.w;
+    const ay = a.y + a.h / 2;
+    const bx = b.x;
+    const by = b.y + b.h / 2;
+    const dx = (bx - ax) * 0.5;
+
+    const path = ensureSvgEl("path", {
+      d: `M ${ax} ${ay} C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`,
+      class: "edge" + (r.hot ? " hot" : ""),
+      "marker-end": "url(#arrow2)"
+    }, g);
+
+    const lbl = ensureSvgEl("text", { x: (ax + bx) / 2, y: (ay + by) / 2 - 4, class: "edge-label", "text-anchor": "middle" }, g);
+    lbl.textContent = r.label;
+  }
+
+  for (const id in ARCH_LAYOUT) {
+    const ent = byId(id);
+    if (!ent) continue;
+    const pos = ARCH_LAYOUT[id];
+    const ng = ensureSvgEl("g", { class: `node ${ent.kind}`, "data-id": id }, g);
+    ensureSvgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 10, ry: 10 }, ng);
+    const lines = wrapText(ent.label, Math.floor(pos.w / 7.4));
+    const lh = 15;
+    const startY = pos.y + (pos.h - lines.length * lh) / 2 + 11;
+    lines.forEach((line, i) => {
+      const t = ensureSvgEl("text", { x: pos.x + pos.w / 2, y: startY + i * lh, "text-anchor": "middle" }, ng);
+      t.textContent = line;
+    });
+    ng.addEventListener("click", () => selectEntity(id));
+  }
+
+  // Annotate the convergence
+  const note = ensureSvgEl("text", { x: 850, y: 320, class: "edge-label", "text-anchor": "middle", style: "fill: var(--accent-2)" }, g);
+  note.textContent = "single atomic boolean: all three reads converge here";
+}
+
+// ============================================================================
+// Selection / detail panel
+// ============================================================================
+function renderEvidencePanel() {
+  // Show a default list of evidence; clicking an entity filters this panel.
+  const panel = $("#evidencePanel");
+  panel.innerHTML = DATA.evidence.map(ev => evidenceCardHTML(ev)).join("");
+}
+
+function evidenceCardHTML(ev) {
+  return `
+    <div class="card evidence" data-evid="${ev.id}">
+      <div class="ev-line ${ev.confidence}">
+        <div>${ev.claim}</div>
+        <div class="src">${ev.source} <span class="pill ${ev.confidence === "high" ? "ok" : ev.confidence === "medium" ? "warn" : "err"}">${ev.confidence}</span></div>
+      </div>
+      ${ev.code ? `<pre class="snippet">${escapeHTML(ev.code)}</pre>` : ""}
+    </div>`;
+}
+
+function escapeHTML(s) { return s.replace(/[&<>'"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[c])); }
+
+function selectEntity(id) {
+  const ent = byId(id);
+  if (!ent) return;
+  $$("#graphLayer .node, #archLayer .node").forEach(n => n.classList.toggle("selected", n.getAttribute("data-id") === id));
+  const evs = (ent.evidence || []).map(eid => evById(eid)).filter(Boolean);
+  const meta = [];
+  if (ent.status) meta.push(`<span class="pill ${ent.status === "disputed" ? "err" : ent.status === "proposed" ? "info" : "ok"}">${ent.status}</span>`);
+  if (ent.confidence) meta.push(`<span class="pill ${ent.confidence === "high" ? "ok" : ent.confidence === "medium" ? "warn" : "err"}">confidence ${ent.confidence}</span>`);
+  if (ent.severity && ent.severity !== "info") meta.push(`<span class="pill ${ent.severity === "high" || ent.severity === "critical" ? "err" : ent.severity === "medium" ? "warn" : "info"}">severity ${ent.severity}</span>`);
+
+  $("#selectPanel").innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <strong>${ent.label}</strong>
+        <span class="pill dim">${ent.kind}</span>
+      </div>
+      <div class="row" style="margin-top:6px;">${meta.join("")}</div>
+      <div style="color: var(--muted); margin-top:8px; font-size:13px;">${ent.desc || ""}</div>
+      ${evs.length ? `<div style="margin-top:8px;">${evs.map(ev => evidenceCardHTML(ev)).join("")}</div>` : ""}
+    </div>`;
+}
+
+function selectEvent(id) {
+  const ev = DATA.events.find(x => x.id === id);
+  if (!ev) return;
+  $$(".ev").forEach(n => n.classList.toggle("selected", n.getAttribute("data-id") === id));
+  const evs = (ev.evidence || []).map(eid => evById(eid)).filter(Boolean);
+  const sevCls = ev.severity === "critical" ? "err" : ev.severity === "high" ? "warn" : "info";
+
+  $("#selectPanel").innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+        <strong>T+${ev.t}s &middot; ${ev.label}</strong>
+        <span class="pill ${sevCls}">${ev.severity}</span>
+      </div>
+      <div style="color: var(--muted); margin-top:6px; font-size:13px;">Lane: ${ev.lane}</div>
+      ${evs.length ? `<div style="margin-top:8px;">${evs.map(ev => evidenceCardHTML(ev)).join("")}</div>` : ""}
+    </div>`;
+}
+
+// ============================================================================
+// Filtering
+// ============================================================================
+function applyFilters() {
+  const q = ($("#q").value || "").toLowerCase().trim();
+  const conf = $("#conf").value;
+  const confOK = (c) => {
+    if (conf === "all") return true;
+    if (conf === "high") return c === "high";
+    if (conf === "medium") return c === "high" || c === "medium";
+    return true;
+  };
+
+  // Graph
+  $$("#graphLayer .node").forEach(n => {
+    const id = n.getAttribute("data-id");
+    const ent = byId(id);
+    const matchesQ = !q || (ent.label.toLowerCase().includes(q) || (ent.desc || "").toLowerCase().includes(q));
+    const matchesC = confOK(ent.confidence);
+    n.classList.toggle("dim", !(matchesQ && matchesC));
+  });
+  // Events
+  $$(".ev").forEach(n => {
+    const id = n.getAttribute("data-id");
+    const ev = DATA.events.find(x => x.id === id);
+    const matchesQ = !q || ev.label.toLowerCase().includes(q);
+    n.style.opacity = matchesQ ? 1 : 0.15;
+  });
+  // Evidence panel
+  $$("#evidencePanel .card").forEach(c => {
+    const id = c.getAttribute("data-evid");
+    const ev = evById(id);
+    const matchesQ = !q || ev.claim.toLowerCase().includes(q) || ev.source.toLowerCase().includes(q);
+    const matchesC = confOK(ev.confidence);
+    c.style.display = (matchesQ && matchesC) ? "" : "none";
+  });
+}
+
+// ============================================================================
+// View switching
+// ============================================================================
+function switchView(view) {
+  $$(".view-pane").forEach(p => p.classList.toggle("active", p.getAttribute("data-view") === view));
+  $$("#viewSeg button").forEach(b => b.classList.toggle("active", b.getAttribute("data-view") === view));
+  if (view === "time") {
+    // re-render to ensure correct geometry after display change
+    renderTimeline();
+  }
+}
+
+// ============================================================================
+// Init
+// ============================================================================
+function init() {
+  renderTakeaways();
+  renderUnc();
+  renderLegend();
+  renderGraph();
+  renderTimeline();
+  renderArch();
+  renderEvidencePanel();
+
+  $$("#viewSeg button").forEach(b => {
+    b.addEventListener("click", () => switchView(b.getAttribute("data-view")));
+  });
+  $("#q").addEventListener("input", applyFilters);
+  $("#conf").addEventListener("change", applyFilters);
+  document.addEventListener("keydown", (e) => {
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT")) return;
+    if (e.key === "1") switchView("graph");
+    if (e.key === "2") switchView("time");
+    if (e.key === "3") switchView("arch");
+  });
+  window.addEventListener("resize", () => {
+    if ($('.view-pane.active').getAttribute("data-view") === "time") renderTimeline();
+  });
+  // Auto-select the confirmed hypothesis as the starting context
+  selectEntity("hB");
+}
+
+init();
+</script>
+</body>
+</html>

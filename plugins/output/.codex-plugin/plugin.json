@@ -1,0 +1,40 @@
+{
+  "name": "interactive-output-skills",
+  "version": "1.0.0",
+  "description": "Skills for generating self-contained interactive HTML output, packaged for OpenAI Codex.",
+  "author": {
+    "name": "Alan Martini",
+    "url": "https://github.com/alangmartini"
+  },
+  "homepage": "https://github.com/alangmartini/agent-skills",
+  "repository": "https://github.com/alangmartini/agent-skills",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "skills",
+    "html",
+    "interactive",
+    "visualization",
+    "architecture",
+    "output"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Interactive Output Skills",
+    "shortDescription": "Generate self-contained interactive HTML artifacts from any source material.",
+    "longDescription": "A focused bundle of skills that produce single-file interactive HTML output: source-grounded architecture maps, polished data and concept visualizations, and rich HTML reports. Drop them into a project to turn code, datasets, or briefs into shareable interactive artifacts.",
+    "developerName": "Alan Martini",
+    "category": "Productivity",
+    "capabilities": [
+      "Write",
+      "Visualization"
+    ],
+    "websiteURL": "https://github.com/alangmartini/agent-skills",
+    "defaultPrompt": [
+      "Build an interactive architecture map of this repository.",
+      "Turn this concept into a polished interactive visualization.",
+      "Render this analysis as a single-file HTML report."
+    ],
+    "brandColor": "#111827"
+  }
+}

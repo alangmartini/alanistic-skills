@@ -73,17 +73,24 @@ Restart Claude Code after installing or updating skills.
 
 ## Plugin Manifests
 
-This repo is structured as a plugin root for both agents:
+This repo is a marketplace that ships two plugins:
 
 ```text
-.codex-plugin/plugin.json   # Codex
-.claude-plugin/plugin.json  # Claude Code
-skills/
+.claude-plugin/
+  marketplace.json          # lists both plugins
+  plugin.json               # core: agent-skills-codex
+.codex-plugin/plugin.json   # core (Codex)
+skills/                     # core skills
+plugins/
+  output/
+    .claude-plugin/plugin.json   # interactive-output-skills
+    .codex-plugin/plugin.json    # interactive-output-skills (Codex)
+    skills/                      # html-output, make-architecture-flow, make-interactive-visualization
 references/
 docs/
 ```
 
-Both manifests name the plugin `agent-skills-codex` and point at the same `skills/` tree. Use whichever manifest your agent supports; otherwise copy the desired skill directories into the agent's user-skills folder.
+The core plugin (`agent-skills-codex`) covers engineering workflows. The output plugin (`interactive-output-skills`) covers self-contained interactive HTML generation. Both Codex and Claude Code consume the same `SKILL.md` format, so each plugin ships both manifests.
 
 Per-agent setup details:
 
@@ -101,9 +108,10 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Handing work to a fresh session | `handoff` |
 | Vague idea or product concept | `idea-refine` |
 | New project, feature, or significant change | `spec-driven-development` |
-| Creating a codebase architecture map | `make-architecture-flow` |
-| Visualizing diagnostics, incidents, issues, or workflows | `make-interactive-visualization` |
 | Turning a spec into tasks | `planning-and-task-breakdown` |
+| Creating a codebase architecture map | `make-architecture-flow` *(interactive-output-skills)* |
+| Visualizing diagnostics, incidents, issues, or workflows | `make-interactive-visualization` *(interactive-output-skills)* |
+| Producing a single-file interactive HTML report | `html-output` *(interactive-output-skills)* |
 | Implementing code | `incremental-implementation` |
 | Writing or changing tests | `test-driven-development` |
 | Browser UI verification | `browser-testing-with-devtools` |
@@ -137,8 +145,6 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Skill | Purpose |
 |---|---|
 | [planning-and-task-breakdown](skills/planning-and-task-breakdown/SKILL.md) | Break specs into small, verifiable tasks |
-| [make-architecture-flow](skills/make-architecture-flow/SKILL.md) | Generate an interactive architecture map and agent JSON from a codebase |
-| [make-interactive-visualization](skills/make-interactive-visualization/SKILL.md) | Generate self-contained interactive visualizations from complex source material |
 
 ### Build
 
@@ -178,6 +184,36 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | [create-changelog-fragment](skills/create-changelog-fragment/SKILL.md) | Write release-ready changelog fragments from completed work |
 | [create-version-release](skills/create-version-release/SKILL.md) | Prepare version bumps and release notes from repo history |
 | [shipping-and-launch](skills/shipping-and-launch/SKILL.md) | Launch with monitoring, rollout gates, and rollback plans |
+
+## Interactive Output Skills (separate plugin)
+
+These ship as a second plugin in the same marketplace, `interactive-output-skills`, living at `plugins/output/`. Install separately when you want them.
+
+| Skill | Purpose |
+|---|---|
+| [html-output](plugins/output/skills/html-output/SKILL.md) | Produce a single-file interactive HTML report from any source material |
+| [make-architecture-flow](plugins/output/skills/make-architecture-flow/SKILL.md) | Generate an interactive architecture map and agent JSON from a codebase |
+| [make-interactive-visualization](plugins/output/skills/make-interactive-visualization/SKILL.md) | Generate self-contained interactive visualizations from complex source material |
+
+Claude Code install:
+
+```text
+/plugin marketplace add alangmartini/agent-skills
+/plugin install interactive-output-skills
+```
+
+Codex install (copy the skills directly):
+
+```powershell
+$dest = "$env:USERPROFILE\.codex\skills"
+New-Item -ItemType Directory -Force $dest
+Get-ChildItem .\plugins\output\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+```
+
+```bash
+mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
+cp -R plugins/output/skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
+```
 
 ## References
 

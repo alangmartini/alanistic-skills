@@ -11,7 +11,12 @@
     {
       "name": "agent-skills-codex",
       "source": "./",
-      "description": "Codex + Claude Code skills covering spec, plan, build, verify, review, and ship — plus handoff, caveman compression, changelog fragments, and version release."
+      "description": "Codex + Claude Code skills covering spec, plan, build, verify, review, and ship, plus handoff, caveman compression, changelog fragments, and version release."
+    },
+    {
+      "name": "interactive-output-skills",
+      "source": "./plugins/output",
+      "description": "Self-contained interactive HTML output skills: architecture maps, polished visualizations, and HTML reports."
     }
   ]
 }

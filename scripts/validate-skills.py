@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the Codex skill bundle."""
+"""Validate the agent skills marketplace (core plugin + interactive-output-skills)."""
 
 from __future__ import annotations
 
@@ -28,6 +28,24 @@ REMOVED_ARTIFACTS = [
 ]
 
 
+# Each entry describes a plugin that ships in this repo.
+#   root:    directory that contains .claude-plugin/ and .codex-plugin/
+#   name:    expected plugin name in both manifests
+#   skills:  directory that holds the registered skills for this plugin
+PLUGINS = [
+    {
+        "root": ROOT,
+        "name": "agent-skills-codex",
+        "skills": ROOT / "skills",
+    },
+    {
+        "root": ROOT / "plugins" / "output",
+        "name": "interactive-output-skills",
+        "skills": ROOT / "plugins" / "output" / "skills",
+    },
+]
+
+
 def fail(message: str) -> None:
     print(f"error: {message}", file=sys.stderr)
     raise SystemExit(1)
@@ -49,32 +67,34 @@ def parse_frontmatter(path: Path) -> dict[str, str]:
     return data
 
 
-def validate_codex_plugin() -> None:
-    manifest_path = ROOT / ".codex-plugin" / "plugin.json"
+def validate_codex_plugin(plugin_root: Path, expected_name: str) -> None:
+    manifest_path = plugin_root / ".codex-plugin" / "plugin.json"
+    rel = manifest_path.relative_to(ROOT)
     if not manifest_path.is_file():
-        fail(".codex-plugin/plugin.json is missing")
+        fail(f"{rel} is missing")
 
     with manifest_path.open(encoding="utf-8") as handle:
         manifest = json.load(handle)
 
-    if manifest.get("name") != "agent-skills-codex":
-        fail(".codex-plugin/plugin.json name must be agent-skills-codex")
+    if manifest.get("name") != expected_name:
+        fail(f"{rel} name must be {expected_name}")
     if manifest.get("skills") != "./skills/":
-        fail(".codex-plugin/plugin.json must point skills at ./skills/")
+        fail(f"{rel} must point skills at ./skills/")
 
 
-def validate_claude_plugin() -> None:
-    manifest_path = ROOT / ".claude-plugin" / "plugin.json"
+def validate_claude_plugin(plugin_root: Path, expected_name: str) -> None:
+    manifest_path = plugin_root / ".claude-plugin" / "plugin.json"
+    rel = manifest_path.relative_to(ROOT)
     if not manifest_path.is_file():
-        fail(".claude-plugin/plugin.json is missing")
+        fail(f"{rel} is missing")
 
     with manifest_path.open(encoding="utf-8") as handle:
         manifest = json.load(handle)
 
-    if manifest.get("name") != "agent-skills-codex":
-        fail(".claude-plugin/plugin.json name must be agent-skills-codex")
+    if manifest.get("name") != expected_name:
+        fail(f"{rel} name must be {expected_name}")
     if not manifest.get("description"):
-        fail(".claude-plugin/plugin.json must include a description")
+        fail(f"{rel} must include a description")
 
 
 def validate_claude_marketplace() -> None:
@@ -93,8 +113,12 @@ def validate_claude_marketplace() -> None:
         fail(".claude-plugin/marketplace.json must declare at least one plugin")
 
     plugin_names = {entry.get("name") for entry in plugins if isinstance(entry, dict)}
-    if "agent-skills-codex" not in plugin_names:
-        fail(".claude-plugin/marketplace.json must list a plugin named agent-skills-codex")
+    expected_names = {p["name"] for p in PLUGINS}
+    missing = expected_names - plugin_names
+    if missing:
+        fail(
+            f".claude-plugin/marketplace.json must list these plugins: {sorted(missing)}"
+        )
 
     for entry in plugins:
         if not isinstance(entry, dict):
@@ -113,14 +137,14 @@ def validate_removed_artifacts() -> None:
             fail(f"non-Codex artifact should not exist: {relative}")
 
 
-def validate_skills() -> None:
-    skills_dir = ROOT / "skills"
+def validate_skills(skills_dir: Path) -> None:
+    rel = skills_dir.relative_to(ROOT)
     if not skills_dir.is_dir():
-        fail("skills/ directory is missing")
+        fail(f"{rel} directory is missing")
 
     skill_dirs = sorted(path for path in skills_dir.iterdir() if path.is_dir())
     if not skill_dirs:
-        fail("skills/ contains no skill directories")
+        fail(f"{rel} contains no skill directories")
 
     for skill_dir in skill_dirs:
         skill_path = skill_dir / "SKILL.md"
@@ -141,12 +165,16 @@ def validate_skills() -> None:
 
 
 def main() -> None:
-    validate_codex_plugin()
-    validate_claude_plugin()
+    for plugin in PLUGINS:
+        validate_codex_plugin(plugin["root"], plugin["name"])
+        validate_claude_plugin(plugin["root"], plugin["name"])
+        validate_skills(plugin["skills"])
     validate_claude_marketplace()
     validate_removed_artifacts()
-    validate_skills()
-    print("Skill bundle validation passed (Codex + Claude Code manifests).")
+    plugin_count = len(PLUGINS)
+    print(
+        f"Skill bundle validation passed ({plugin_count} plugins, Codex + Claude Code manifests)."
+    )
 
 
 if __name__ == "__main__":
