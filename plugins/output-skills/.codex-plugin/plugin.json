@@ -1,6 +1,6 @@
 {
   "name": "output-skills",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Skills for generating self-contained interactive HTML output and compressed caveman responses, packaged for OpenAI Codex.",
   "author": {
     "name": "Alan Martini",

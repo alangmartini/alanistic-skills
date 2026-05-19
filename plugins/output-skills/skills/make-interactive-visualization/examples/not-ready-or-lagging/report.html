@@ -323,6 +323,50 @@ a:hover { color: var(--ink-0); border-bottom-color: var(--ink-0); }
 }
 .surface .smeta .k { color: var(--ink-4); }
 
+/* IMPACT strip . sits directly under the surface blocks. caveman: big
+   number, small caption. answers "how bad was it" in a glance. */
+.impact {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  margin-bottom: var(--s-4);
+  overflow: hidden;
+}
+.impact-cell {
+  padding: var(--s-3) var(--s-4) var(--s-3);
+  border-right: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 4px;
+  min-width: 0;
+}
+.impact-cell:last-child { border-right: 0; }
+.impact-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+.impact-num {
+  font-family: var(--ff-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink-0);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.impact-cell.warn .impact-num { color: var(--inferred); }
+.impact-cell.crit .impact-num { color: var(--disputed); }
+.impact-cell.ok   .impact-num { color: var(--observed); }
+.impact-cap {
+  font-family: var(--ff-sans);
+  font-size: var(--t-small);
+  color: var(--ink-2);
+  line-height: 1.35;
+}
+
 /* the "go deeper" hint row.sits below the surface block, before the lens bar */
 .deeper {
   display: flex; align-items: center; gap: var(--s-3);
@@ -1072,7 +1116,34 @@ svg.diagram {
   border-radius: var(--r-2);
   padding: var(--s-5) var(--s-5) var(--s-5);
   display: flex; flex-direction: column; gap: var(--s-4);
+  cursor: pointer;
+  transition: transform 120ms var(--ease-out, ease), border-color 120ms ease, box-shadow 120ms ease;
+  position: relative;
 }
+.pill:hover {
+  border-color: var(--rule-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+}
+.pill:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pill::after {
+  content: "deeper →";
+  position: absolute;
+  right: var(--s-5);
+  bottom: var(--s-5);
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.12em;
+  color: var(--ink-3);
+  opacity: 0;
+  transition: opacity 120ms ease;
+  pointer-events: none;
+}
+.pill:hover::after,
+.pill:focus-visible::after { opacity: 1; }
 .pill-head {
   display: flex; align-items: baseline; gap: var(--s-3);
   border-bottom: 1px solid var(--rule);
@@ -1155,6 +1226,119 @@ svg.diagram {
   font-size: var(--t-micro);
   letter-spacing: 0.14em;
   color: color-mix(in oklab, var(--observed) 70%, var(--ink-3));
+}
+
+/* ============================================================================
+   PILL MODAL . click any pill to open the deeper explanation
+   ============================================================================ */
+.pill-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: var(--s-5);
+  animation: pmFade 140ms ease;
+}
+.pill-modal-overlay.open { display: flex; }
+@keyframes pmFade { from { opacity: 0; } to { opacity: 1; } }
+.pill-modal {
+  background: var(--bg-1);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-3);
+  width: min(720px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  padding: var(--s-6) var(--s-6) var(--s-5);
+  display: flex; flex-direction: column; gap: var(--s-4);
+  animation: pmRise 180ms var(--ease-out, ease);
+}
+@keyframes pmRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.pill-modal-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--s-3);
+}
+.pill-modal-num {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  letter-spacing: 0.16em;
+}
+.pill-modal-title {
+  font-family: var(--ff-sans);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink-0);
+  margin: 0;
+}
+.pill-modal-domain {
+  margin-left: auto;
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  color: var(--info);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.pill-modal-close {
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--ink-2);
+  border-radius: var(--r-2);
+  padding: 4px 10px;
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  margin-left: var(--s-3);
+}
+.pill-modal-close:hover { color: var(--ink-0); border-color: var(--rule-strong); }
+.pill-modal-rule {
+  font-family: var(--ff-mono);
+  font-size: var(--t-small);
+  color: var(--observed);
+  background: color-mix(in oklab, var(--observed) 6%, transparent);
+  border: 1px dashed color-mix(in oklab, var(--observed) 45%, transparent);
+  border-radius: var(--r-1);
+  padding: var(--s-3) var(--s-4);
+}
+.pill-modal-rule::before {
+  content: "RULE OF THUMB ";
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  color: color-mix(in oklab, var(--observed) 70%, var(--ink-3));
+}
+.pill-modal-section {
+  display: flex; flex-direction: column; gap: var(--s-2);
+}
+.pill-modal-eyebrow {
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.pill-modal-section.why .pill-modal-eyebrow { color: var(--inferred); }
+.pill-modal-section.problem .pill-modal-eyebrow { color: var(--disputed); }
+.pill-modal-section p {
+  font-family: var(--ff-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--ink-1);
+  margin: 0;
+}
+.pill-modal-section p code {
+  font-family: var(--ff-mono);
+  font-size: 0.9em;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1px 5px;
+  color: var(--ink-0);
 }
 
 /* ============================================================================
@@ -1408,6 +1592,30 @@ svg.diagram {
     </div>
   </section>
 
+  <!-- IMPACT strip . how bad was it, in numbers -->
+  <section class="impact" aria-label="Impact">
+    <div class="impact-cell crit">
+      <span class="impact-eyebrow">Per node</span>
+      <span class="impact-num">~60 s</span>
+      <span class="impact-cap">HTTP 503 window after each rejoin</span>
+    </div>
+    <div class="impact-cell warn">
+      <span class="impact-eyebrow">Per cluster upgrade</span>
+      <span class="impact-num">~3 min</span>
+      <span class="impact-cap">3 nodes rolled, one window each</span>
+    </div>
+    <div class="impact-cell warn">
+      <span class="impact-eyebrow">Affected requests</span>
+      <span class="impact-num">100% on bad node</span>
+      <span class="impact-cap">until DNS + SDK rotate off it</span>
+    </div>
+    <div class="impact-cell">
+      <span class="impact-eyebrow">Recurrence</span>
+      <span class="impact-num">Every upgrade</span>
+      <span class="impact-cap">until SDK uses nodes[] failover</span>
+    </div>
+  </section>
+
   <!-- "go deeper" affordance.bridge from surface to layer 2 -->
   <div class="deeper">
     <span class="lbl">go deeper</span>
@@ -1588,7 +1796,7 @@ svg.diagram {
 
     <div class="pill-grid">
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">01</span>
           <h3 class="pill-title">Shared atomic flag</h3>
@@ -1603,7 +1811,7 @@ svg.diagram {
         <div class="pill-takeaway">Slowest cache sets recovery time. Not the writer.</div>
       </article>
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">02</span>
           <h3 class="pill-title">Tick-based refresh hides flap</h3>
@@ -1619,7 +1827,7 @@ svg.diagram {
         <div class="pill-takeaway">Edge-trigger fast state. Don't sample it.</div>
       </article>
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">03</span>
           <h3 class="pill-title">healthy_read_lag = 1000</h3>
@@ -1634,7 +1842,7 @@ svg.diagram {
         <div class="pill-takeaway">Threshold = how much staleness clients tolerate.</div>
       </article>
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">04</span>
           <h3 class="pill-title">DNS LB is best-effort</h3>
@@ -1647,7 +1855,7 @@ svg.diagram {
         <div class="pill-takeaway">Sub-second failover = SDK retry, not DNS.</div>
       </article>
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">05</span>
           <h3 class="pill-title">SDK retry beats DNS rotation</h3>
@@ -1662,7 +1870,7 @@ svg.diagram {
         <div class="pill-takeaway">Retry as close to the caller as possible.</div>
       </article>
 
-      <article class="pill">
+      <article class="pill" role="button" tabindex="0">
         <header class="pill-head">
           <span class="pill-num">06</span>
           <h3 class="pill-title">Body decides, not status</h3>
@@ -2454,6 +2662,127 @@ svg.diagram {
     });
   }
   document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+
+<!-- ========================================================
+     Pill deeper-explanation modal
+     ======================================================== -->
+<div class="pill-modal-overlay" id="pillModal" role="dialog" aria-modal="true" aria-labelledby="pillModalTitle" hidden>
+  <article class="pill-modal" id="pillModalCard">
+    <header class="pill-modal-head">
+      <span class="pill-modal-num" id="pillModalNum">00</span>
+      <h3 class="pill-modal-title" id="pillModalTitle">.</h3>
+      <span class="pill-modal-domain" id="pillModalDomain">.</span>
+      <button class="pill-modal-close" id="pillModalClose" type="button" aria-label="Close">ESC</button>
+    </header>
+    <div class="pill-modal-rule" id="pillModalRule">.</div>
+    <section class="pill-modal-section why">
+      <span class="pill-modal-eyebrow">Why the rule exists</span>
+      <p id="pillModalWhy">.</p>
+    </section>
+    <section class="pill-modal-section problem">
+      <span class="pill-modal-eyebrow">What it fixes</span>
+      <p id="pillModalProblem">.</p>
+    </section>
+  </article>
+</div>
+
+<script>
+/* ========================================================
+   Pill modal . expands the takeaway with why + what-it-fixes.
+   Content is keyed by the pill number rendered in .pill-num.
+   ======================================================== */
+(function () {
+  const PILL_DETAILS = {
+    "01": {
+      title: "Shared atomic flag",
+      domain: "Pattern",
+      rule: "Slowest cache sets recovery time. Not the writer.",
+      why: "When many code paths need the same \"is the system ready?\" answer, a single shared atomic flag is the right shape. It is cheap to read, lock-free, and gives every caller identical visibility. The trap is hidden: the speed at which the system recovers is now bounded by whoever updates that flag the slowest, not by how fast any single reader can re-check.",
+      problem: "Without this rule you assume \"I made the node ready, so requests should succeed.\" In practice the per-request gate is reading a flag that has not been refreshed yet. Recovery feels instant from the writer's perspective but laggy from the reader's. Fix: pick the writer's refresh cadence around the worst-case latency you can tolerate, because that cadence is the recovery floor."
+    },
+    "02": {
+      title: "Tick-based refresh hides flap",
+      domain: "Raft",
+      rule: "Edge-trigger fast state. Don't sample it.",
+      why: "Polling a state every N seconds is level-triggered: you see the value at sample time, not the transitions between samples. For slow-moving state that is fine. For state that can flip in less than one tick (replication catchup, queue depth, leader election), sampling is blind to the flip.",
+      problem: "A node briefly goes unhealthy and recovers inside one tick window. The poll never sees the dip, but downstream callers DID see the dip and reported errors. You then chase a phantom because the server's own logs show steady-state OK. Fix: track transitions (edge-triggered events) for any state that matters at sub-tick granularity. Keep level-triggered polls for slow state only."
+    },
+    "03": {
+      title: "healthy_read_lag = 1000",
+      domain: "Tuning",
+      rule: "Threshold = how much staleness clients tolerate.",
+      why: "This threshold is the contract between server and client for acceptable staleness. Below it the server says \"I am fresh enough to answer.\" Above it the server says \"my data is too old, serve from another replica.\" The number is not arbitrary; it encodes a product decision about what counts as fresh enough.",
+      problem: "Set the threshold too low and normal replication delay flips the flag, the server starts rejecting traffic, and on-call wakes up. Set it too high and clients silently get stale answers without any indication. Fix: pick the threshold from the workload. Search results stale by 60 seconds are usually fine. Payment status stale by 60 seconds is a bug. Tune per use case, not per default."
+    },
+    "04": {
+      title: "DNS LB is best-effort",
+      domain: "Cloud",
+      rule: "Sub-second failover = SDK retry, not DNS.",
+      why: "DNS-based load balancing has built-in inertia. An upstream poller takes seconds to notice a node changed state, then DNS TTL adds more seconds for each resolver to expire its cache. Total reaction time is the sum of those two intervals, often 30 to 90 seconds, and the upper bound is set by clients you do not control.",
+      problem: "Teams reach for DNS LB as a failover mechanism and then discover during an incident that the DNS path is the slowest reaction in the stack. Customers see a full minute of errors while DNS catches up. Fix: use DNS for steady-state routing only. For anything that must react in less than a second, the client (or its SDK) must handle retry itself."
+    },
+    "05": {
+      title: "SDK retry beats DNS rotation",
+      domain: "SDK",
+      rule: "Retry as close to the caller as possible.",
+      why: "An SDK that holds the full list of cluster nodes can fail over the moment one node rejects a request. The retry costs one extra HTTP round-trip. A DNS-only client has to wait for the global DNS state to converge before it can talk to a different node, which is orders of magnitude slower.",
+      problem: "Without multi-node SDK config, every transient single-node failure becomes a multi-second outage for the caller, even though other nodes were available the whole time. With it, that same failure becomes one retry. Fix: put retry logic as close to the caller as possible, because that is where the freshest information about which node just failed lives."
+    },
+    "06": {
+      title: "Body decides, not status",
+      domain: "Method",
+      rule: "Inspect the failure body, not just the status code.",
+      why: "HTTP status alone does not identify who failed. A 503 from a load balancer with an empty body usually means the infrastructure dropped the request before it ever reached the app. A 503 with a structured JSON body means the application received the request, decided not to serve it, and produced a typed reason. Same status, different layers, different fixes.",
+      problem: "Debugging from status codes only leads you to blame the wrong layer. You think the network dropped traffic when in fact the application explicitly rejected it. You restart networking; the bug stays. Fix: always read the body on errors. The presence of a typed envelope is itself signal: this came from inside the app."
+    }
+  };
+
+  function readPillField(pill, sel) {
+    const el = pill.querySelector(sel);
+    return el ? el.textContent.trim() : "";
+  }
+
+  function openPillModal(num) {
+    const data = PILL_DETAILS[num];
+    if (!data) return;
+    document.getElementById("pillModalNum").textContent = num;
+    document.getElementById("pillModalTitle").textContent = data.title;
+    document.getElementById("pillModalDomain").textContent = data.domain;
+    document.getElementById("pillModalRule").textContent = data.rule;
+    document.getElementById("pillModalWhy").textContent = data.why;
+    document.getElementById("pillModalProblem").textContent = data.problem;
+    const overlay = document.getElementById("pillModal");
+    overlay.hidden = false;
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    document.getElementById("pillModalClose").focus();
+  }
+  function closePillModal() {
+    const overlay = document.getElementById("pillModal");
+    overlay.classList.remove("open");
+    overlay.hidden = true;
+    document.body.style.overflow = "";
+  }
+  function wirePills() {
+    document.querySelectorAll(".pill").forEach(pill => {
+      const num = readPillField(pill, ".pill-num");
+      pill.setAttribute("data-pill", num);
+      pill.addEventListener("click", () => openPillModal(num));
+      pill.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPillModal(num); }
+      });
+    });
+    document.getElementById("pillModalClose").addEventListener("click", closePillModal);
+    document.getElementById("pillModal").addEventListener("click", e => {
+      if (e.target.id === "pillModal") closePillModal();
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && !document.getElementById("pillModal").hidden) closePillModal();
+    });
+  }
+  document.addEventListener("DOMContentLoaded", wirePills);
 })();
 </script>
 

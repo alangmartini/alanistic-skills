@@ -229,6 +229,25 @@ The artifact has three layers. The eye lands on Layer 1 and stops if that is all
 
 For investigation reports, also split top-level tabs into Diagnostic (the case) and Learning (reusable knowledge pills about the domain). Diagnostic answers "what happened here". Learning answers "what should I remember for next time".
 
+### Impact strip
+
+Directly under the WHAT/WHY/FIX surface, before any deeper navigation, render a single horizontal strip of 3 to 4 cells that answers "how bad was it" in one second.
+
+- Each cell: small mono eyebrow (`PER NODE`, `PER CLUSTER`, `AFFECTED REQUESTS`, `RECURRENCE`) plus a large mono number plus a one-line caveman caption.
+- Color severity: disputed red for the worst metric, inferred amber for the middle ones, default for steady-state facts.
+- Numbers only. Durations (`~60 s`, `~3 min`), percentages (`100% on bad node`), counts (`3 nodes`), or terse cadence labels (`Every upgrade`).
+- Never replace this strip with prose. The whole point is glance comprehension.
+
+### Click to deepen
+
+A learning pill, knowledge card, or rule-of-thumb element should be clickable. Clicking it opens a centered modal with:
+
+- The same title and rule of thumb the reader already saw on the card.
+- A `Why the rule exists` section (inferred amber eyebrow) explaining the underlying principle in 2 to 4 sentences.
+- A `What it fixes` section (disputed red eyebrow) describing the failure mode that appears without the rule, also in 2 to 4 sentences.
+
+The card surface stays terse (caveman headline plus ASCII flow plus one-line rule); the modal carries the longer prose for readers who want to understand the why. Close on `Esc`, on backdrop click, and on an explicit `ESC` button. Trap nothing else; one card open at a time.
+
 ### Type sizes
 
 - Surface body: 17px sans.
@@ -339,6 +358,8 @@ Use the example to calibrate scope, evidence density, and how to keep disputed h
 - Body type smaller than 13px in any view the reader is meant to read, or 11px on identifiers.
 - Surface prose uses hedging words (`likely`, `appears`, `probably`, `seems`, `might`).
 - Ad-hoc colors instead of the confidence trio and the design tokens.
+- Incident or outage artifact has no impact strip directly under the surface. The reader cannot answer "how bad was it" without reading the timeline.
+- Rule-of-thumb or learning cards are static-only. The reader can see the rule but cannot drill into the why or the failure mode it prevents.
 
 ## Verification
 
@@ -354,4 +375,6 @@ Before final response, confirm:
 - [ ] Edge labels are short. Skip them where arrowhead and stroke already carry the meaning.
 - [ ] Side rail is hidden on views with no entities to focus on.
 - [ ] No two panels restate the same information in different framings.
+- [ ] If the artifact is about an incident or outage, an impact strip sits directly under the surface and answers "how bad was it" in one glance.
+- [ ] Learning or rule-of-thumb cards are clickable and open a modal with why-the-rule plus what-it-fixes.
 - [ ] Final response includes artifact path and validation results.
