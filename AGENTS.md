@@ -2,24 +2,24 @@
 
 This repository is originally derived from `addyosmani/agent-skills` and is packaged for OpenAI Codex and Claude Code. The two agents share the same `SKILL.md` format, so each plugin's `skills/` tree serves both.
 
-The repo is structured as a Claude Code marketplace that ships two plugins:
+The repo is structured as a Claude Code marketplace named `alanistic-skills` that ships two plugins, both under `plugins/`:
 
-- `alanistic-skills` (the core engineering plugin) lives at the repo root. Its skills are under `skills/`.
-- `interactive-output-skills` lives under `plugins/output/`. Its skills are under `plugins/output/skills/`.
+- `dev-skills` lives under `plugins/dev-skills/`. Its skills are under `plugins/dev-skills/skills/` and cover the engineering workflows (spec, plan, build, verify, review, ship).
+- `output-skills` lives under `plugins/output-skills/`. Its skills are under `plugins/output-skills/skills/` and cover interactive HTML output plus the caveman compression mode.
 
-`.claude-plugin/marketplace.json` lists both. Each plugin has its own `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`.
+`.claude-plugin/marketplace.json` (at the repo root) lists both. Each plugin has its own `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json` under its plugin folder.
 
 ## Repository Purpose
 
-The repo packages software engineering workflows as agent skills. The durable artifacts are:
+The repo packages software engineering and output-format workflows as agent skills. The durable artifacts are:
 
-- `skills/<skill-name>/SKILL.md` (core plugin) for engineering workflow skills
-- `plugins/output/skills/<skill-name>/SKILL.md` for interactive HTML output skills
+- `plugins/dev-skills/skills/<skill-name>/SKILL.md` for engineering workflow skills
+- `plugins/output-skills/skills/<skill-name>/SKILL.md` for interactive HTML output and caveman skills
 - `references/*.md` for optional supporting material
-- `.codex-plugin/plugin.json` and `plugins/output/.codex-plugin/plugin.json` for Codex plugin metadata
-- `.claude-plugin/plugin.json` and `plugins/output/.claude-plugin/plugin.json` for Claude Code plugin metadata
+- `plugins/dev-skills/.codex-plugin/plugin.json` and `plugins/output-skills/.codex-plugin/plugin.json` for Codex plugin metadata
+- `plugins/dev-skills/.claude-plugin/plugin.json` and `plugins/output-skills/.claude-plugin/plugin.json` for Claude Code plugin metadata
 - `.claude-plugin/marketplace.json` for the marketplace listing
-- `plugins/output/workspace/` and `plugins/output/drafts/` for plugin-local, non-skill assets (eval workspaces, WIP drafts). `workspace/` is git-ignored by default.
+- `plugins/<plugin>/workspace/` and `plugins/<plugin>/drafts/` for plugin-local, non-skill assets (eval workspaces, WIP drafts). `workspace/` is git-ignored by default.
 - `docs/` for usage and contribution docs
 
 Do not reintroduce packaging for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, etc.), command folders, hook scripts, or agent-specific personas. Only Codex and Claude Code manifests belong here.
@@ -38,7 +38,7 @@ Do not reintroduce packaging for other agents (Gemini, Copilot, Cursor, Windsurf
 - Preserve existing skill behavior unless the task explicitly changes it.
 - Use ASCII for new docs unless an existing file clearly requires another character set.
 - Prefer small, scoped edits over broad rewrites.
-- When adding a new reusable workflow, add it as a skill directory under the relevant plugin's `skills/` directory (`skills/` for the core plugin, `plugins/output/skills/` for the interactive output plugin). Pick the plugin whose theme matches the workflow.
+- When adding a new reusable workflow, add it as a skill directory under the relevant plugin's `skills/` directory (`plugins/dev-skills/skills/` for engineering workflows, `plugins/output-skills/skills/` for output-format skills). Pick the plugin whose theme matches the workflow.
 - When adding supporting material, place it in `references/` or inside the skill directory only if it is tightly coupled to that skill.
 
 ## Validation
@@ -49,7 +49,7 @@ Run the validator after changing manifests, skills, or docs:
 python scripts/validate-skills.py
 ```
 
-The validator checks (for each plugin: core + interactive-output-skills):
+The validator checks (for each plugin: `dev-skills` + `output-skills`):
 
 - the plugin's `.codex-plugin/plugin.json` exists, has the expected name, and points at `./skills/`
 - the plugin's `.claude-plugin/plugin.json` exists, has the expected name, and has a description
@@ -64,10 +64,7 @@ If material for an additional agent is intentionally added later, document why i
 
 ```text
 .claude-plugin/
-  marketplace.json        # lists both plugins
-  plugin.json             # core plugin (alanistic-skills)
-.codex-plugin/
-  plugin.json             # core plugin (Codex)
+  marketplace.json        # lists both plugins (marketplace name: alanistic-skills)
 docs/
   codex-setup.md
   claude-setup.md
@@ -78,16 +75,19 @@ references/
   performance-checklist.md
   security-checklist.md
   testing-patterns.md
-skills/
-  <skill-name>/
-    SKILL.md              # core engineering skills
 plugins/
-  output/
-    .claude-plugin/plugin.json   # interactive-output-skills
-    .codex-plugin/plugin.json    # interactive-output-skills (Codex)
+  dev-skills/
+    .claude-plugin/plugin.json
+    .codex-plugin/plugin.json
     skills/
       <skill-name>/
-        SKILL.md          # interactive HTML output skills
+        SKILL.md          # engineering workflow skills
+  output-skills/
+    .claude-plugin/plugin.json
+    .codex-plugin/plugin.json
+    skills/
+      <skill-name>/
+        SKILL.md          # interactive HTML output + caveman
     workspace/            # plugin-local eval workspaces (gitignored)
     drafts/               # plugin-local draft / WIP skills
 scripts/

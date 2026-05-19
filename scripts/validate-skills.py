@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the agent skills marketplace (core plugin + interactive-output-skills)."""
+"""Validate the alanistic-skills marketplace (dev-skills + output-skills)."""
 
 from __future__ import annotations
 
@@ -34,14 +34,14 @@ REMOVED_ARTIFACTS = [
 #   skills:  directory that holds the registered skills for this plugin
 PLUGINS = [
     {
-        "root": ROOT,
-        "name": "alanistic-skills",
-        "skills": ROOT / "skills",
+        "root": ROOT / "plugins" / "dev-skills",
+        "name": "dev-skills",
+        "skills": ROOT / "plugins" / "dev-skills" / "skills",
     },
     {
-        "root": ROOT / "plugins" / "output",
-        "name": "interactive-output-skills",
-        "skills": ROOT / "plugins" / "output" / "skills",
+        "root": ROOT / "plugins" / "output-skills",
+        "name": "output-skills",
+        "skills": ROOT / "plugins" / "output-skills" / "skills",
     },
 ]
 

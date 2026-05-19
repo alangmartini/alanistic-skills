@@ -1,7 +1,7 @@
 {
-  "name": "interactive-output-skills",
-  "version": "1.0.0",
-  "description": "Skills for generating self-contained interactive HTML output, packaged for OpenAI Codex.",
+  "name": "output-skills",
+  "version": "1.0.1",
+  "description": "Skills for generating self-contained interactive HTML output and compressed caveman responses, packaged for OpenAI Codex.",
   "author": {
     "name": "Alan Martini",
     "url": "https://github.com/alangmartini"
@@ -20,9 +20,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Interactive Output Skills",
-    "shortDescription": "Generate self-contained interactive HTML artifacts from any source material.",
-    "longDescription": "A focused bundle of skills that produce single-file interactive HTML output: source-grounded architecture maps, polished data and concept visualizations, and rich HTML reports. Drop them into a project to turn code, datasets, or briefs into shareable interactive artifacts.",
+    "displayName": "Output Skills",
+    "shortDescription": "Self-contained interactive HTML artifacts and compressed caveman responses.",
+    "longDescription": "A focused bundle of output-format skills: single-file interactive HTML reports, source-grounded architecture maps, polished data and concept visualizations, plus the caveman compression mode for ultra-terse fact-only responses.",
     "developerName": "Alan Martini",
     "category": "Productivity",
     "capabilities": [
@@ -33,7 +33,8 @@
     "defaultPrompt": [
       "Build an interactive architecture map of this repository.",
       "Turn this concept into a polished interactive visualization.",
-      "Render this analysis as a single-file HTML report."
+      "Render this analysis as a single-file HTML report.",
+      "Use caveman full for compressed responses."
     ],
     "brandColor": "#111827"
   }

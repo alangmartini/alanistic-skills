@@ -1,6 +1,6 @@
 {
-  "name": "alanistic-skills",
-  "version": "1.0.4",
+  "name": "dev-skills",
+  "version": "1.0.5",
   "description": "Production-grade software engineering skills for Claude Code (also packaged for OpenAI Codex).",
   "author": {
     "name": "Alan Martini (originally based on work by Addy Osmani)",

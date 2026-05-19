@@ -1,6 +1,9 @@
 # Codex Setup
 
-This repo is a Codex-only skill bundle.
+This repo ships two Codex plugin bundles under `plugins/`:
+
+- `plugins/dev-skills/` (engineering workflows)
+- `plugins/output-skills/` (interactive HTML output + caveman)
 
 ## Manual Install
 
@@ -11,7 +14,8 @@ Windows PowerShell:
 ```powershell
 $dest = if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "skills" } else { Join-Path $env:USERPROFILE ".codex\skills" }
 New-Item -ItemType Directory -Force $dest
-Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\dev-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\output-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
 ```
 
 macOS/Linux:
@@ -19,7 +23,8 @@ macOS/Linux:
 ```bash
 dest="${CODEX_HOME:-$HOME/.codex}/skills"
 mkdir -p "$dest"
-cp -R skills/* "$dest/"
+cp -R plugins/dev-skills/skills/* "$dest/"
+cp -R plugins/output-skills/skills/* "$dest/"
 ```
 
 Restart Codex after installing or updating skills.
@@ -31,7 +36,7 @@ Windows PowerShell:
 ```powershell
 $dest = if ($env:CODEX_HOME) { Join-Path $env:CODEX_HOME "skills" } else { Join-Path $env:USERPROFILE ".codex\skills" }
 New-Item -ItemType Directory -Force $dest
-Copy-Item -Recurse .\skills\code-review-and-quality $dest
+Copy-Item -Recurse .\plugins\dev-skills\skills\code-review-and-quality $dest
 ```
 
 macOS/Linux:
@@ -39,18 +44,19 @@ macOS/Linux:
 ```bash
 dest="${CODEX_HOME:-$HOME/.codex}/skills"
 mkdir -p "$dest"
-cp -R skills/code-review-and-quality "$dest/"
+cp -R plugins/dev-skills/skills/code-review-and-quality "$dest/"
 ```
 
 ## Plugin Layout
 
-The plugin manifest lives at:
+The plugin manifests live at:
 
 ```text
-.codex-plugin/plugin.json
+plugins/dev-skills/.codex-plugin/plugin.json
+plugins/output-skills/.codex-plugin/plugin.json
 ```
 
-It declares:
+Each declares:
 
 ```json
 {
@@ -58,7 +64,7 @@ It declares:
 }
 ```
 
-Use the plugin manifest in Codex environments that support plugin installation. For direct local use, copying the skill folders is enough.
+Use the plugin manifests in Codex environments that support plugin installation. For direct local use, copying the skill folders is enough.
 
 ## Verify the Bundle
 
@@ -68,4 +74,4 @@ From the repository root:
 python scripts/validate-skills.py
 ```
 
-The validator checks skill frontmatter, the Codex manifest, and accidental restoration of non-Codex artifacts.
+The validator checks skill frontmatter, both Codex manifests, and accidental restoration of non-Codex artifacts.
