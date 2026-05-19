@@ -1,10 +1,10 @@
 # AGENTS.md
 
-This repository is a fork of `addyosmani/agent-skills` packaged for OpenAI Codex and Claude Code. The two agents share the same `SKILL.md` format, so each plugin's `skills/` tree serves both.
+This repository is originally derived from `addyosmani/agent-skills` and is packaged for OpenAI Codex and Claude Code. The two agents share the same `SKILL.md` format, so each plugin's `skills/` tree serves both.
 
 The repo is structured as a Claude Code marketplace that ships two plugins:
 
-- `agent-skills-codex` (the core engineering plugin) lives at the repo root. Its skills are under `skills/`.
+- `alanistic-skills` (the core engineering plugin) lives at the repo root. Its skills are under `skills/`.
 - `interactive-output-skills` lives under `plugins/output/`. Its skills are under `plugins/output/skills/`.
 
 `.claude-plugin/marketplace.json` lists both. Each plugin has its own `.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`.
@@ -65,7 +65,7 @@ If material for an additional agent is intentionally added later, document why i
 ```text
 .claude-plugin/
   marketplace.json        # lists both plugins
-  plugin.json             # core plugin (agent-skills-codex)
+  plugin.json             # core plugin (alanistic-skills)
 .codex-plugin/
   plugin.json             # core plugin (Codex)
 docs/

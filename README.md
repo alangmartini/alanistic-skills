@@ -1,17 +1,16 @@
-# Agent Skills (Codex + Claude Code)
+# Alanistic Skills (Codex + Claude Code)
 
 Production-grade engineering skills packaged for OpenAI Codex and Claude Code.
 
-This fork keeps the reusable skill workflows from `addyosmani/agent-skills` and strips packaging for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, …). Both Codex and Claude Code consume the same `SKILL.md` format, so a single `skills/` tree drives both — paired with a Codex plugin manifest (`.codex-plugin/plugin.json`) and a Claude Code plugin manifest (`.claude-plugin/plugin.json`).
+Originally derived from `addyosmani/agent-skills`, this repo keeps the reusable skill workflows and strips packaging for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, etc.). Both Codex and Claude Code consume the same `SKILL.md` format, so a single `skills/` tree drives both, paired with a Codex plugin manifest (`.codex-plugin/plugin.json`) and a Claude Code plugin manifest (`.claude-plugin/plugin.json`).
 
 ## Quick Start
 
-Clone the fork:
+Clone the repo:
 
 ```bash
-git clone https://github.com/alangmartini/agent-skills.git
-cd agent-skills
-git switch codex-only
+git clone https://github.com/alangmartini/alanistic-skills.git
+cd alanistic-skills
 ```
 
 ### Codex
@@ -48,8 +47,8 @@ Claude Code reads `SKILL.md` files with the same frontmatter Codex uses, so the 
 **As a plugin (recommended).** Add this repo as a marketplace and install:
 
 ```text
-/plugin marketplace add alangmartini/agent-skills
-/plugin install agent-skills-codex
+/plugin marketplace add alangmartini/alanistic-skills
+/plugin install alanistic-skills
 ```
 
 Claude Code auto-discovers `skills/*/SKILL.md` from the plugin root declared in `.claude-plugin/plugin.json`.
@@ -78,7 +77,7 @@ This repo is a marketplace that ships two plugins:
 ```text
 .claude-plugin/
   marketplace.json          # lists both plugins
-  plugin.json               # core: agent-skills-codex
+  plugin.json               # core: alanistic-skills
 .codex-plugin/plugin.json   # core (Codex)
 skills/                     # core skills
 plugins/
@@ -90,7 +89,7 @@ references/
 docs/
 ```
 
-The core plugin (`agent-skills-codex`) covers engineering workflows. The output plugin (`interactive-output-skills`) covers self-contained interactive HTML generation. Both Codex and Claude Code consume the same `SKILL.md` format, so each plugin ships both manifests.
+The core plugin (`alanistic-skills`) covers engineering workflows. The output plugin (`interactive-output-skills`) covers self-contained interactive HTML generation. Both Codex and Claude Code consume the same `SKILL.md` format, so each plugin ships both manifests.
 
 Per-agent setup details:
 
@@ -198,7 +197,7 @@ These ship as a second plugin in the same marketplace, `interactive-output-skill
 Claude Code install:
 
 ```text
-/plugin marketplace add alangmartini/agent-skills
+/plugin marketplace add alangmartini/alanistic-skills
 /plugin install interactive-output-skills
 ```
 
@@ -236,4 +235,4 @@ Run the validator before committing:
 python scripts/validate-skills.py
 ```
 
-Keep this branch scoped to Codex and Claude Code. Do not add command folders, manifests, hooks, or setup guides for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, …).
+Keep this repo scoped to Codex and Claude Code. Do not add command folders, manifests, hooks, or setup guides for other agents (Gemini, Copilot, Cursor, Windsurf, opencode, etc.).

@@ -1,5 +1,5 @@
 {
-  "name": "agent-skills-codex",
+  "name": "alanistic-skills",
   "owner": {
     "name": "Alan Martini",
     "url": "https://github.com/alangmartini"
@@ -9,7 +9,7 @@
   },
   "plugins": [
     {
-      "name": "agent-skills-codex",
+      "name": "alanistic-skills",
       "source": "./",
       "description": "Codex + Claude Code skills covering spec, plan, build, verify, review, and ship, plus handoff, caveman compression, changelog fragments, and version release."
     },

@@ -35,7 +35,7 @@ REMOVED_ARTIFACTS = [
 PLUGINS = [
     {
         "root": ROOT,
-        "name": "agent-skills-codex",
+        "name": "alanistic-skills",
         "skills": ROOT / "skills",
     },
     {
@@ -105,8 +105,8 @@ def validate_claude_marketplace() -> None:
     with marketplace_path.open(encoding="utf-8") as handle:
         marketplace = json.load(handle)
 
-    if marketplace.get("name") != "agent-skills-codex":
-        fail(".claude-plugin/marketplace.json name must be agent-skills-codex")
+    if marketplace.get("name") != "alanistic-skills":
+        fail(".claude-plugin/marketplace.json name must be alanistic-skills")
 
     plugins = marketplace.get("plugins")
     if not isinstance(plugins, list) or not plugins:
