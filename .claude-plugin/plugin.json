@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-codex",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Production-grade software engineering skills for Claude Code (also packaged for OpenAI Codex).",
   "author": {
     "name": "Addy Osmani; Codex fork maintained by Alan Martini",
