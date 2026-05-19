@@ -1,13 +1,13 @@
 {
-  "name": "agent-skills-codex",
+  "name": "alanistic-skills",
   "version": "1.0.4",
   "description": "Production-grade software engineering skills for Claude Code (also packaged for OpenAI Codex).",
   "author": {
-    "name": "Addy Osmani; Codex fork maintained by Alan Martini",
+    "name": "Alan Martini (originally based on work by Addy Osmani)",
     "url": "https://github.com/alangmartini"
   },
-  "homepage": "https://github.com/alangmartini/agent-skills",
-  "repository": "https://github.com/alangmartini/agent-skills",
+  "homepage": "https://github.com/alangmartini/alanistic-skills",
+  "repository": "https://github.com/alangmartini/alanistic-skills",
   "license": "MIT",
   "keywords": [
     "claude-code",

@@ -1,6 +1,6 @@
 ---
 name: caveman
-description: Ultra-compressed communication mode that cuts response length while preserving technical accuracy. Use only when explicitly invoked with `$agent-skills-codex:caveman` or when the user asks for caveman, lite, ultra, or wenyan mode; do not auto-select.
+description: Ultra-compressed communication mode that cuts response length while preserving technical accuracy. Use only when explicitly invoked with `$alanistic-skills:caveman` or when the user asks for caveman, lite, ultra, or wenyan mode; do not auto-select.
 ---
 
 # Caveman

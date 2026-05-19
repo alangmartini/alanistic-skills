@@ -1,6 +1,6 @@
-# Getting Started with Agent Skills
+# Getting Started
 
-Agent skills are self-contained folders with a required `SKILL.md`. Codex and Claude Code both read the frontmatter metadata to decide when a skill applies, then load the skill body only when needed. The same skill folder works for both agents.
+Skills are self-contained folders with a required `SKILL.md`. Codex and Claude Code both read the frontmatter metadata to decide when a skill applies, then load the skill body only when needed. The same skill folder works for both agents.
 
 ## Install Skills (Codex)
 
@@ -34,8 +34,14 @@ Restart Codex after installing or updating skills.
 **Plugin install (recommended):**
 
 ```text
-/plugin marketplace add alangmartini/agent-skills
-/plugin install agent-skills-codex
+/plugin marketplace add alangmartini/alanistic-skills
+/plugin install alanistic-skills
+```
+
+To also install the interactive HTML output plugin:
+
+```text
+/plugin install interactive-output-skills
 ```
 
 **User-level copy on Windows:**
@@ -122,12 +128,12 @@ Some skills may create files such as `SPEC.md`, `tasks/plan.md`, or `tasks/todo.
 
 ## Plugin Manifests
 
-The repository ships two plugin manifests so the same skill tree can be installed either way:
+The repository ships two plugins, each with both a Codex and a Claude Code manifest:
 
-- `.codex-plugin/plugin.json` for Codex plugin environments. Points at `./skills/`.
-- `.claude-plugin/plugin.json` for Claude Code. Claude Code auto-discovers `skills/*/SKILL.md` from the plugin root.
+- Core plugin (`alanistic-skills`): `.codex-plugin/plugin.json` and `.claude-plugin/plugin.json` at the repo root, with skills under `skills/`.
+- Output plugin (`interactive-output-skills`): `plugins/output/.codex-plugin/plugin.json` and `plugins/output/.claude-plugin/plugin.json`, with skills under `plugins/output/skills/`.
 
-Both manifests name the plugin `agent-skills-codex`. Manual copy into `~/.codex/skills` or `~/.claude/skills` remains supported when plugin installation is not available.
+Manual copy into `~/.codex/skills` or `~/.claude/skills` remains supported when plugin installation is not available.
 
 For per-agent install details, see:
 
