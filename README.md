@@ -101,6 +101,8 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Handing work to a fresh session | `handoff` |
 | Vague idea or product concept | `idea-refine` |
 | New project, feature, or significant change | `spec-driven-development` |
+| Creating a codebase architecture map | `make-architecture-flow` |
+| Visualizing diagnostics, incidents, issues, or workflows | `make-interactive-visualization` |
 | Turning a spec into tasks | `planning-and-task-breakdown` |
 | Implementing code | `incremental-implementation` |
 | Writing or changing tests | `test-driven-development` |
@@ -135,6 +137,8 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Skill | Purpose |
 |---|---|
 | [planning-and-task-breakdown](skills/planning-and-task-breakdown/SKILL.md) | Break specs into small, verifiable tasks |
+| [make-architecture-flow](skills/make-architecture-flow/SKILL.md) | Generate an interactive architecture map and agent JSON from a codebase |
+| [make-interactive-visualization](skills/make-interactive-visualization/SKILL.md) | Generate self-contained interactive visualizations from complex source material |
 
 ### Build
 
