@@ -191,6 +191,80 @@ node -e "const fs=require('fs'); JSON.parse(fs.readFileSync('visualization-data.
 
 Report checks that could not run.
 
+## Readability Principles
+
+These are durable lessons from prior iterations. Apply them by default when producing any artifact under this skill. They live here, not in any single example, so the family stays coherent.
+
+### Plain English on the surface
+
+The first viewport of any artifact reads like a customer report, not a developer log.
+
+- No file paths, code identifiers, function names, version numbers, threshold values, or internal jargon above the fold.
+- Three surface blocks side by side carry the load: WHAT (disputed color), WHY (inferred color), FIX (observed color). Same three colors used everywhere else so the reader internalizes the system after the second report.
+- Apply caveman style to surface prose. Short sentences. Numbers beat words. Identifiers in backticks. Cut hedging (`likely`, `appears`, `probably`, `seems`, `might`).
+- Surface body type is 17px sans. Anything smaller and the eye skips it.
+
+### One thing per node, one fact per line
+
+- A node, pill, card, or block carries one idea. If it has two, split it.
+- In learning or knowledge sections: one caveman headline plus one ASCII flow plus one rule of thumb. Not paragraphs.
+- ASCII flows beat prose for protocols, state machines, and ordering. Use box-drawing chars (`─ ┐ ├ ┤ │ ┘ ●`) with color spans.
+
+### Visual encoding carries the weight
+
+If color plus stroke plus arrowhead already encode meaning, drop the text label.
+
+- Confidence trio (observed mint, inferred amber, disputed red) is used identically across every lens, every card, every chip.
+- Edge labels are caveman. One word, lowercase mono: `in`, `amp`, `fix`, `?`, `yes`, `→`. Not `amplified by` or `mitigated by`.
+- Skip edge labels entirely when the arrowhead already says it (mint head = mitigation, dashed amber = inferred, coral hatch = disputed).
+- Do not restate in text what the visual shows. Two encodings of the same fact is clutter.
+
+### Layered information model
+
+The artifact has three layers. The eye lands on Layer 1 and stops if that is all the reader needs.
+
+- Layer 1: surface (WHAT, WHY, FIX in plain English).
+- Layer 2: lenses (one canvas per diagnostic question, click anything for detail).
+- Layer 3: evidence ledger (citations with code, scrolled into view from refs in Layer 2).
+
+For investigation reports, also split top-level tabs into Diagnostic (the case) and Learning (reusable knowledge pills about the domain). Diagnostic answers "what happened here". Learning answers "what should I remember for next time".
+
+### Type sizes
+
+- Surface body: 17px sans.
+- Section heads: 14 to 16px sans.
+- Running body in Layer 2: 13px sans.
+- Node labels in diagrams: 13px sans minimum.
+- Meta inside narrow boxes: 11px mono. Drop suffixes (`conf high`) when the stroke style already encodes them.
+- Mono is reserved for identifiers and code. Everything human-readable is sans.
+
+### Layout: stack when wide, hide when empty
+
+- Two dense columns become two rows. Vertical space is cheap.
+- If a side rail or sub-panel has no content for the current view, hide it. Do not show an empty 280px sidebar.
+- Tables become cards become single-column on narrow viewports.
+- If two panels show the same data in different framings, drop one. A timeline lens already shows ordering; a "story" column that retells it in prose is redundant.
+
+### Band separators in layered graphs
+
+In node graphs with layered rows (symptom > hypothesis > factor > mitigation):
+
+- Draw a full-width horizontal rule between each band. 2px solid in the strong rule color. Not dashed, not thin.
+- Label each band in mono caps (`SYMPTOM`, `HYPOTHESES`, `FACTORS`, `MITIGATIONS`) so the reader does not have to parse layout.
+- This works even when the graph itself is dense, because the bands give the eye anchors.
+
+### Design tokens, not ad-hoc colors
+
+- Use the Typesense Visual Docs token system (see `examples/not-ready-or-lagging/design-tokens.css`): IBM Plex Sans/Mono/Serif, ink/lime/indigo brand, `paper`/`cream`/`ink` surfaces via `data-surface` on `<html>`.
+- Confidence trio is `--c-observed` (forest), `--c-inferred` (amber), `--c-disputed` (red).
+- Density is switchable via `data-density="dense"` or `data-density="airy"`. Do not hardcode pixel sizes that override the token ladder.
+
+### Self-contained, offline, portable
+
+- Inline all CSS and JavaScript.
+- IBM Plex Sans/Mono/Serif via Google Fonts is the one allowed remote dependency. Everything else is inline.
+- The artifact must work when opened from a USB drive with no network.
+
 ## Output Naming
 
 Choose names that match the subject:
@@ -241,6 +315,10 @@ Use the example to calibrate scope, evidence density, and how to keep disputed h
 | "Remote CSS is fine for a one-off artifact." | Self-contained output stays portable and works offline. |
 | "Ambiguity will clutter the visual." | Hidden ambiguity is worse. Use visual treatment for uncertainty. |
 | "Everything belongs in one graph." | Use the grammar that matches the question. Timelines, boards, and matrices often beat graphs. |
+| "The surface needs the function name so the reader knows what is broken." | Layer 1 stays plain English. The function name lives in Layer 2 and Layer 3 where the reader chose to look. |
+| "Two visual encodings reinforce each other." | Two encodings of the same fact is clutter. Drop the redundant one. |
+| "More columns fit more information." | Columns make text narrow and dense. Stack to rows when content is wide. |
+| "A side rail is always useful." | An empty side rail is wasted real estate. Hide it on views that have nothing to focus. |
 
 ## Red Flags
 
@@ -251,6 +329,16 @@ Use the example to calibrate scope, evidence density, and how to keep disputed h
 - Causal claims appear without supporting evidence.
 - Timeline order is guessed but not labeled as inferred.
 - Issues are shown without severity, status, impact, or next action.
+- Surface text (Layer 1) contains file paths, function names, threshold values, or version numbers.
+- Edge labels are verbose (`amplified by`, `mitigated by`) when one-word caveman forms (`amp`, `fix`) would carry the same meaning.
+- Side rail or focus panel is visible on a view that has no entities to focus on.
+- Two panels restate the same information in different framings (Story column duplicating Minute lens, etc.).
+- Node labels or meta text overflow narrow boxes because font size was bumped without adjusting node width.
+- Layered causal graph has no horizontal band separators between symptom, hypothesis, factor, and mitigation rows.
+- Knowledge or learning section is paragraphs of prose instead of one caveman headline plus one ASCII flow plus one rule.
+- Body type smaller than 13px in any view the reader is meant to read, or 11px on identifiers.
+- Surface prose uses hedging words (`likely`, `appears`, `probably`, `seems`, `might`).
+- Ad-hoc colors instead of the confidence trio and the design tokens.
 
 ## Verification
 
@@ -262,4 +350,8 @@ Before final response, confirm:
 - [ ] Interactive controls work at a code-inspection level.
 - [ ] Evidence and uncertainty are visible.
 - [ ] Any sidecar JSON parses.
+- [ ] Layer 1 surface text is plain English with no file paths, identifiers, or jargon.
+- [ ] Edge labels are short. Skip them where arrowhead and stroke already carry the meaning.
+- [ ] Side rail is hidden on views with no entities to focus on.
+- [ ] No two panels restate the same information in different framings.
 - [ ] Final response includes artifact path and validation results.
