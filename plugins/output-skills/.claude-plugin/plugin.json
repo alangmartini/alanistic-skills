@@ -1,6 +1,6 @@
 {
   "name": "output-skills",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Skills for generating self-contained interactive HTML output (single-file dashboards, architecture maps, visualizations) and compressed caveman responses.",
   "author": {
     "name": "Alan Martini",

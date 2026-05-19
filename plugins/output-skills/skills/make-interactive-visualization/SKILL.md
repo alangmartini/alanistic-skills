@@ -204,6 +204,17 @@ Choose names that match the subject:
 
 Use a sidecar JSON only when requested, useful for future agent consumption, or when the source model is large enough to inspect separately.
 
+## Reference Example
+
+A worked example lives at `examples/not-ready-or-lagging/`:
+
+- `data.json`: structured causal model (entities, relationships, timeline events, evidence anchors, uncertainties) for a Typesense Cloud HA-upgrade investigation.
+- `report.html`: self-contained interactive artifact built on the layered information model (Layer 1 plain-English WHAT/WHY/FIX surface, Layer 2 three lens views, Layer 3 evidence ledger).
+- `report-editorial-v1.html`: earlier editorial direction, preserved as a sibling reference.
+- `DESIGN-NOTES.md`: the design system (tokens, components, layout, port instructions). Read this before producing a new investigation report so the family stays visually coherent.
+
+Use the example to calibrate scope, evidence density, and how to keep disputed hypotheses visible rather than smoothing them away. Follow `DESIGN-NOTES.md` when generating a new investigation report.
+
 ## Quality Bar
 
 - The visual should answer the user's actual question without requiring them to read all source material.

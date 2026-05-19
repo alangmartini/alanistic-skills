@@ -1,0 +1,2461 @@
+<!DOCTYPE html>
+<html lang="en" data-surface="ink">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investigation · Not Ready or Lagging · q0hjrx6742o1dfwpp</title>
+<style>
+/* ============================================================================
+   TYPESENSE VISUAL DOCS . design system tokens
+   Brand: ink black + electric lime + indigo. IBM Plex family.
+   Surface theme via data-surface on <html>: paper (default) | cream | ink.
+   ============================================================================ */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  /* BRAND */
+  --ts-ink:         #0A0A0A;
+  --ts-lime:        #C5F84A;
+  --ts-lime-soft:   #ECFCC8;
+  --ts-lime-deep:   #6B8E1F;
+  --ts-indigo:      #4F46E5;
+  --ts-indigo-soft: #E0E0FB;
+  --ts-indigo-deep: #3730A3;
+  --ts-paper:       #FFFFFF;
+
+  --gradient-brand:      linear-gradient(135deg, #0A0A0A 0%, #4F46E5 100%);
+  --gradient-brand-soft: linear-gradient(135deg, #E0E0FB 0%, #ECFCC8 100%);
+
+  /* SURFACES (paper default) */
+  --bg:        #FFFFFF;
+  --bg-2:      #F5F5F4;
+  --bg-3:      #EAEAE8;
+  --bg-inset:  #FFFFFF;
+  --bg-canvas: #FAFAF9;
+
+  /* INK */
+  --fg-1: #0A0A0A;
+  --fg-2: #2B2B2B;
+  --fg-3: #6B7280;
+  --fg-4: #A1A1AA;
+
+  /* SEMANTIC . confidence trio */
+  --c-observed:      #0E7A47;
+  --c-observed-soft: #D8EEDE;
+  --c-inferred:      #D97706;
+  --c-inferred-soft: #FEF3C7;
+  --c-disputed:      #DC2626;
+  --c-disputed-soft: #FEE2E2;
+
+  --info:         var(--ts-indigo);
+  --info-soft:    var(--ts-indigo-soft);
+  --success:      var(--c-observed);
+  --success-soft: var(--c-observed-soft);
+  --warn:         var(--c-inferred);
+  --warn-soft:    var(--c-inferred-soft);
+  --danger:       var(--c-disputed);
+  --danger-soft:  var(--c-disputed-soft);
+
+  --accent:        var(--ts-indigo);
+  --accent-soft:   var(--ts-indigo-soft);
+  --accent-deep:   var(--ts-indigo-deep);
+
+  /* LINES & GRIDS */
+  --rule:        rgba(10,10,10,0.10);
+  --rule-strong: rgba(10,10,10,0.22);
+  --rule-soft:   rgba(10,10,10,0.05);
+  --grid:        rgba(10,10,10,0.04);
+
+  /* TYPOGRAPHY . IBM Plex */
+  --font-sans:  "IBM Plex Sans",  ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono:  "IBM Plex Mono",  ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-serif: "IBM Plex Serif", ui-serif, Georgia, serif;
+
+  --t-display: 3.5rem;
+  --t-h1:      1.5rem;       /* 24px . section heads */
+  --t-h2:      1.25rem;      /* 20px */
+  --t-h3:      1.0625rem;    /* 17px */
+  --t-h4:      1rem;
+  --t-lead:    1.1875rem;
+  --t-body:    1rem;         /* 16px */
+  --t-small:   0.875rem;     /* 14px */
+  --t-meta:    0.8125rem;    /* 13px */
+  --t-micro:   0.75rem;      /* 12px */
+
+  --lh-tight:  1.1;
+  --lh-snug:   1.3;
+  --lh-normal: 1.55;
+
+  --tr-tight:    -0.02em;
+  --tr-snug:     -0.01em;
+  --tr-eyebrow:   0.12em;
+  --tr-mono-lbl:  0.14em;
+  --tr-mono-tag:  0.16em;
+
+  /* SPACING . 4-px grid */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+
+  /* RADII */
+  --r-0:    0px;
+  --r-1:    3px;
+  --r-2:    6px;
+  --r-3:    10px;
+  --r-4:    16px;
+  --r-pill: 999px;
+
+  /* MOTION */
+  --ease-out:    cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.5, 0,   0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 220ms;
+  --dur-slow: 400ms;
+
+  /* ELEVATION */
+  --shadow-1: 0 1px 0 var(--rule);
+  --shadow-2: 0 1px 2px rgba(14,14,14,0.04), 0 0 0 1px var(--rule);
+  --shadow-3: 0 4px 16px rgba(14,14,14,0.06), 0 0 0 1px var(--rule);
+  --shadow-4: 0 12px 40px rgba(14,14,14,0.12), 0 0 0 1px var(--rule);
+
+  /* ===========================================================================
+     ALIASES . map legacy token names used throughout this report's CSS onto
+     the new design-system tokens so the existing markup keeps working.
+     =========================================================================== */
+  --bg-0:     var(--bg);
+  --bg-1:     var(--bg-2);
+  --bg-code:  var(--bg-2);
+  --ink-0:    var(--fg-1);
+  --ink-1:    var(--fg-2);
+  --ink-2:    var(--fg-3);
+  --ink-3:    var(--fg-3);
+  --ink-4:    var(--fg-4);
+
+  --observed: var(--c-observed);
+  --inferred: var(--c-inferred);
+  --disputed: var(--c-disputed);
+
+  --k-symptom:    var(--c-disputed);
+  --k-hypothesis: var(--ts-indigo);
+  --k-cause:      var(--c-inferred);
+  --k-action:     var(--c-observed);
+  --k-system:     var(--ts-ink);
+  --k-state:      var(--fg-3);
+  --k-external:   var(--ts-indigo-deep);
+
+  --ff-sans: var(--font-sans);
+  --ff-mono: var(--font-mono);
+
+  --max: 1440px;
+  --ez: var(--ease-out);
+}
+
+/* Dark / "ink" surface for the investigation artifact. Set on <html> with
+   data-surface to flip the whole palette without touching markup. */
+html[data-surface="ink"] {
+  --bg:        #0A0A0A;
+  --bg-2:      #16161A;
+  --bg-3:      #22232A;
+  --bg-inset:  #0F0F12;
+  --bg-canvas: #0E0E12;
+  --fg-1:      #F5F5F4;
+  --fg-2:      #D4D4D4;
+  --fg-3:      #9B9DA1;
+  --fg-4:      #5F6068;
+  --ts-lime-soft:    #1F2E0A;
+  --ts-indigo-soft:  #1A1839;
+  --c-observed:      #4ADE80;
+  --c-observed-soft: #0E2A1B;
+  --c-inferred:      #F59E0B;
+  --c-inferred-soft: #2E1D04;
+  --c-disputed:      #F87171;
+  --c-disputed-soft: #2A0D0D;
+  --rule:        rgba(245,245,244,0.12);
+  --rule-strong: rgba(245,245,244,0.24);
+  --rule-soft:   rgba(245,245,244,0.06);
+  --grid:        rgba(245,245,244,0.05);
+  --bg-code:     #0F0F12;
+  --k-system:    #F5F5F4;
+  --k-external:  #A5B4FC;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-0);
+  color: var(--ink-0);
+  font: 400 var(--t-body)/1.5 var(--ff-sans);
+  font-feature-settings: "ss01", "cv11", "tnum";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+a { color: var(--info); text-decoration: none; border-bottom: 1px solid color-mix(in oklab, var(--info) 30%, transparent); transition: color 120ms var(--ez), border-color 120ms var(--ez); }
+a:hover { color: var(--ink-0); border-bottom-color: var(--ink-0); }
+::selection { background: color-mix(in oklab, var(--info) 35%, transparent); color: var(--ink-0); }
+
+.mono { font-family: var(--ff-mono); font-variant-numeric: tabular-nums; }
+.caps { text-transform: uppercase; letter-spacing: 0.12em; font-weight: 500; }
+.dim { color: var(--ink-2); }
+.dimmer { color: var(--ink-3); }
+
+/* ============================================================================
+   PAGE
+   ============================================================================ */
+.page { max-width: var(--max); margin: 0 auto; padding: 0 var(--s-5); }
+
+/* ============================================================================
+   HEADER STRIP.case id + one-line symptom + status. ~36px tall.
+   ============================================================================ */
+.head {
+  display: flex; align-items: center; gap: var(--s-3);
+  padding: 8px 0 8px;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+  height: 38px;
+}
+.head .crest {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--ink-0); font-weight: 500;
+}
+.head .crest::before {
+  content: ""; width: 8px; height: 8px;
+  background: var(--observed); transform: rotate(45deg);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--observed) 55%, transparent);
+}
+.head .sep { color: var(--ink-4); }
+.head .case  { color: var(--ink-0); }
+.head .right { margin-left: auto; display: flex; gap: var(--s-3); align-items: center; }
+.head .status-tag {
+  color: var(--observed);
+  border: 1px solid color-mix(in oklab, var(--observed) 50%, transparent);
+  padding: 1px 7px 2px;
+  border-radius: 2px;
+  font-size: var(--t-micro);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+.head .meta-chunk { display: inline-flex; gap: 4px; align-items: baseline; }
+.head .k { color: var(--ink-4); }
+
+/* ============================================================================
+   SURFACE LAYER.What / Why / Fix. Plain English. No jargon. Eye lands here.
+   ============================================================================ */
+.surface {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 0;
+  margin: var(--s-5) 0 var(--s-5);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  overflow: hidden;
+}
+.surface > .sblock {
+  padding: var(--s-4) var(--s-5) var(--s-5);
+  display: flex; flex-direction: column; gap: var(--s-2);
+  border-right: 1px solid var(--rule);
+  min-width: 0;
+}
+.surface > .sblock:last-child { border-right: 0; }
+.surface .slabel {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--ink-3);
+  display: flex; align-items: center; gap: 8px;
+}
+.surface .slabel::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+.surface .sblock.what .slabel { color: var(--disputed); }
+.surface .sblock.what .slabel::before { background: var(--disputed); box-shadow: 0 0 8px color-mix(in oklab, var(--disputed) 60%, transparent); }
+.surface .sblock.why  .slabel { color: var(--inferred); }
+.surface .sblock.why  .slabel::before { background: var(--inferred); box-shadow: 0 0 8px color-mix(in oklab, var(--inferred) 60%, transparent); }
+.surface .sblock.fix  .slabel { color: var(--observed); }
+.surface .sblock.fix  .slabel::before { background: var(--observed); box-shadow: 0 0 8px color-mix(in oklab, var(--observed) 60%, transparent); }
+
+.surface .stext {
+  font-family: var(--ff-sans);
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--ink-0);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  margin: 0;
+  text-wrap: pretty;
+  max-width: 38ch;
+}
+.surface .stext em {
+  font-style: normal;
+  color: var(--disputed);
+  font-weight: 500;
+}
+.surface .sblock.why  .stext em { color: var(--inferred); }
+.surface .sblock.fix  .stext em { color: var(--observed); }
+.surface .stext .mono {
+  font-family: var(--ff-mono);
+  font-size: 15px;
+  color: var(--ink-1);
+}
+
+.surface .smeta {
+  margin-top: auto;
+  padding-top: var(--s-3);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  display: flex; gap: 6px; align-items: center; flex-wrap: wrap;
+}
+.surface .smeta .k { color: var(--ink-4); }
+
+/* the "go deeper" hint row.sits below the surface block, before the lens bar */
+.deeper {
+  display: flex; align-items: center; gap: var(--s-3);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  margin-bottom: var(--s-4);
+  flex-wrap: wrap;
+}
+.deeper .lbl { color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.16em; }
+.deeper a {
+  color: var(--ink-1);
+  border-bottom: 1px dashed var(--ink-4);
+  padding: 0 0 1px;
+  cursor: pointer;
+}
+.deeper a:hover { color: var(--ink-0); border-bottom-color: var(--ink-2); }
+
+/* ============================================================================
+   TOP TABS . Diagnostic | Learning
+   ============================================================================ */
+.toptabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin: var(--s-5) 0 var(--s-4);
+  border-bottom: 1px solid var(--rule-strong);
+}
+.toptab {
+  display: inline-flex; flex-direction: column; gap: 2px;
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  padding: 12px 22px 10px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink-3);
+  text-align: left;
+  letter-spacing: 0.01em;
+  transition: color 120ms var(--ez), border-color 120ms var(--ez);
+}
+.toptab:hover { color: var(--ink-1); }
+.toptab.active { color: var(--ink-0); border-bottom-color: var(--info); }
+.toptab .tt-title {
+  font-family: var(--ff-sans);
+  font-size: 18px;
+  font-weight: 600;
+}
+.toptab .tt-sub {
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+.toptab.active .tt-sub { color: var(--ink-2); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ============================================================================
+   LENS TABS.slim row above main view.
+   ============================================================================ */
+.lensbar {
+  display: flex; align-items: center; gap: 4px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: var(--s-4);
+}
+.lens {
+  display: inline-flex; flex-direction: column; gap: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 8px 14px 7px;
+  cursor: pointer;
+  font: inherit;
+  color: var(--ink-2);
+  text-align: left;
+  transition: color 120ms var(--ez), border-color 120ms var(--ez);
+}
+.lens:hover { color: var(--ink-1); }
+.lens.active { color: var(--ink-0); border-bottom-color: var(--observed); }
+.lens .l-title {
+  font-family: var(--ff-sans);
+  font-size: 13px;
+  font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.lens .l-title .num {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+}
+.lens.active .l-title .num { color: var(--observed); }
+.lens .l-q {
+  font-family: var(--ff-sans);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  margin-top: 1px;
+  max-width: 32ch;
+}
+.lens.active .l-q { color: var(--ink-2); }
+.lensbar .right {
+  margin-left: auto;
+  display: flex; align-items: center; gap: var(--s-3);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+}
+.lensbar input[type="search"] {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  color: var(--ink-0);
+  font: inherit;
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  padding: 4px 8px;
+  border-radius: var(--r-1);
+  min-width: 200px;
+}
+.lensbar input[type="search"]:focus { outline: none; border-color: var(--rule-strong); background: var(--bg-2); }
+.lensbar .legend { display: flex; gap: var(--s-3); align-items: center; }
+.legend-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-2);
+}
+.legend-swatch { width: 14px; height: 3px; border-radius: 2px; background: var(--ink-3); }
+.legend-swatch.solid-mint { background: var(--observed); }
+.legend-swatch.dashed-amber { background: repeating-linear-gradient(90deg, var(--inferred) 0 3px, transparent 3px 5px); }
+.legend-swatch.hatched-coral {
+  background: repeating-linear-gradient(135deg, var(--disputed) 0 2px, transparent 2px 4px);
+}
+
+/* ============================================================================
+   MAIN.canvas + tight rail
+   ============================================================================ */
+.exhibit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: var(--s-4);
+  margin-bottom: var(--s-5);
+  transition: grid-template-columns 200ms var(--ez);
+}
+.exhibit.full > .rail { display: none; }
+.exhibit.full { grid-template-columns: minmax(0, 1fr); }
+.canvas-card {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  min-height: 460px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.canvas-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in oklab, var(--bg-2) 70%, var(--bg-1));
+}
+.canvas-head .num {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.canvas-head h2 {
+  margin: 0;
+  font-family: var(--ff-sans);
+  font-size: var(--t-h2);
+  font-weight: 500;
+  color: var(--ink-0);
+}
+.canvas-head .sub {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  margin-left: auto;
+}
+.canvas-body { flex: 1; position: relative; min-height: 420px; }
+.view-pane { position: absolute; inset: 0; display: none; }
+.view-pane.active { display: block; }
+.view-pane[data-view="time"] { overflow-y: auto; overflow-x: hidden; }
+.view-pane[data-view="time"]::-webkit-scrollbar { width: 6px; }
+.view-pane[data-view="time"]::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 3px; }
+
+svg.diagram {
+  width: 100%; height: 100%;
+  display: block;
+  background:
+    linear-gradient(to right, color-mix(in oklab, var(--rule) 22%, transparent) 1px, transparent 1px) 0 0 / 48px 48px,
+    linear-gradient(to bottom, color-mix(in oklab, var(--rule) 22%, transparent) 1px, transparent 1px) 0 0 / 48px 48px;
+}
+
+/* ---- nodes ---- */
+.node { cursor: pointer; }
+.node .node-bg {
+  fill: var(--bg-2);
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+  transition: stroke 160ms var(--ez);
+}
+.node .node-stripe { fill: var(--ink-3); }
+.node .node-label  { fill: var(--ink-0); font-size: 16px; font-family: var(--ff-sans); font-weight: 600; }
+.node .node-meta   { fill: var(--ink-3); font-size: 11px; font-family: var(--ff-mono); letter-spacing: 0.04em; text-transform: uppercase; }
+
+.node.symptom    .node-stripe { fill: var(--k-symptom); }
+.node.hypothesis .node-stripe { fill: var(--k-hypothesis); }
+.node.cause      .node-stripe { fill: var(--k-cause); }
+.node.action     .node-stripe { fill: var(--k-action); }
+.node.system     .node-stripe { fill: var(--k-system); }
+.node.state      .node-stripe { fill: var(--k-state); }
+.node.external   .node-stripe { fill: var(--k-external); }
+
+.node.observed .node-bg { stroke: var(--rule-strong); }
+.node.inferred .node-bg { stroke: var(--inferred); stroke-dasharray: 4 3; }
+.node.disputed .node-bg { stroke: var(--disputed); stroke-dasharray: 2 3; }
+.node.disputed .node-hatch { fill: url(#hatch-disputed); }
+.node.selected .node-bg { stroke: var(--ink-0); stroke-width: 1.6; }
+.node.dim { opacity: 0.25; }
+.node:hover .node-bg { stroke: var(--ink-1); }
+
+.edge {
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.1;
+  transition: stroke 160ms var(--ez), opacity 160ms var(--ez);
+}
+.edge.high     { stroke: var(--observed); stroke-width: 1.4; }
+.edge.medium   { stroke: var(--inferred); stroke-dasharray: 5 3; }
+.edge.low      { stroke: var(--disputed); stroke-dasharray: 3 3; }
+.edge.disputed { stroke: var(--disputed); stroke-dasharray: 2 3; }
+.edge.mit      { stroke: var(--observed); stroke-dasharray: 1 4; stroke-linecap: round; }
+.edge.faded    { opacity: 0.16; }
+.edge.hot      { stroke-width: 1.8; filter: drop-shadow(0 0 6px currentColor); }
+.edge-label {
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  fill: var(--ink-2);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.band-label {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink-2);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+.edge-label.faded { opacity: 0.12; }
+
+/* ---- timeline ---- */
+.tl { position: relative; padding: 12px 18px 18px; display: flex; flex-direction: column; min-height: 100%; }
+.tl-meta {
+  display: flex; gap: var(--s-3); align-items: center;
+  font-family: var(--ff-mono); font-size: var(--t-meta);
+  color: var(--ink-3);
+  margin-bottom: 8px;
+}
+.tl-canvas {
+  flex: 1; position: relative;
+  padding-left: 170px; padding-right: 14px; padding-bottom: 28px;
+  min-height: 360px;
+}
+.tl-lane-label {
+  position: absolute; left: 0; width: 156px;
+  padding-right: 12px;
+  font-family: var(--ff-mono);
+  font-size: var(--t-small);
+  color: var(--ink-1);
+  display: flex; flex-direction: column;
+  line-height: 1.25;
+}
+.tl-lane-label .sub { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 2px; }
+.tl-lane-track {
+  position: absolute; left: 170px; right: 14px;
+  height: 1px; background: var(--rule);
+}
+.tl-phase {
+  position: absolute; top: 0; bottom: 28px;
+  border-left: 1px dashed var(--rule);
+  border-right: 1px dashed var(--rule);
+}
+.tl-phase.warn { background: linear-gradient(180deg, color-mix(in oklab, var(--inferred) 7%, transparent), transparent 80%); }
+.tl-phase.ok   { background: linear-gradient(180deg, color-mix(in oklab, var(--observed) 7%, transparent), transparent 80%); }
+.tl-phase.err  { background: linear-gradient(180deg, color-mix(in oklab, var(--disputed) 13%, transparent), transparent 80%); }
+.tl-phase-label {
+  position: absolute; top: 4px; left: 6px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+}
+.tl-phase.warn .tl-phase-label { color: var(--inferred); }
+.tl-phase.ok   .tl-phase-label { color: var(--observed); }
+.tl-phase.err  .tl-phase-label { color: var(--disputed); }
+
+.tl-ev {
+  position: absolute;
+  width: 10px; height: 10px; border-radius: 50%;
+  transform: translate(-5px, -5px);
+  background: var(--ink-2);
+  border: 2px solid var(--bg-1);
+  cursor: pointer;
+  transition: box-shadow 140ms var(--ez);
+  z-index: 2;
+}
+.tl-ev.info     { background: var(--ink-2); color: var(--ink-2); }
+.tl-ev.high     { background: var(--inferred); color: var(--inferred); }
+.tl-ev.critical { background: var(--disputed); color: var(--disputed); width: 12px; height: 12px; transform: translate(-6px, -6px); }
+.tl-ev:hover, .tl-ev.selected {
+  box-shadow: 0 0 0 4px color-mix(in oklab, currentColor 22%, transparent);
+}
+/* event list below the lanes . the real readable surface for timeline content */
+.tl-list {
+  margin-top: var(--s-5);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.tl-list-head {
+  display: grid;
+  grid-template-columns: 64px 110px 1fr;
+  gap: var(--s-3);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-3);
+}
+.tl-row {
+  display: grid;
+  grid-template-columns: 64px 110px 1fr;
+  gap: var(--s-3);
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-small);
+  color: var(--ink-1);
+  cursor: pointer;
+  align-items: baseline;
+  transition: background 120ms var(--ez), border-color 120ms var(--ez);
+}
+.tl-row:last-child { border-bottom: 0; }
+.tl-row:hover, .tl-row.selected { background: var(--bg-2); }
+.tl-row .t-time {
+  font-family: var(--ff-mono);
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+.tl-row .t-lane {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tl-row .t-label .sev-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  margin-right: 8px;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+.tl-row.info     .t-label .sev-dot { background: var(--ink-2); }
+.tl-row.high     .t-label .sev-dot { background: var(--inferred); }
+.tl-row.critical .t-label .sev-dot { background: var(--disputed); }
+.tl-row .t-label code, .tl-row .t-label .mono-inline {
+  font-family: var(--ff-mono);
+  font-size: 0.92em;
+  background: var(--bg-2);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  color: var(--ink-0);
+}
+
+.tl-ev-label {
+  position: absolute;
+  display: none;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--ink-1);
+  background: var(--bg-1);
+  padding: 1px 5px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+  transform: translate(-50%, 0);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tl-ev-label::before {
+  content: "T+" attr(data-t) "s · ";
+  color: var(--ink-3);
+}
+.tl-axis {
+  position: absolute; left: 170px; right: 14px; bottom: 0;
+  height: 24px;
+  border-top: 1px solid var(--rule);
+}
+.tl-tick {
+  position: absolute; top: 0;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  transform: translateX(-50%);
+  padding-top: 5px;
+}
+.tl-tick::before {
+  content: ""; position: absolute; left: 50%; top: 0;
+  width: 1px; height: 4px; background: var(--rule-strong);
+  transform: translateX(-50%);
+}
+
+/* ---- rail ---- */
+.rail {
+  display: flex; flex-direction: column; gap: var(--s-3);
+  min-width: 0;
+}
+.rail-section-title {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--ink-3);
+}
+.rail-section-title::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+.rail-empty {
+  background: var(--bg-1);
+  border: 1px dashed var(--rule);
+  border-radius: var(--r-2);
+  padding: 14px;
+  text-align: center;
+  color: var(--ink-2);
+  font-size: var(--t-meta);
+}
+.rail-empty .hint {
+  display: block; margin-top: 6px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.sel-card {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.sel-stripe { height: 2px; background: var(--ink-3); }
+.sel-stripe.symptom    { background: var(--k-symptom); }
+.sel-stripe.hypothesis { background: var(--k-hypothesis); }
+.sel-stripe.cause      { background: var(--k-cause); }
+.sel-stripe.action     { background: var(--k-action); }
+.sel-stripe.system     { background: var(--k-system); }
+.sel-stripe.state      { background: var(--k-state); }
+.sel-stripe.external   { background: var(--k-external); }
+.sel-stripe.event      { background: var(--info); }
+.sel-head { padding: 10px 12px; }
+.sel-kind {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--ink-3);
+  margin-bottom: 4px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sel-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-0);
+  line-height: 1.3;
+  margin: 0 0 6px;
+  text-wrap: pretty;
+}
+.sel-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; }
+.sel-desc {
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+  line-height: 1.5;
+  margin: 0;
+}
+.sel-body { padding: 0 12px 10px; font-size: var(--t-meta); }
+.sel-body .ev-label { font-family: var(--ff-mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.14em; margin: 8px 0 4px; }
+.sel-body .ref { margin-right: 4px; margin-bottom: 4px; display: inline-block; }
+.ref {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  padding: 1px 5px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink-1);
+  background: var(--bg-2);
+  cursor: pointer;
+}
+.ref:hover { color: var(--ink-0); border-color: var(--rule-strong); }
+.ref::before { content: "§"; margin-right: 3px; color: var(--ink-3); }
+
+/* chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 1px 6px 2px;
+  border-radius: 999px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink-2);
+  background: transparent;
+  line-height: 1.3;
+  font-weight: 500;
+}
+.chip::before {
+  content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor;
+}
+.chip.observed,
+.chip.high     { color: var(--observed); border-color: color-mix(in oklab, var(--observed) 45%, transparent); }
+.chip.inferred,
+.chip.medium   { color: var(--inferred); border-color: color-mix(in oklab, var(--inferred) 45%, transparent); }
+.chip.disputed,
+.chip.low      { color: var(--disputed); border-color: color-mix(in oklab, var(--disputed) 45%, transparent); }
+.chip.proposed { color: var(--info);     border-color: color-mix(in oklab, var(--info) 45%, transparent); }
+.chip.kind     { color: var(--ink-1); border-color: var(--rule); }
+.chip.kind::before { display: none; }
+
+/* ============================================================================
+   BOTTOM ROW.takeaways | evidence (long) | uncertainty
+   ============================================================================ */
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: var(--s-5);
+  margin-top: var(--s-3);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--rule);
+}
+.col { min-width: 0; }
+.col-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  margin-bottom: var(--s-3);
+}
+.col-head h2 {
+  margin: 0;
+  font-family: var(--ff-sans);
+  font-size: var(--t-h1);
+  font-weight: 500;
+  color: var(--ink-0);
+  letter-spacing: -0.005em;
+}
+.col-head .count {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+}
+
+/* key points . patterns only (the Minute lens already tells the story) */
+.takeaways {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.take-list { list-style: none; margin: 0; padding: 0; }
+.take {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: var(--s-3);
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--rule);
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--ink-1);
+}
+.take:last-child { border-bottom: 0; }
+.take .n {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  padding-top: 3px;
+  letter-spacing: 0.06em;
+}
+.take .body strong { color: var(--ink-0); font-weight: 600; }
+.take .body code, .take .body .mono-inline {
+  font-family: var(--ff-mono);
+  font-size: 0.9em;
+  background: var(--bg-2);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  color: var(--ink-1);
+}
+
+/* uncertainty.small section under takeaways */
+.unc-block {
+  margin-top: var(--s-4);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid color-mix(in oklab, var(--inferred) 40%, transparent);
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in oklab, var(--inferred) 6%, transparent), transparent 60%),
+    var(--bg-1);
+  border-radius: var(--r-2);
+}
+.unc-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--inferred);
+  margin-bottom: var(--s-2);
+}
+.unc-head .count { color: color-mix(in oklab, var(--inferred) 60%, var(--ink-3)); }
+.unc-list {
+  list-style: none; margin: 0; padding: 0;
+  font-size: var(--t-meta);
+  color: var(--ink-1);
+  line-height: 1.5;
+  counter-reset: unc;
+}
+.unc-list li {
+  counter-increment: unc;
+  padding: 4px 0 5px 22px;
+  position: relative;
+  border-bottom: 1px dashed color-mix(in oklab, var(--inferred) 22%, transparent);
+}
+.unc-list li:last-child { border-bottom: 0; }
+.unc-list li::before {
+  content: counter(unc, decimal-leading-zero);
+  position: absolute; left: 0; top: 5px;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--inferred);
+  letter-spacing: 0.08em;
+}
+
+/* evidence ledger.compact stacked cards */
+.ledger {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+}
+.ev-card {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  scroll-margin-top: 20px;
+  transition: border-color 160ms var(--ez), background 160ms var(--ez);
+}
+.ev-card.flash { border-color: var(--ink-1); background: var(--bg-2); }
+.ev-card.dim { opacity: 0.32; }
+.ev-card-head {
+  display: flex; align-items: center; gap: var(--s-2);
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--bg-2);
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+}
+.ev-card-head .ev-id { color: var(--ink-3); letter-spacing: 0.06em; min-width: 44px; }
+.ev-card-head .ev-source { color: var(--ink-1); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-card-head .ev-source a { color: inherit; border-bottom-color: transparent; }
+.ev-card-head .ev-source a:hover { color: var(--ink-0); border-bottom-color: var(--ink-2); }
+
+.ev-card-body { padding: 8px 10px 10px; }
+.ev-claim {
+  font-family: var(--ff-sans);
+  font-size: var(--t-meta);
+  line-height: 1.5;
+  color: var(--ink-1);
+  margin: 0 0 6px;
+}
+.ev-claim::before { content: "“"; color: var(--ink-3); margin-right: 1px; }
+.ev-claim::after  { content: "”"; color: var(--ink-3); margin-left: 1px; }
+.ev-code {
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  background: var(--bg-code);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-1);
+  padding: 6px 8px;
+  margin: 0;
+  color: var(--ink-1);
+  overflow-x: auto;
+  white-space: pre;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+.ev-code::-webkit-scrollbar { height: 5px; }
+.ev-code::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 3px; }
+.ev-code .k { color: var(--k-hypothesis); }
+.ev-code .s { color: var(--observed); }
+.ev-code .c { color: var(--ink-3); font-style: italic; }
+.ev-code .n { color: var(--inferred); }
+.ev-code .t { color: var(--info); }
+
+/* ============================================================================
+   BOTTOM ROW (stacked rows, not columns)
+   ============================================================================ */
+.bottom { display: grid; grid-template-columns: 1fr; gap: var(--s-6); }
+.bottom .col { width: 100%; }
+
+/* evidence ledger flowing wide */
+.ledger { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); }
+
+/* ============================================================================
+   LEARNING TAB . knowledge pills
+   ============================================================================ */
+.learning-intro {
+  font-family: var(--ff-sans);
+  font-size: var(--t-h2);
+  color: var(--ink-1);
+  max-width: 780px;
+  line-height: 1.55;
+  margin: var(--s-4) 0 var(--s-6);
+}
+.learning-intro strong { color: var(--ink-0); font-weight: 600; }
+.pill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+  gap: var(--s-5);
+}
+.pill {
+  background: var(--bg-1);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  padding: var(--s-5) var(--s-5) var(--s-5);
+  display: flex; flex-direction: column; gap: var(--s-4);
+}
+.pill-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: var(--s-2);
+}
+.pill-num {
+  font-family: var(--ff-mono);
+  font-size: var(--t-meta);
+  color: var(--ink-3);
+  letter-spacing: 0.16em;
+}
+.pill-title {
+  font-family: var(--ff-sans);
+  font-size: var(--t-h1);
+  font-weight: 600;
+  color: var(--ink-0);
+  margin: 0;
+}
+.pill-domain {
+  margin-left: auto;
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  color: var(--info);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+/* pill body . one visual per pill, mono-styled flow or code block */
+.pill-headline {
+  font-family: var(--ff-sans);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  color: var(--ink-0);
+  margin: 0;
+  line-height: 1.3;
+}
+.pill-headline code {
+  font-family: var(--ff-mono);
+  font-size: 0.85em;
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  color: var(--ink-0);
+}
+.pill-flow {
+  background: var(--bg-code, var(--bg-2));
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-1);
+  overflow-x: auto;
+  white-space: pre;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rule-strong) transparent;
+}
+.pill-flow .ok    { color: var(--observed); }
+.pill-flow .warn  { color: var(--inferred); }
+.pill-flow .crit  { color: var(--disputed); }
+.pill-flow .dim   { color: var(--ink-3); }
+.pill-flow .em    { color: var(--ink-0); font-weight: 500; }
+.pill-flow .accent{ color: var(--accent); }
+.pill-flow::-webkit-scrollbar { height: 5px; }
+.pill-flow::-webkit-scrollbar-thumb { background: var(--rule-strong); border-radius: 3px; }
+.pill-takeaway {
+  margin-top: auto;
+  padding: var(--s-3) var(--s-4);
+  border: 1px dashed color-mix(in oklab, var(--observed) 45%, transparent);
+  border-radius: var(--r-1);
+  font-family: var(--ff-mono);
+  font-size: var(--t-small);
+  color: var(--observed);
+  background: color-mix(in oklab, var(--observed) 6%, transparent);
+}
+.pill-takeaway::before {
+  content: "RULE OF THUMB ";
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  color: color-mix(in oklab, var(--observed) 70%, var(--ink-3));
+}
+
+/* ============================================================================
+   MECHANISM OUTLINE . causal chain as a nested list, not a graph
+   ============================================================================ */
+.outline {
+  padding: var(--s-5) var(--s-6);
+  display: flex; flex-direction: column; gap: var(--s-4);
+  overflow-y: auto;
+  height: 100%;
+}
+.ol-symptom {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--disputed);
+  border-radius: var(--r-2);
+  padding: var(--s-4) var(--s-5);
+  background: var(--bg-1);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.ol-symptom .eyebrow {
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--disputed);
+}
+.ol-symptom .label {
+  font-family: var(--ff-sans);
+  font-size: var(--t-h1);
+  font-weight: 600;
+  color: var(--ink-0);
+}
+.ol-symptom .desc {
+  font-size: var(--t-small);
+  color: var(--ink-2);
+}
+
+.ol-hyp {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  background: var(--bg-1);
+  overflow: hidden;
+}
+.ol-hyp.disputed { border-left: 3px solid var(--disputed); }
+.ol-hyp.confirmed { border-left: 3px solid var(--observed); }
+.ol-hyp-head {
+  display: flex; align-items: baseline; gap: var(--s-3);
+  padding: var(--s-4) var(--s-5) var(--s-2);
+}
+.ol-hyp-mark {
+  font-family: var(--ff-mono);
+  font-weight: 600;
+  font-size: 18px;
+  width: 22px; text-align: center;
+}
+.ol-hyp.disputed  .ol-hyp-mark { color: var(--disputed); }
+.ol-hyp.confirmed .ol-hyp-mark { color: var(--observed); }
+.ol-hyp-title {
+  font-family: var(--ff-sans);
+  font-size: var(--t-h2);
+  font-weight: 600;
+  color: var(--ink-0);
+}
+.ol-hyp-tag {
+  margin-left: auto;
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.ol-hyp.disputed  .ol-hyp-tag { color: var(--disputed); }
+.ol-hyp.confirmed .ol-hyp-tag { color: var(--observed); }
+.ol-hyp-reason {
+  padding: 0 var(--s-5) var(--s-3);
+  font-size: var(--t-body);
+  color: var(--ink-1);
+  line-height: 1.55;
+}
+.ol-hyp-reason em {
+  font-style: normal;
+  color: var(--ink-0);
+  font-weight: 500;
+}
+.ol-hyp-reason code {
+  font-family: var(--ff-mono);
+  font-size: 0.9em;
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  color: var(--ink-0);
+}
+.ol-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--rule);
+}
+.ol-group {
+  padding: var(--s-3) var(--s-5) var(--s-4);
+  border-right: 1px solid var(--rule);
+}
+.ol-group:last-child { border-right: 0; }
+.ol-group-head {
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: var(--s-2);
+}
+.ol-group.causes      .ol-group-head { color: var(--inferred); }
+.ol-group.amplifiers  .ol-group-head { color: var(--inferred); }
+.ol-group.mitigations .ol-group-head { color: var(--observed); }
+.ol-items {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.ol-item {
+  display: grid; grid-template-columns: 14px 1fr; gap: 8px;
+  align-items: baseline;
+  font-size: var(--t-small);
+  color: var(--ink-1);
+  cursor: pointer;
+  padding: 4px 0;
+  border-radius: var(--r-1);
+  transition: color 120ms var(--ez), background 120ms var(--ez);
+}
+.ol-item:hover { color: var(--ink-0); background: var(--bg-2); padding-left: 4px; padding-right: 4px; }
+.ol-item .marker {
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  color: var(--ink-3);
+  text-align: center;
+}
+.ol-group.causes      .marker { color: var(--inferred); }
+.ol-group.amplifiers  .marker { color: var(--inferred); }
+.ol-group.mitigations .marker { color: var(--observed); }
+.ol-item code, .ol-item .mono-inline {
+  font-family: var(--ff-mono);
+  font-size: 0.92em;
+  background: var(--bg-2);
+  padding: 1px 4px;
+  border-radius: 2px;
+  border: 1px solid var(--rule);
+  color: var(--ink-0);
+}
+
+/* ---- colophon ---- */
+.colophon {
+  margin-top: var(--s-5);
+  padding: var(--s-3) 0 var(--s-5);
+  border-top: 1px solid var(--rule);
+  display: flex; gap: var(--s-3);
+  flex-wrap: wrap; align-items: center;
+  font-family: var(--ff-mono);
+  font-size: var(--t-micro);
+  color: var(--ink-3);
+}
+.colophon .kbd-hint { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.kbd {
+  display: inline-block;
+  font-family: var(--ff-mono);
+  font-size: 12px;
+  padding: 1px 5px 2px;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: var(--r-1);
+  color: var(--ink-1);
+  background: var(--bg-2);
+  line-height: 1;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 1180px) {
+  .exhibit { grid-template-columns: 1fr; }
+  .bottom { grid-template-columns: 1fr; }
+  .ledger { grid-template-columns: 1fr; }
+  .diagnosis {
+    grid-template-columns: 1fr;
+    gap: var(--s-3);
+  }
+}
+@media (max-width: 760px) {
+  .page { padding: 0 var(--s-3); }
+  .lensbar { flex-wrap: wrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- ========================================================
+       HEAD.case id + one-line symptom + status
+       ======================================================== -->
+  <div class="head">
+    <span class="crest">CASE 4006</span>
+    <span class="sep">/</span>
+    <span class="case">q0hjrx6742o1dfwpp</span>
+    <span class="sep">·</span>
+    <span class="meta-chunk"><span class="k">build</span> ts 30.2</span>
+    <span class="sep">·</span>
+    <span class="meta-chunk"><span class="k">topo</span> 3-node HA · DNS LB</span>
+    <span class="sep">·</span>
+    <span class="meta-chunk"><span class="k">region</span> eu-west-2</span>
+    <span class="sep">·</span>
+    <span class="meta-chunk"><span class="k">reporter</span> T-4006</span>
+    <span class="sep">·</span>
+    <span class="meta-chunk"><span class="k">date</span> 2026-05-14</span>
+    <span class="right">
+      <span class="status-tag">root confirmed</span>
+    </span>
+  </div>
+
+  <!-- ========================================================
+       SURFACE LAYER.What / Why / Fix. Plain English. Layer 1.
+       ======================================================== -->
+  <section class="surface" aria-label="Summary">
+    <div class="sblock what">
+      <div class="slabel">What happened</div>
+      <p class="stext">
+        Each node: <em>~60 s of HTTP 503</em> after rejoin during upgrade.
+      </p>
+      <div class="smeta">
+        <span class="k">scope</span> 3 nodes, ~3 min total <span class="k">·</span> <span class="k">customer</span> Plain T-4006
+      </div>
+    </div>
+
+    <div class="sblock why">
+      <div class="slabel">Why it happened</div>
+      <p class="stext">
+        3 readers share 1 flag <em><span class="mono">read_caught_up</span></em>. Refresh: <em>every 3 s</em>. Node passes <span class="mono">/health</span>, accepts traffic, next tick flips flag false. Poller cache lags.
+      </p>
+      <div class="smeta">
+        <span class="k">root</span> server-side back-pressure <span class="k">·</span> <span class="k">not</span> DNS caching alone
+      </div>
+    </div>
+
+    <div class="sblock fix">
+      <div class="slabel">Fix</div>
+      <p class="stext">
+        SDK: <em><span class="mono">nearestNode + nodes[]</span></em>. Fails over on 503. Upstream tracked.
+      </p>
+      <div class="smeta">
+        <span class="k">tracked</span> <a href="https://github.com/typesense/typesense/issues/665" target="_blank" rel="noopener noreferrer">#665</a>, <a href="https://github.com/typesense/typesense/issues/729" target="_blank" rel="noopener noreferrer">#729</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- "go deeper" affordance.bridge from surface to layer 2 -->
+  <div class="deeper">
+    <span class="lbl">go deeper</span>
+    <a data-jump="graph">causal mechanism</a>
+    <span class="dimmer">·</span>
+    <a data-jump="time">second-by-second</a>
+    <span class="dimmer">·</span>
+    <a data-jump="arch">component wiring</a>
+    <span class="dimmer">·</span>
+    <a href="#ledger-anchor">evidence (15)</a>
+    <span class="dimmer">·</span>
+    <a href="#unc-anchor">what we didn't measure (3)</a>
+  </div>
+
+  <!-- ========================================================
+       TOP TABS . Diagnostic | Learning
+       ======================================================== -->
+  <nav class="toptabs" role="tablist" aria-label="Report sections">
+    <button class="toptab active" data-tab="diagnostic" aria-pressed="true">
+      <span class="tt-title">Diagnostic</span>
+      <span class="tt-sub">what happened, evidence, uncertainty</span>
+    </button>
+    <button class="toptab" data-tab="learning" aria-pressed="false">
+      <span class="tt-title">Learning</span>
+      <span class="tt-sub">knowledge pills . typesense, raft, programming</span>
+    </button>
+  </nav>
+
+  <!-- ========================================================
+       DIAGNOSTIC TAB
+       ======================================================== -->
+  <div class="tab-pane active" data-tab="diagnostic">
+
+  <!-- ========================================================
+       LENS BAR.three tabs + search + legend
+       ======================================================== -->
+  <div class="lensbar" id="lenses">
+    <button class="lens active" data-view="graph" aria-pressed="true">
+      <span class="l-title"><span class="num">I</span>Mechanism</span>
+      <span class="l-q">symptom → hypothesis → factor → mitigation</span>
+    </button>
+    <button class="lens" data-view="time" aria-pressed="false">
+      <span class="l-title"><span class="num">II</span>Minute</span>
+      <span class="l-q">second-by-second across node, cloud, client</span>
+    </button>
+    <button class="lens" data-view="arch" aria-pressed="false">
+      <span class="l-title"><span class="num">III</span>Wiring</span>
+      <span class="l-q">three readers, one atomic boolean, one writer</span>
+    </button>
+    <span class="right">
+      <input id="q" type="search" placeholder="filter nodes, events, evidence…">
+      <span class="legend">
+        <span class="legend-item"><span class="legend-swatch solid-mint"></span>observed</span>
+        <span class="legend-item"><span class="legend-swatch dashed-amber"></span>inferred</span>
+        <span class="legend-item"><span class="legend-swatch hatched-coral"></span>disputed</span>
+      </span>
+    </span>
+  </div>
+
+  <!-- ========================================================
+       EXHIBIT.canvas + rail
+       ======================================================== -->
+  <section class="exhibit">
+    <article class="canvas-card">
+      <header class="canvas-head">
+        <span class="num" id="canvasNum">Exhibit A</span>
+        <h2 id="canvasTitle">Mechanism</h2>
+        <span class="sub" id="canvasSub">symptom → hypothesis → factor → mitigation</span>
+      </header>
+      <div class="canvas-body">
+
+        <section class="view-pane active" data-view="graph">
+          <svg class="diagram" id="graphSvg" viewBox="0 0 1180 620" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <pattern id="hatch-disputed" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke="var(--disputed)" stroke-width="1" stroke-opacity="0.28"/>
+              </pattern>
+              <marker id="arrow-default" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+              </marker>
+              <marker id="arrow-mint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#7eebb6"/>
+              </marker>
+              <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f3c560"/>
+              </marker>
+              <marker id="arrow-coral" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#f08a8f"/>
+              </marker>
+            </defs>
+            <g id="graphLayer"></g>
+          </svg>
+        </section>
+
+        <section class="view-pane" data-view="time">
+          <div class="tl">
+            <div class="tl-meta">
+              <span>T+0 → T+70 s · illustrative magnitudes</span>
+              <span class="chip inferred">flap window</span>
+              <span class="dimmer">tap any event →</span>
+            </div>
+            <div class="tl-canvas" id="tlCanvas"></div>
+          </div>
+        </section>
+
+        <section class="view-pane" data-view="arch">
+          <svg class="diagram" id="archSvg" viewBox="0 0 1180 620" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <marker id="arrow-arch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"/>
+              </marker>
+              <marker id="arrow-arch-mint" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#7eebb6"/>
+              </marker>
+              <radialGradient id="convergence-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stop-color="#7eebb6" stop-opacity="0.30"/>
+                <stop offset="60%" stop-color="#7eebb6" stop-opacity="0.04"/>
+                <stop offset="100%" stop-color="#7eebb6" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <g id="archLayer"></g>
+          </svg>
+        </section>
+
+      </div>
+    </article>
+
+    <aside class="rail">
+      <div class="rail-section-title">focused</div>
+      <div id="selSlot">
+        <div class="rail-empty">
+          Tap a box, node, event, or chip.
+          <span class="hint">click ↑ ref pills</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <!-- ========================================================
+       BOTTOM.takeaways (with uncertainty stacked) | evidence
+       ======================================================== -->
+  <section class="bottom">
+    <div class="col">
+      <div class="col-head" id="unc-anchor">
+        <h2>Key points</h2>
+        <span class="count">5 · derived from observed evidence</span>
+      </div>
+      <div class="takeaways" id="takeaways"></div>
+
+      <aside class="unc-block">
+        <header class="unc-head">
+          <span>uncertainty . what we infer, not measure</span>
+          <span class="count" id="uncCount">3</span>
+        </header>
+        <ol class="unc-list" id="uncList"></ol>
+      </aside>
+    </div>
+
+    <div class="col">
+      <div class="col-head" id="ledger-anchor">
+        <h2>Evidence ledger</h2>
+        <span class="count">15 items · source-grounded</span>
+      </div>
+      <div class="ledger" id="ledger"></div>
+    </div>
+  </section>
+
+  </div><!-- /.tab-pane diagnostic -->
+
+  <!-- ========================================================
+       LEARNING TAB . knowledge pills
+       ======================================================== -->
+  <div class="tab-pane" data-tab="learning">
+
+    <p class="learning-intro">
+      Six lessons from one bug. Each card carries <strong>one idea</strong> and <strong>one visual</strong>. Read in 10 seconds. Apply across projects.
+    </p>
+
+    <div class="pill-grid">
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">01</span>
+          <h3 class="pill-title">Shared atomic flag</h3>
+          <span class="pill-domain">Pattern</span>
+        </header>
+        <p class="pill-headline">3 readers. 1 atomic bool. 1 writer.</p>
+<pre class="pill-flow"><span class="dim">  /health    </span>──┐
+              <span class="em">├──→ </span><span class="accent">read_caught_up</span><span class="dim"> : atomic&lt;bool&gt;</span><span class="em"> ←──  </span><span class="warn">refresh()  every 3 s</span>
+<span class="dim">  503 gate   </span>──┤
+              │
+<span class="dim">  is_alive() </span>──┘</pre>
+        <div class="pill-takeaway">Slowest cache sets recovery time. Not the writer.</div>
+      </article>
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">02</span>
+          <h3 class="pill-title">Tick-based refresh hides flap</h3>
+          <span class="pill-domain">Raft</span>
+        </header>
+        <p class="pill-headline">Refresh every 3 s. Sub-3 s flaps invisible.</p>
+<pre class="pill-flow"><span class="ok">  ●</span>─────<span class="ok">●</span>─────<span class="ok">●</span>─────<span class="ok">●</span>──→ <span class="dim">t</span>
+<span class="dim">  0s    3s    6s    9s</span>
+        <span class="crit">▲ flap here</span>
+        <span class="dim">gone by next tick</span>
+
+<span class="dim">  if (raft_counter % 3 == 0) refresh()</span></pre>
+        <div class="pill-takeaway">Edge-trigger fast state. Don't sample it.</div>
+      </article>
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">03</span>
+          <h3 class="pill-title">healthy_read_lag = 1000</h3>
+          <span class="pill-domain">Tuning</span>
+        </header>
+        <p class="pill-headline"><code>apply_lag &gt; 1000</code> flips flag to false.</p>
+<pre class="pill-flow"><span class="dim">  apply_lag:</span>  0 ──────────<span class="warn">│</span>─────────── ∞
+              <span class="ok">READY</span>      <span class="warn">▲</span>      <span class="crit">503</span>
+                       <span class="dim">1000  (default)</span>
+
+<span class="dim">  also flips on:  num_queued_writes &gt; 1000</span></pre>
+        <div class="pill-takeaway">Threshold = how much staleness clients tolerate.</div>
+      </article>
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">04</span>
+          <h3 class="pill-title">DNS LB is best-effort</h3>
+          <span class="pill-domain">Cloud</span>
+        </header>
+        <p class="pill-headline">≥1 TTL of inertia between server and client.</p>
+<pre class="pill-flow"><span class="em">  node /health</span> → <span class="warn">poller</span> → <span class="warn">DNS A</span> → <span class="warn">client TTL</span> → <span class="em">request</span>
+                  <span class="dim">~30 s    ~30 s     varies</span>
+                  └──── <span class="crit">~60 s total inertia</span> ────┘</pre>
+        <div class="pill-takeaway">Sub-second failover = SDK retry, not DNS.</div>
+      </article>
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">05</span>
+          <h3 class="pill-title">SDK retry beats DNS rotation</h3>
+          <span class="pill-domain">SDK</span>
+        </header>
+        <p class="pill-headline">DNS: ~60 s. SDK retry: 1 request.</p>
+<pre class="pill-flow"><span class="crit">  503 received</span>
+        │
+        ├─ <span class="warn">DNS route</span>:  poll → TTL → ok      <span class="crit">≈ 60 s</span>
+        │
+        └─ <span class="ok">SDK route</span>:  <span class="accent">nodes[N+1]</span> → ok          <span class="ok">≈ 1 req</span></pre>
+        <div class="pill-takeaway">Retry as close to the caller as possible.</div>
+      </article>
+
+      <article class="pill">
+        <header class="pill-head">
+          <span class="pill-num">06</span>
+          <h3 class="pill-title">Body decides, not status</h3>
+          <span class="pill-domain">Method</span>
+        </header>
+        <p class="pill-headline">JSON 503 body = server rejected. Not network.</p>
+<pre class="pill-flow"><span class="crit">  ✗</span> <span class="dim">TCP refused / DNS NXDOMAIN</span>     → <span class="warn">blame network</span>
+
+<span class="ok">  ✓</span> <span class="em">{ "message": "Not Ready..." }</span>  → <span class="accent">blame application</span>
+       <span class="dim">connection completed.</span>
+       <span class="dim">server actively rejected.</span></pre>
+        <div class="pill-takeaway">Inspect the failure body, not just the status code.</div>
+      </article>
+
+    </div>
+
+  </div><!-- /.tab-pane learning -->
+
+  <!-- ========================================================
+       COLOPHON
+       ======================================================== -->
+  <footer class="colophon">
+    <span>self-contained · no remote anything</span>
+    <span>·</span>
+    <span>source-grounded against <span style="color:var(--ink-1)">typesense @ a61e1c81</span></span>
+    <span>·</span>
+    <span>companion <span style="color:var(--ink-1)">data.json</span> · schema v1.0</span>
+    <span class="kbd-hint">
+      switch · <span class="kbd">1</span> <span class="kbd">2</span> <span class="kbd">3</span>
+      &nbsp;·&nbsp; search <span class="kbd">/</span>
+    </span>
+  </footer>
+
+</div>
+
+<script id="data" type="application/json">
+{
+  "takeaways": [
+    "<strong>1 flag, 3 readers.</strong> <code>/health</code>, per-request 503 gate, alive check all read atomic <code>read_caught_up</code>.",
+    "<strong>3 s refresh tick.</strong> Flag rewritten when <code>raft_counter % 3 == 0</code>. Verbose log: every 9th tick.",
+    "<strong>Pass, then fail.</strong> Fresh Raft batch pushes <code>apply_lag</code> &gt; 1000 between ticks, after rotation.",
+    "<strong>Caches stretch flap to ~60 s.</strong> DNS LB + client TTL keep traffic on node past poller removal.",
+    "<strong>DNS = amplifier, not root.</strong> 503 body is well-formed JSON. Trigger: flag flips to <code>false</code>."
+  ],
+  "entities": [
+    { "id": "sym",  "label": "503 “Not Ready or Lagging”",        "kind": "symptom",    "severity": "high",   "status": "observed", "confidence": "high",   "evidence": ["ev_thread", "ev_body"], "desc": "Customer reports ~1 minute of HTTP 503 after each node rotated back into service." },
+    { "id": "hA",   "label": "Pure DNS caching",                  "kind": "hypothesis", "severity": "info",   "status": "disputed", "confidence": "low",    "evidence": ["ev_thread", "ev_body"], "desc": "First instinct: aggressive client DNS caching. Disputed. 503 carries a well-formed Typesense JSON body, so the server actively rejected the request." },
+    { "id": "hB",   "label": "Shared flag + 3 s refresh gap",     "kind": "hypothesis", "severity": "info",   "status": "observed", "confidence": "high",   "evidence": ["ev_health", "ev_alive", "ev_state", "ev_gate", "ev_refresh"], "desc": "/health and the per-request gate share one atomic flag, refreshed every 3 s." },
+    { "id": "f1",   "label": "3-second refresh tick",             "kind": "cause",      "severity": "medium", "status": "observed", "confidence": "high",   "evidence": ["ev_refresh"], "desc": "refresh_catchup_status() runs only when raft_counter % 3 == 0. Verbose flip log fires every 9th tick." },
+    { "id": "f2",   "label": "apply_lag spike > 1000",            "kind": "cause",      "severity": "medium", "status": "inferred", "confidence": "medium", "evidence": ["ev_thresh", "ev_defaults"], "desc": "Leader replicates a fresh batch to a follower that just caught up; apply_lag crosses healthy_read_lag." },
+    { "id": "f3",   "label": "Cloud health-poll cache",           "kind": "cause",      "severity": "medium", "status": "inferred", "confidence": "medium", "evidence": ["ev_dns_lb"], "desc": "Typesense Cloud poller hits /health on its own interval; last ok result lingers in DNS." },
+    { "id": "f4",   "label": "Client DNS TTL caching",            "kind": "cause",      "severity": "low",    "status": "inferred", "confidence": "medium", "evidence": ["ev_dns_lb"], "desc": "Client resolvers cache the cluster A record until TTL expires." },
+    { "id": "mit1", "label": "SDK: nearestNode + nodes[]",        "kind": "action",     "severity": "info",   "status": "proposed", "confidence": "high",   "evidence": ["ev_ha_docs"], "desc": "Documented mitigation. Lets the SDK fail over to another node immediately on 503." },
+    { "id": "mit2", "label": "Upstream issue #665",               "kind": "action",     "severity": "info",   "status": "proposed", "confidence": "high",   "evidence": ["ev_gh665"], "desc": "/health endpoint returns ok too soon." },
+    { "id": "mit3", "label": "Upstream issue #729",               "kind": "action",     "severity": "info",   "status": "proposed", "confidence": "high",   "evidence": ["ev_gh729"], "desc": "Reports of nodes stuck at not ready or lagging." },
+
+    { "id": "comp_health",  "label": "/health endpoint",             "kind": "system",   "evidence": ["ev_health"],   "desc": "src/core_api.cpp:538-540." },
+    { "id": "comp_gate",    "label": "Per-request readiness gate",   "kind": "system",   "evidence": ["ev_gate"],     "desc": "Checks is_read_caught_up/is_write_caught_up before any collection request. http_server.cpp:505-518." },
+    { "id": "comp_alive",   "label": "HttpServer::is_alive()",       "kind": "system",   "evidence": ["ev_alive"],    "desc": "Returns !is_shutdown_triggered && replication_state->is_alive(). http_server.cpp:1123-1124." },
+    { "id": "comp_state",   "label": "ReplicationState::is_alive()", "kind": "system",   "evidence": ["ev_state"],    "desc": "Returns read_caught_up. raft_server.cpp:917-918." },
+    { "id": "comp_flag",    "label": "read_caught_up (atomic bool)", "kind": "state",    "evidence": ["ev_state", "ev_thresh"], "desc": "Convergence point for all readiness reads in the binary." },
+    { "id": "comp_refresh", "label": "refresh_catchup_status()",     "kind": "system",   "evidence": ["ev_refresh", "ev_thresh", "ev_leader"], "desc": "Sole writer of the flag. Runs every 3 s." },
+    { "id": "comp_lag",     "label": "apply_lag",                    "kind": "state",    "evidence": ["ev_thresh"],   "desc": "last_index − current applied index." },
+    { "id": "comp_queue",   "label": "num_queued_writes",            "kind": "state",    "evidence": ["ev_thresh"],   "desc": "Depth of the in-process write queue." },
+    { "id": "comp_leader",  "label": "Raft leader /status check",    "kind": "system",   "evidence": ["ev_leader"],   "desc": "For newly caught-up followers, refresh issues an HTTP /status. raft_server.cpp:857-888." },
+    { "id": "comp_dns",     "label": "Cluster DNS record",           "kind": "external", "evidence": ["ev_dns_lb"],   "desc": "Cloud-managed A record. Updated based on /health results." },
+    { "id": "comp_poller",  "label": "Cloud health poller",          "kind": "external", "evidence": ["ev_dns_lb"],   "desc": "Typesense Cloud control plane that polls /health and toggles DNS records." },
+    { "id": "comp_client",  "label": "Customer SDK client",          "kind": "external", "evidence": ["ev_thread"],   "desc": "Resolves the cluster hostname with DNS, sends API requests to whatever IP is cached." }
+  ],
+  "relations": [
+    { "from": "sym",  "to": "hA",  "kind": "considered",    "confidence": "low",    "disputed": true },
+    { "from": "sym",  "to": "hB",  "kind": "confirmed",     "confidence": "high" },
+    { "from": "hA",   "to": "hB",  "kind": "subsumed by",   "confidence": "medium" },
+    { "from": "hB",   "to": "f1",  "kind": "contains",      "confidence": "high" },
+    { "from": "hB",   "to": "f2",  "kind": "contains",      "confidence": "high" },
+    { "from": "hB",   "to": "f3",  "kind": "amplified by",  "confidence": "medium" },
+    { "from": "hB",   "to": "f4",  "kind": "amplified by",  "confidence": "medium" },
+    { "from": "hB",   "to": "mit1","kind": "mitigated by",  "confidence": "high", "mit": true },
+    { "from": "hB",   "to": "mit2","kind": "tracked by",    "confidence": "high", "mit": true },
+    { "from": "hB",   "to": "mit3","kind": "tracked by",    "confidence": "high", "mit": true }
+  ],
+  "archRelations": [
+    { "from": "comp_health",  "to": "comp_alive",  "label": "calls" },
+    { "from": "comp_gate",    "to": "comp_state",  "label": "reads" },
+    { "from": "comp_alive",   "to": "comp_state",  "label": "delegates" },
+    { "from": "comp_state",   "to": "comp_flag",   "label": "returns" },
+    { "from": "comp_refresh", "to": "comp_flag",   "label": "writes · 3 s", "hot": true },
+    { "from": "comp_refresh", "to": "comp_lag",    "label": "reads" },
+    { "from": "comp_refresh", "to": "comp_queue",  "label": "reads" },
+    { "from": "comp_refresh", "to": "comp_leader", "label": "calls" },
+    { "from": "comp_poller",  "to": "comp_health", "label": "polls" },
+    { "from": "comp_poller",  "to": "comp_dns",    "label": "updates A records" },
+    { "from": "comp_client",  "to": "comp_dns",    "label": "TTL cached" },
+    { "from": "comp_client",  "to": "comp_gate",   "label": "API requests" }
+  ],
+  "events": [
+    { "id": "e0",  "t": 0,  "lane": "node",   "label": "Restart finished, flag = false",                    "severity": "info",     "evidence": [] },
+    { "id": "e1",  "t": 1,  "lane": "node",   "label": "Begins replaying Raft log",                         "severity": "info",     "evidence": ["ev_thresh"] },
+    { "id": "e2",  "t": 20, "lane": "node",   "label": "apply_lag < 1000, flag flips true",                 "severity": "info",     "evidence": ["ev_thresh", "ev_defaults"] },
+    { "id": "e3",  "t": 22, "lane": "cloud",  "label": "Poller sees /health = 200",                         "severity": "info",     "evidence": ["ev_health", "ev_dns_lb"] },
+    { "id": "e4",  "t": 23, "lane": "cloud",  "label": "DNS A-record adds node IP",                         "severity": "info",     "evidence": ["ev_dns_lb"] },
+    { "id": "e5",  "t": 25, "lane": "client", "label": "Resolver picks up new record",                      "severity": "info",     "evidence": ["ev_dns_lb"] },
+    { "id": "e6",  "t": 26, "lane": "client", "label": "Requests start hitting node",                       "severity": "info",     "evidence": [] },
+    { "id": "e7",  "t": 28, "lane": "node",   "label": "Leader replicates batch; apply_lag > 1000",         "severity": "high",     "evidence": ["ev_thresh"] },
+    { "id": "e8",  "t": 30, "lane": "node",   "label": "Next 3 s tick; flag flips to false",                "severity": "high",     "evidence": ["ev_refresh"] },
+    { "id": "e9",  "t": 30, "lane": "node",   "label": "Gate returns 503",                                  "severity": "critical", "evidence": ["ev_gate"] },
+    { "id": "e10", "t": 31, "lane": "client", "label": "Customer logs “Not Ready or Lagging”",              "severity": "critical", "evidence": ["ev_thread", "ev_body"] },
+    { "id": "e11", "t": 52, "lane": "cloud",  "label": "Poller sees 503",                                   "severity": "info",     "evidence": ["ev_health"] },
+    { "id": "e12", "t": 55, "lane": "cloud",  "label": "DNS drops IP; client TTL still holds it",           "severity": "high",     "evidence": ["ev_dns_lb"] },
+    { "id": "e13", "t": 60, "lane": "node",   "label": "Lag clears, flag = true",                           "severity": "info",     "evidence": ["ev_thresh"] },
+    { "id": "e14", "t": 65, "lane": "client", "label": "TTL expires; traffic re-balances",                  "severity": "info",     "evidence": ["ev_dns_lb"] }
+  ],
+  "chain": ["e7", "e8", "e9", "e10"],
+  "phases": [
+    { "from": 0,  "to": 20, "cls": "warn", "label": "catching up" },
+    { "from": 20, "to": 30, "cls": "ok",   "label": "healthy" },
+    { "from": 30, "to": 60, "cls": "err",  "label": "flapped · 503" },
+    { "from": 60, "to": 70, "cls": "ok",   "label": "recovers" }
+  ],
+  "lanes": [
+    { "id": "node",   "label": "Restarted node",  "sub": "in-process" },
+    { "id": "cloud",  "label": "Cloud + DNS",     "sub": "external"   },
+    { "id": "client", "label": "Customer client", "sub": "remote"     }
+  ],
+  "evidence": [
+    { "id": "ev_health",      "claim": "/health calls is_alive() and returns 200 only when alive == true",                                                                "source": "src/core_api.cpp:538-540",                       "confidence": "high",   "status": "observed", "code": "bool alive = server->is_alive();\nresult[\"ok\"] = alive;\nif (alive) res->set_body(200, ...);\nelse      res->set_body(503, ...);" },
+    { "id": "ev_alive",       "claim": "HttpServer::is_alive() returns !is_shutdown_triggered && replication_state->is_alive()",                                          "source": "src/http_server.cpp:1123-1124",                  "confidence": "high",   "status": "observed", "code": "bool HttpServer::is_alive() const {\n    return !is_shutdown_triggered && replication_state->is_alive();\n}" },
+    { "id": "ev_state",       "claim": "ReplicationState::is_alive() returns the atomic read_caught_up flag",                                                             "source": "src/raft_server.cpp:917-918",                    "confidence": "high",   "status": "observed", "code": "bool ReplicationState::is_alive() const {\n    return read_caught_up;\n}" },
+    { "id": "ev_gate",        "claim": "The per-request gate reads is_read_caught_up()/is_write_caught_up() and 503s with “Not Ready or Lagging” on false",               "source": "src/http_server.cpp:505-518",                    "confidence": "high",   "status": "observed", "code": "if (needs_readiness_check) {\n    std::string message = \"{ \\\"message\\\": \\\"Not Ready or Lagging\\\"}\";\n    if (read_op  && !replication_state->is_read_caught_up())  return send_response(req, 503, message);\n    if (write_op && !replication_state->is_write_caught_up()) return send_response(req, 503, message);\n}" },
+    { "id": "ev_refresh",     "claim": "Background tick refreshes the flag every 3 seconds; verbose log only every 9th tick",                                              "source": "src/typesense_server_utils.cpp:466-469",         "confidence": "high",   "status": "observed", "code": "if (raft_counter % 3 == 0) {\n    bool log_msg = (raft_counter % 9 == 0);\n    replication_state.refresh_catchup_status(log_msg);\n}" },
+    { "id": "ev_thresh",      "claim": "Either apply_lag > healthy_read_lag or num_queued_writes > healthy_read_lag flips read_caught_up to false",                       "source": "src/raft_server.cpp:833-855",                    "confidence": "high",   "status": "observed", "code": "if (apply_lag > healthy_read_lag) {\n    read_caught_up = false;\n} else if (num_queued_writes > healthy_read_lag) {\n    read_caught_up = false;\n} else {\n    read_caught_up = true;\n}" },
+    { "id": "ev_leader",      "claim": "Newly caught-up followers also verify against the leader via an HTTP /status call",                                              "source": "src/raft_server.cpp:857-888",                    "confidence": "high",   "status": "observed", "code": "if (is_leader || !read_caught_up) return;\n// HTTP GET leader/status, compare committed_index\nif ((leader_committed_index - n_status.committed_index) >= healthy_read_lag) {\n    read_caught_up = false;\n}" },
+    { "id": "ev_defaults",    "claim": "Default thresholds: healthy_read_lag = 1000, healthy_write_lag = 500",                                                            "source": "include/tsconfig.h:124-125",                     "confidence": "high",   "status": "observed", "code": "this->healthy_read_lag  = 1000;\nthis->healthy_write_lag =  500;" },
+    { "id": "ev_dns_lb",      "claim": "DNS load balancing across 3 nodes. No L4/L7 LB doing per-request polling.",                                          "source": "Typesense Cloud admin · cluster info",           "confidence": "high",   "status": "observed" },
+    { "id": "ev_thread",      "claim": "Customer reports ~1 minute of 503 “Not Ready or Lagging” after each node returned",                                              "source": "Plain thread · T-4006",                          "confidence": "high",   "status": "observed" },
+    { "id": "ev_body",        "claim": "503 body is well-formed JSON, not a connection failure. Back-pressure is server-side.",            "source": "Plain thread T-4006 · customer's quote",         "confidence": "high",   "status": "observed" },
+    { "id": "ev_logs_absence","claim": "No matches for “Not Ready or Lagging” in retained logs 08:00 → 11:00 UTC; verbose flip log only emits every 9th tick",            "source": "cloud_logs_search · 2026-05-14",                 "confidence": "medium", "status": "observed" },
+    { "id": "ev_ha_docs",     "claim": "HA docs recommend nearestNode + nodes[] in SDK config so the client can fail over automatically on 503",                          "source": "typesense.org/docs/guide/high-availability.html","confidence": "high",   "status": "observed" },
+    { "id": "ev_gh665",       "claim": "Open upstream issue: /health endpoint returns ok too soon",                                                                       "source": "github.com/typesense/typesense/issues/665",      "confidence": "high",   "status": "observed" },
+    { "id": "ev_gh729",       "claim": "Open upstream issue: Typesense suddenly stuck at not ready or lagging",                                                           "source": "github.com/typesense/typesense/issues/729",      "confidence": "high",   "status": "observed" }
+  ],
+  "uncertainties": [
+    "Cloud poll interval, DNS TTL: not measured. ~60 s window matches typical values.",
+    "<span class=\"mono\">apply_lag</span> at flip: not logged. Spike above 1000 inferred from 503 + code.",
+    "Timeline T+0 to T+65: illustrative magnitudes, not measured on this upgrade."
+  ]
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+  const DATA = JSON.parse(document.getElementById("data").textContent);
+  const $  = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const byId  = id => DATA.entities.find(e => e.id === id);
+  const evBy  = id => DATA.evidence.find(e => e.id === id);
+  const evtBy = id => DATA.events.find(e => e.id === id);
+  function svgEl(name, attrs, parent) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+    if (attrs) for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  }
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function wrap(text, maxChars) {
+    const words = String(text).split(/\s+/);
+    const lines = [];
+    let line = "";
+    for (const w of words) {
+      if ((line + " " + w).trim().length > maxChars) {
+        if (line) lines.push(line);
+        line = w;
+      } else { line = line ? line + " " + w : w; }
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+  const KW = /\b(bool|return|if|else|const|void|true|false|std::string|auto|class|namespace)\b/g;
+  function colorize(code) {
+    return esc(code)
+      .replace(/\/\/[^\n]*/g, m => `<span class="c">${m}</span>`)
+      .replace(KW, m => `<span class="k">${m}</span>`)
+      .replace(/"([^"\\]|\\.)*"/g, m => `<span class="s">${m}</span>`)
+      .replace(/\b(\d+)\b/g, m => `<span class="n">${m}</span>`)
+      .replace(/\b(read_caught_up|is_alive|is_read_caught_up|is_write_caught_up|refresh_catchup_status|apply_lag|num_queued_writes|healthy_read_lag|healthy_write_lag|committed_index|raft_counter|replication_state|HttpServer|ReplicationState)\b/g,
+        m => `<span class="t">${m}</span>`);
+  }
+
+  /* ---- takeaways / uncertainty / ledger ---- */
+  function renderTakeaways() {
+    const patterns = DATA.takeaways.map((t, i) => `
+      <li class="take">
+        <div class="n">${String(i + 1).padStart(2, "0")}</div>
+        <div class="body">${t}</div>
+      </li>
+    `).join("");
+    $("#takeaways").innerHTML = `<ol class="take-list">${patterns}</ol>`;
+  }
+  function renderUncertainty() {
+    $("#uncList").innerHTML = DATA.uncertainties.map(u => `<li>${u}</li>`).join("");
+    $("#uncCount").textContent = DATA.uncertainties.length;
+  }
+  function renderLedger() {
+    $("#ledger").innerHTML = DATA.evidence.map((ev, i) => evidenceCardHTML(ev, i + 1)).join("");
+  }
+  function evidenceCardHTML(ev, num) {
+    const sourceIsURL = /^https?:|^github\.com|^typesense\.org/i.test(ev.source);
+    const sourceMarkup = sourceIsURL
+      ? `<a href="${esc(ev.source.startsWith("http") ? ev.source : "https://" + ev.source)}" target="_blank" rel="noopener noreferrer">${esc(ev.source)}</a>`
+      : esc(ev.source);
+    return `
+      <article class="ev-card" id="ev-${ev.id}" data-evid="${ev.id}" data-conf="${ev.confidence}">
+        <header class="ev-card-head">
+          <span class="ev-id">EV·${String(num).padStart(2, "0")}</span>
+          <span class="ev-source">${sourceMarkup}</span>
+          <span class="chip ${ev.confidence}">${ev.confidence}</span>
+        </header>
+        <div class="ev-card-body">
+          <p class="ev-claim">${esc(ev.claim)}</p>
+          ${ev.code ? `<pre class="ev-code">${colorize(ev.code)}</pre>` : ""}
+        </div>
+      </article>
+    `;
+  }
+
+  /* ---- deeper links: jump to lens view + smooth-scroll the canvas into view ---- */
+  function wireDeeper() {
+    $$(".deeper a[data-jump]").forEach(a => {
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const v = a.getAttribute("data-jump");
+        switchView(v);
+        const exhibit = document.querySelector(".exhibit");
+        if (exhibit) exhibit.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
+  /* ---- graph ---- */
+  const GRAPH = {
+    sym:  { x: 440, y: 30,  w: 300, h: 56 },
+    hA:   { x: 110, y: 160, w: 260, h: 60 },
+    hB:   { x: 580, y: 160, w: 340, h: 60 },
+    f1:   { x: 470, y: 290, w: 220, h: 52 },
+    f2:   { x: 720, y: 290, w: 240, h: 52 },
+    f3:   { x: 470, y: 372, w: 220, h: 52 },
+    f4:   { x: 720, y: 372, w: 240, h: 52 },
+    mit1: { x: 170, y: 510, w: 300, h: 54 },
+    mit2: { x: 500, y: 510, w: 220, h: 54 },
+    mit3: { x: 750, y: 510, w: 220, h: 54 }
+  };
+  function renderGraph() {
+    const g = $("#graphLayer");
+    if (!g) return;
+    g.innerHTML = "";
+
+    // layer bands . one rule line + label per row so the eye can scan
+    // symptom > hypothesis > factor > mitigation without parsing every node.
+    const BANDS = [
+      { y: 120, label: "HYPOTHESES" },
+      { y: 250, label: "FACTORS"    },
+      { y: 470, label: "MITIGATIONS"}
+    ];
+    BANDS.forEach(b => {
+      // full-width solid rule, thicker, in the strong rule color so it
+      // reads as a real divider even on the ink surface.
+      svgEl("line", {
+        x1: 0, y1: b.y, x2: 1180, y2: b.y,
+        stroke: "var(--rule-strong)", "stroke-width": "2"
+      }, g);
+      const t = svgEl("text", {
+        x: 16, y: b.y - 10,
+        class: "band-label", "text-anchor": "start"
+      }, g);
+      t.textContent = b.label;
+    });
+    // band label above the symptom row too
+    const tSym = svgEl("text", {
+      x: 16, y: 22, class: "band-label", "text-anchor": "start"
+    }, g);
+    tSym.textContent = "SYMPTOM";
+    for (const r of DATA.relations) {
+      const a = GRAPH[r.from], b = GRAPH[r.to];
+      if (!a || !b) continue;
+      const x1 = a.x + a.w / 2;
+      const y1 = a.y + a.h;
+      const x2 = b.x + b.w / 2;
+      const y2 = b.y;
+      const dy = (y2 - y1) * 0.45;
+      const cls = ["edge"];
+      cls.push(r.confidence || "medium");
+      if (r.mit) cls.push("mit");
+      if (r.disputed) cls.push("disputed");
+      const path = svgEl("path", {
+        d: `M ${x1} ${y1} C ${x1} ${y1 + dy}, ${x2} ${y2 - dy}, ${x2} ${y2}`,
+        class: cls.join(" "),
+        "data-from": r.from, "data-to": r.to
+      }, g);
+      if (r.disputed)      path.setAttribute("marker-end", "url(#arrow-coral)");
+      else if (r.mit)      path.setAttribute("marker-end", "url(#arrow-mint)");
+      else if (r.confidence === "medium") path.setAttribute("marker-end", "url(#arrow-amber)");
+      else if (r.confidence === "high")   path.setAttribute("marker-end", "url(#arrow-mint)");
+      else                 path.setAttribute("marker-end", "url(#arrow-default)");
+
+      // label . caveman short forms keep the picture readable when 7 edges
+      // fan out of a single node. stroke style already encodes confidence,
+      // so the label only has to say "what kind of relation".
+      const SHORT = {
+        "considered":  "?",
+        "confirmed":   "yes",
+        "subsumed by": "→",
+        "contains":    "in",
+        "amplified by":"amp",
+        "mitigated by":"fix",
+        "tracked by":  "track"
+      };
+      const label = SHORT[r.kind] || r.kind;
+      // skip the noisiest band of labels . three "fix"/"track" edges to
+      // mitigations all overlap the symptom-to-hypothesis spine; the mint
+      // stroke + arrowhead already tells the eye these are remediations.
+      const skipLabel = r.mit;
+      if (!skipLabel) {
+        const lx = (x1 + x2) / 2;
+        const ly = (y1 + y2) / 2;
+        const padding = 5;
+        const textW = label.length * 5.6 + padding * 2;
+        svgEl("rect", {
+          x: lx - textW / 2, y: ly - 7, width: textW, height: 12,
+          rx: 2, ry: 2,
+          fill: "var(--bg-1)", stroke: "var(--rule)",
+          "data-from": r.from, "data-to": r.to,
+          class: "edge-label-bg"
+        }, g);
+        const t = svgEl("text", {
+          x: lx, y: ly + 2, class: "edge-label",
+          "text-anchor": "middle",
+          "data-from": r.from, "data-to": r.to
+        }, g);
+        t.textContent = label;
+      }
+    }
+    for (const id in GRAPH) {
+      const ent = byId(id); if (!ent) continue;
+      const pos = GRAPH[id];
+      const cls = ["node", ent.kind, ent.status || "observed"];
+      const ng = svgEl("g", { class: cls.join(" "), "data-id": id }, g);
+      svgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 5, ry: 5, class: "node-bg" }, ng);
+      if (ent.status === "disputed") {
+        svgEl("rect", {
+          x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 5, ry: 5,
+          class: "node-hatch", "pointer-events": "none"
+        }, ng);
+      }
+      svgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: 2.5, rx: 5, ry: 5, class: "node-stripe", "pointer-events": "none" }, ng);
+      const lines = wrap(ent.label, Math.floor(pos.w / 7));
+      const lh = 15;
+      const startY = pos.y + (pos.h - (lines.length - 1) * lh) / 2 + 5;
+      lines.forEach((line, i) => {
+        const t = svgEl("text", { x: pos.x + 12, y: startY + i * lh, class: "node-label", "text-anchor": "start" }, ng);
+        t.textContent = line;
+      });
+      // meta is intentionally minimal . confidence is already encoded by the
+      // node stroke style (solid / dashed / hatched), so we only show kind
+      // and non-default status to avoid spilling out of narrow nodes.
+      const meta = [ent.kind];
+      if (ent.status && ent.status !== "active" && ent.status !== "observed") {
+        meta.push(ent.status);
+      }
+      const m = svgEl("text", { x: pos.x + pos.w - 10, y: pos.y + pos.h - 7, class: "node-meta", "text-anchor": "end" }, ng);
+      m.textContent = meta.join(" · ");
+      ng.addEventListener("click", () => selectEntity(id));
+      ng.addEventListener("mouseenter", () => highlightEdges(id, true));
+      ng.addEventListener("mouseleave", () => highlightEdges(id, false));
+    }
+  }
+  function highlightEdges(id, on) {
+    $$("#graphLayer .edge, #graphLayer .edge-label").forEach(el => {
+      const f = el.getAttribute("data-from"), t = el.getAttribute("data-to");
+      if (f === id || t === id) el.classList.toggle("hot", on);
+      else el.classList.toggle("faded", on);
+    });
+  }
+
+  /* ---- timeline ---- */
+  function renderTimeline() {
+    const c = $("#tlCanvas");
+    c.innerHTML = "";
+    const TOTAL = 70;
+    const laneH = 100;
+    const topPad = 18;
+    const totalH = topPad + DATA.lanes.length * laneH + 30;
+    c.style.minHeight = totalH + "px";
+
+    DATA.phases.forEach(p => {
+      const ph = document.createElement("div");
+      ph.className = "tl-phase " + p.cls;
+      ph.style.left  = `${(p.from / TOTAL) * 100}%`;
+      ph.style.width = `${((p.to - p.from) / TOTAL) * 100}%`;
+      const lbl = document.createElement("div");
+      lbl.className = "tl-phase-label";
+      lbl.textContent = p.label;
+      ph.appendChild(lbl);
+      c.appendChild(ph);
+    });
+
+    DATA.lanes.forEach((lane, i) => {
+      const top = topPad + i * laneH;
+      const laneLabel = document.createElement("div");
+      laneLabel.className = "tl-lane-label";
+      laneLabel.style.top = (top + laneH / 2 - 10) + "px";
+      laneLabel.innerHTML = `<span>${esc(lane.label)}</span><span class="sub">${esc(lane.sub || "")}</span>`;
+      c.appendChild(laneLabel);
+      const track = document.createElement("div");
+      track.className = "tl-lane-track";
+      track.style.top = (top + laneH / 2) + "px";
+      c.appendChild(track);
+    });
+
+    DATA.lanes.forEach((lane, i) => {
+      const top = topPad + i * laneH;
+      const trackTop = top + laneH / 2;
+      const events = DATA.events.filter(e => e.lane === lane.id);
+      events.forEach(e => {
+        const ev = document.createElement("div");
+        ev.className = "tl-ev " + e.severity;
+        ev.style.left = (e.t / TOTAL) * 100 + "%";
+        ev.style.top = trackTop + "px";
+        ev.setAttribute("data-id", e.id);
+        ev.setAttribute("title", `T+${e.t}s . ${e.label}`);
+        ev.addEventListener("click", () => selectEvent(e.id));
+        c.appendChild(ev);
+      });
+    });
+
+    if (Array.isArray(DATA.chain)) {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "absolute";
+      wrapper.style.left = "170px";
+      wrapper.style.right = "14px";
+      wrapper.style.top = "0";
+      wrapper.style.bottom = "24px";
+      wrapper.style.pointerEvents = "none";
+      wrapper.style.zIndex = "1";
+      const cs = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      cs.setAttribute("width", "100%");
+      cs.setAttribute("height", "100%");
+      cs.setAttribute("preserveAspectRatio", "none");
+      cs.setAttribute("viewBox", `0 0 100 ${totalH}`);
+      cs.style.width = "100%"; cs.style.height = "100%";
+      let prev = null;
+      DATA.chain.forEach(eid => {
+        const e = evtBy(eid); if (!e) return;
+        const laneIdx = DATA.lanes.findIndex(l => l.id === e.lane);
+        const x = (e.t / TOTAL) * 100;
+        const y = topPad + laneIdx * laneH + laneH / 2;
+        if (prev) {
+          const ln = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          ln.setAttribute("x1", prev.x); ln.setAttribute("y1", prev.y);
+          ln.setAttribute("x2", x);      ln.setAttribute("y2", y);
+          ln.setAttribute("stroke", "var(--disputed)");
+          ln.setAttribute("stroke-width", "1");
+          ln.setAttribute("stroke-dasharray", "2 2");
+          ln.setAttribute("opacity", "0.55");
+          ln.setAttribute("vector-effect", "non-scaling-stroke");
+          cs.appendChild(ln);
+        }
+        prev = { x, y };
+      });
+      wrapper.appendChild(cs);
+      c.appendChild(wrapper);
+    }
+
+    const axis = document.createElement("div");
+    axis.className = "tl-axis";
+    for (let t = 0; t <= TOTAL; t += 10) {
+      const tick = document.createElement("div");
+      tick.className = "tl-tick";
+      tick.style.left = (t / TOTAL) * 100 + "%";
+      tick.textContent = `T+${t}s`;
+      axis.appendChild(tick);
+    }
+    c.appendChild(axis);
+
+    // event list below the lanes . the readable surface
+    const tlRoot = c.parentNode; // .tl
+    const existing = tlRoot.querySelector(".tl-list");
+    if (existing) existing.remove();
+    const list = document.createElement("div");
+    list.className = "tl-list";
+    const headerRow = `
+      <div class="tl-list-head">
+        <span>time</span><span>lane</span><span>event</span>
+      </div>`;
+    const laneName = id => (DATA.lanes.find(l => l.id === id) || {}).label || id;
+    const sorted = [...DATA.events].sort((a, b) => a.t - b.t);
+    const rows = sorted.map(e => `
+      <div class="tl-row ${e.severity}" data-id="${e.id}">
+        <span class="t-time">T+${e.t}s</span>
+        <span class="t-lane">${esc(laneName(e.lane))}</span>
+        <span class="t-label"><span class="sev-dot"></span>${esc(e.label)}</span>
+      </div>`).join("");
+    list.innerHTML = headerRow + rows;
+    tlRoot.appendChild(list);
+    list.querySelectorAll(".tl-row").forEach(row => {
+      row.addEventListener("click", () => selectEvent(row.getAttribute("data-id")));
+    });
+  }
+
+  /* ---- arch ---- */
+  const ARCH = {
+    comp_health:  { x: 60,  y: 50,  w: 220, h: 56 },
+    comp_gate:    { x: 60,  y: 150, w: 220, h: 56 },
+    comp_client:  { x: 60,  y: 250, w: 220, h: 56 },
+
+    comp_alive:   { x: 360, y: 50,  w: 220, h: 56 },
+    comp_state:   { x: 360, y: 150, w: 220, h: 56 },
+    comp_dns:     { x: 360, y: 250, w: 220, h: 56 },
+
+    comp_poller:  { x: 60,  y: 410, w: 220, h: 52 },
+    comp_leader:  { x: 360, y: 410, w: 220, h: 52 },
+
+    comp_refresh: { x: 360, y: 500, w: 220, h: 52 },
+    comp_lag:     { x: 80,  y: 500, w: 130, h: 48 },
+    comp_queue:   { x: 220, y: 500, w: 130, h: 48 },
+
+    comp_flag:    { x: 720, y: 170, w: 320, h: 200 }
+  };
+  function renderArch() {
+    const g = $("#archLayer");
+    g.innerHTML = "";
+    const flag = ARCH.comp_flag;
+    svgEl("circle", {
+      cx: flag.x + flag.w / 2, cy: flag.y + flag.h / 2, r: 220,
+      fill: "url(#convergence-glow)",
+      "pointer-events": "none"
+    }, g);
+
+    for (const r of DATA.archRelations) {
+      const a = ARCH[r.from], b = ARCH[r.to];
+      if (!a || !b) continue;
+      let ax, ay, bx, by, cps;
+      const rightward = (b.x > a.x);
+      if (rightward) {
+        ax = a.x + a.w; ay = a.y + a.h / 2;
+        bx = b.x;       by = b.y + b.h / 2;
+        const dx = (bx - ax) * 0.5;
+        cps = `C ${ax + dx} ${ay}, ${bx - dx} ${by}, ${bx} ${by}`;
+      } else {
+        ax = a.x + a.w / 2; ay = a.y;
+        bx = b.x + b.w / 2; by = b.y + b.h;
+        const dy = (ay - by) * 0.5;
+        cps = `C ${ax} ${ay - dy}, ${bx} ${by + dy}, ${bx} ${by}`;
+      }
+      const path = svgEl("path", {
+        d: `M ${ax} ${ay} ${cps}`,
+        class: "edge" + (r.hot ? " hot" : "") + " high",
+        "marker-end": r.hot ? "url(#arrow-arch-mint)" : "url(#arrow-arch)"
+      }, g);
+      const lx = (ax + bx) / 2;
+      const ly = (ay + by) / 2 - 4;
+      const padding = 5;
+      const textW = r.label.length * 5.0 + padding * 2;
+      svgEl("rect", { x: lx - textW / 2, y: ly - 8, width: textW, height: 12, rx: 2, ry: 2, fill: "var(--bg-1)", stroke: "var(--rule)" }, g);
+      const t = svgEl("text", { x: lx, y: ly + 1, class: "edge-label", "text-anchor": "middle" }, g);
+      t.textContent = r.label;
+    }
+
+    // flag
+    (function () {
+      const ng = svgEl("g", { class: "node state", "data-id": "comp_flag" }, g);
+      svgEl("rect", { x: flag.x, y: flag.y, width: flag.w, height: flag.h, rx: 6, ry: 6, fill: "var(--bg-2)", stroke: "var(--observed)", "stroke-width": 1.5 }, ng);
+      svgEl("rect", { x: flag.x, y: flag.y, width: flag.w, height: 2.5, rx: 6, ry: 6, fill: "var(--observed)" }, ng);
+      const eyebrow = svgEl("text", {
+        x: flag.x + 14, y: flag.y + 26,
+        fill: "var(--observed)",
+        "font-family": "var(--ff-mono)",
+        "font-size": 10,
+        "letter-spacing": "0.14em"
+      }, ng);
+      eyebrow.textContent = "CONVERGENCE POINT";
+      const t1 = svgEl("text", { x: flag.x + 14, y: flag.y + 64, fill: "var(--ink-0)", "font-family": "var(--ff-mono)", "font-size": 22, "font-weight": 500 }, ng);
+      t1.textContent = "read_caught_up";
+      const t2 = svgEl("text", { x: flag.x + 14, y: flag.y + 86, fill: "var(--ink-2)", "font-family": "var(--ff-mono)", "font-size": 11 }, ng);
+      t2.textContent = "std::atomic<bool>";
+      const lines = [
+        "Read by /health, the per-request gate,",
+        "and the alive() chain.",
+        "Written once every 3 s by",
+        "refresh_catchup_status()."
+      ];
+      lines.forEach((line, i) => {
+        const t = svgEl("text", { x: flag.x + 14, y: flag.y + 118 + i * 15, fill: "var(--ink-1)", "font-family": "var(--ff-sans)", "font-size": 12 }, ng);
+        t.textContent = line;
+      });
+      ng.addEventListener("click", () => selectEntity("comp_flag"));
+    })();
+
+    for (const id in ARCH) {
+      if (id === "comp_flag") continue;
+      const ent = byId(id); if (!ent) continue;
+      const pos = ARCH[id];
+      const cls = ["node", ent.kind, "observed"];
+      const ng = svgEl("g", { class: cls.join(" "), "data-id": id }, g);
+      svgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: pos.h, rx: 5, ry: 5, class: "node-bg" }, ng);
+      svgEl("rect", { x: pos.x, y: pos.y, width: pos.w, height: 2, rx: 5, ry: 5, class: "node-stripe", "pointer-events": "none" }, ng);
+      const lines = wrap(ent.label, Math.floor(pos.w / 7));
+      const lh = 15;
+      const startY = pos.y + (pos.h - (lines.length - 1) * lh) / 2 + 4;
+      lines.forEach((line, i) => {
+        const t = svgEl("text", { x: pos.x + 12, y: startY + i * lh, class: "node-label", "text-anchor": "start" }, ng);
+        t.textContent = line;
+      });
+      const m = svgEl("text", { x: pos.x + pos.w - 10, y: pos.y + pos.h - 7, class: "node-meta", "text-anchor": "end" }, ng);
+      m.textContent = ent.kind;
+      ng.addEventListener("click", () => selectEntity(id));
+    }
+  }
+
+  /* ---- selection ---- */
+  function selectEntity(id) {
+    const ent = byId(id); if (!ent) return;
+    $$("#graphLayer .node, #archLayer .node").forEach(n =>
+      n.classList.toggle("selected", n.getAttribute("data-id") === id)
+    );
+    const evs = (ent.evidence || []).map(evBy).filter(Boolean);
+    const tags = [];
+    if (ent.status) tags.push(`<span class="chip ${ent.status}">${ent.status}</span>`);
+    if (ent.confidence) tags.push(`<span class="chip ${ent.confidence}">conf · ${ent.confidence}</span>`);
+    if (ent.severity && ent.severity !== "info") {
+      const sev = ent.severity === "critical" || ent.severity === "high" ? "disputed"
+                : ent.severity === "medium" ? "inferred" : "proposed";
+      tags.push(`<span class="chip ${sev}">sev · ${ent.severity}</span>`);
+    }
+    const html = `
+      <article class="sel-card">
+        <div class="sel-stripe ${ent.kind}"></div>
+        <div class="sel-head">
+          <div class="sel-kind"><span>${ent.kind}</span><span class="mono dimmer">${ent.id}</span></div>
+          <h3 class="sel-label">${esc(ent.label)}</h3>
+          <div class="sel-tags">${tags.join("")}</div>
+          <p class="sel-desc">${esc(ent.desc || "")}</p>
+        </div>
+        ${evs.length ? `
+          <div class="sel-body">
+            <div class="ev-label">grounded in</div>
+            ${evs.map(ev => `<span class="ref" data-evid="${ev.id}">${ev.source}</span>`).join("")}
+          </div>
+        ` : ""}
+      </article>
+    `;
+    $("#selSlot").innerHTML = html;
+    $$(".ref", $("#selSlot")).forEach(r => {
+      r.addEventListener("click", () => scrollToEvidence(r.getAttribute("data-evid")));
+    });
+  }
+
+  function selectEvent(id) {
+    const ev = evtBy(id); if (!ev) return;
+    $$(".tl-ev").forEach(n => n.classList.toggle("selected", n.getAttribute("data-id") === id));
+    $$(".tl-row").forEach(n => n.classList.toggle("selected", n.getAttribute("data-id") === id));
+    const sevCls = ev.severity === "critical" ? "disputed" : ev.severity === "high" ? "inferred" : "proposed";
+    const evs = (ev.evidence || []).map(evBy).filter(Boolean);
+    $("#selSlot").innerHTML = `
+      <article class="sel-card">
+        <div class="sel-stripe event"></div>
+        <div class="sel-head">
+          <div class="sel-kind"><span>timeline event</span><span class="mono dimmer">T+${ev.t}s · ${ev.id}</span></div>
+          <h3 class="sel-label">${esc(ev.label)}</h3>
+          <div class="sel-tags">
+            <span class="chip ${sevCls}">sev · ${ev.severity}</span>
+            <span class="chip kind">lane · ${ev.lane}</span>
+          </div>
+        </div>
+        ${evs.length ? `
+          <div class="sel-body">
+            <div class="ev-label">grounded in</div>
+            ${evs.map(e => `<span class="ref" data-evid="${e.id}">${e.source}</span>`).join("")}
+          </div>
+        ` : ""}
+      </article>
+    `;
+    $$(".ref", $("#selSlot")).forEach(r => {
+      r.addEventListener("click", () => scrollToEvidence(r.getAttribute("data-evid")));
+    });
+  }
+  function scrollToEvidence(id) {
+    const el = document.getElementById("ev-" + id);
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 1300);
+  }
+
+  /* ---- filters ---- */
+  function applyFilters() {
+    const q = ($("#q").value || "").toLowerCase().trim();
+    $$("#graphLayer .node, #archLayer .node").forEach(n => {
+      const id = n.getAttribute("data-id");
+      const ent = byId(id); if (!ent) return;
+      const ok = !q || (ent.label.toLowerCase().includes(q) || (ent.desc || "").toLowerCase().includes(q));
+      n.classList.toggle("dim", !ok);
+    });
+    $$(".tl-ev").forEach(n => {
+      const ev = evtBy(n.getAttribute("data-id")); if (!ev) return;
+      const ok = !q || ev.label.toLowerCase().includes(q);
+      n.style.opacity = ok ? 1 : 0.15;
+    });
+    $$(".tl-row").forEach(n => {
+      const ev = evtBy(n.getAttribute("data-id")); if (!ev) return;
+      const ok = !q || ev.label.toLowerCase().includes(q);
+      n.style.opacity = ok ? 1 : 0.25;
+    });
+    $$("#ledger .ev-card").forEach(c => {
+      const ev = evBy(c.getAttribute("data-evid")); if (!ev) return;
+      const ok = !q || ev.claim.toLowerCase().includes(q) || ev.source.toLowerCase().includes(q);
+      c.classList.toggle("dim", !ok);
+    });
+  }
+
+  /* ---- view switching ---- */
+  const VIEW_META = {
+    graph: { num: "Exhibit A", title: "Mechanism", sub: "symptom → hypothesis → factor → mitigation" },
+    time:  { num: "Exhibit B", title: "Minute",    sub: "second-by-second across node, cloud, client" },
+    arch:  { num: "Exhibit C", title: "Wiring",    sub: "three readers, one atomic boolean, one writer" }
+  };
+  function switchView(v) {
+    $$(".view-pane").forEach(p => p.classList.toggle("active", p.getAttribute("data-view") === v));
+    $$(".lens").forEach(b => {
+      const on = b.getAttribute("data-view") === v;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    });
+    const meta = VIEW_META[v];
+    $("#canvasNum").textContent = meta.num;
+    $("#canvasTitle").textContent = meta.title;
+    $("#canvasSub").textContent = meta.sub;
+    // hide the Focused rail on Minute + Wiring . they don't surface entity detail
+    // the same way and the extra horizontal room makes the canvas readable.
+    const ex = document.querySelector(".exhibit");
+    if (ex) ex.classList.toggle("full", v !== "graph");
+    if (v === "time") renderTimeline();
+  }
+
+  function init() {
+    renderTakeaways();
+    renderUncertainty();
+    renderLedger();
+    renderGraph();
+    renderArch();
+    renderTimeline();
+    wireDeeper();
+
+    $$(".lens").forEach(b => b.addEventListener("click", () => switchView(b.getAttribute("data-view"))));
+    $("#q").addEventListener("input", applyFilters);
+
+    // top-level Diagnostic | Learning tabs
+    function switchTopTab(t) {
+      $$(".toptab").forEach(b => {
+        const on = b.getAttribute("data-tab") === t;
+        b.classList.toggle("active", on);
+        b.setAttribute("aria-pressed", on ? "true" : "false");
+      });
+      $$(".tab-pane").forEach(p => p.classList.toggle("active", p.getAttribute("data-tab") === t));
+      // when returning to diagnostic, redraw timeline if it is the active lens
+      if (t === "diagnostic") {
+        const activePane = document.querySelector(".view-pane.active");
+        if (activePane && activePane.getAttribute("data-view") === "time") renderTimeline();
+      }
+    }
+    $$(".toptab").forEach(b => b.addEventListener("click", () => switchTopTab(b.getAttribute("data-tab"))));
+
+    document.addEventListener("keydown", e => {
+      if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "SELECT" || e.target.tagName === "TEXTAREA")) return;
+      if (e.key === "1") switchView("graph");
+      else if (e.key === "2") switchView("time");
+      else if (e.key === "3") switchView("arch");
+      else if (e.key === "/") { e.preventDefault(); $("#q").focus(); }
+    });
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if ($(".view-pane.active").getAttribute("data-view") === "time") renderTimeline();
+      }, 120);
+    });
+  }
+  document.addEventListener("DOMContentLoaded", init);
+})();
+</script>
+
+</body>
+</html>
