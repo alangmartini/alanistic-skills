@@ -9,7 +9,7 @@ Install a single skill on Windows:
 ```powershell
 $dest = "$env:USERPROFILE\.codex\skills"
 New-Item -ItemType Directory -Force $dest
-Copy-Item -Recurse .\skills\test-driven-development $dest
+Copy-Item -Recurse .\plugins\dev-skills\skills\test-driven-development $dest
 ```
 
 Install all skills on Windows:
@@ -17,14 +17,16 @@ Install all skills on Windows:
 ```powershell
 $dest = "$env:USERPROFILE\.codex\skills"
 New-Item -ItemType Directory -Force $dest
-Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\dev-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\output-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
 ```
 
 Install all skills on macOS/Linux:
 
 ```bash
 mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-cp -R skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
+cp -R plugins/dev-skills/skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
+cp -R plugins/output-skills/skills/* "${CODEX_HOME:-$HOME/.codex}/skills/"
 ```
 
 Restart Codex after installing or updating skills.
@@ -35,13 +37,8 @@ Restart Codex after installing or updating skills.
 
 ```text
 /plugin marketplace add alangmartini/alanistic-skills
-/plugin install alanistic-skills
-```
-
-To also install the interactive HTML output plugin:
-
-```text
-/plugin install interactive-output-skills
+/plugin install dev-skills@alanistic-skills
+/plugin install output-skills@alanistic-skills
 ```
 
 **User-level copy on Windows:**
@@ -49,14 +46,16 @@ To also install the interactive HTML output plugin:
 ```powershell
 $dest = "$env:USERPROFILE\.claude\skills"
 New-Item -ItemType Directory -Force $dest
-Get-ChildItem .\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\dev-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
+Get-ChildItem .\plugins\output-skills\skills -Directory | Copy-Item -Destination $dest -Recurse -Force
 ```
 
 **User-level copy on macOS/Linux:**
 
 ```bash
 mkdir -p "$HOME/.claude/skills"
-cp -R skills/* "$HOME/.claude/skills/"
+cp -R plugins/dev-skills/skills/* "$HOME/.claude/skills/"
+cp -R plugins/output-skills/skills/* "$HOME/.claude/skills/"
 ```
 
 For project-scoped skills, copy into `.claude/skills/` inside the target project instead. Restart Claude Code after installing or updating skills.
@@ -128,10 +127,10 @@ Some skills may create files such as `SPEC.md`, `tasks/plan.md`, or `tasks/todo.
 
 ## Plugin Manifests
 
-The repository ships two plugins, each with both a Codex and a Claude Code manifest:
+The repository ships two plugins from one marketplace named `alanistic-skills`, each with both a Codex and a Claude Code manifest:
 
-- Core plugin (`alanistic-skills`): `.codex-plugin/plugin.json` and `.claude-plugin/plugin.json` at the repo root, with skills under `skills/`.
-- Output plugin (`interactive-output-skills`): `plugins/output/.codex-plugin/plugin.json` and `plugins/output/.claude-plugin/plugin.json`, with skills under `plugins/output/skills/`.
+- `dev-skills` (engineering workflows): `plugins/dev-skills/.codex-plugin/plugin.json` and `plugins/dev-skills/.claude-plugin/plugin.json`, with skills under `plugins/dev-skills/skills/`.
+- `output-skills` (interactive HTML output + caveman): `plugins/output-skills/.codex-plugin/plugin.json` and `plugins/output-skills/.claude-plugin/plugin.json`, with skills under `plugins/output-skills/skills/`.
 
 Manual copy into `~/.codex/skills` or `~/.claude/skills` remains supported when plugin installation is not available.
 

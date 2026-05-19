@@ -1,6 +1,6 @@
 {
-  "name": "alanistic-skills",
-  "version": "1.0.4",
+  "name": "dev-skills",
+  "version": "1.0.5",
   "description": "Production-grade software engineering skills packaged for OpenAI Codex.",
   "author": {
     "name": "Alan Martini (originally based on work by Addy Osmani)",
@@ -18,7 +18,7 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Alanistic Skills",
+    "displayName": "Dev Skills",
     "shortDescription": "Engineering workflows for Codex, from spec to ship.",
     "longDescription": "A Codex-only bundle of software engineering skills covering specification, planning, implementation, testing, review, security, performance, documentation, session handoffs, explicit compressed communication, changelog and version release preparation, and launch readiness.",
     "developerName": "Alan Martini",
@@ -34,8 +34,7 @@
       "Use TDD to implement this change.",
       "Review this diff before merge.",
       "Create a handoff for the next Codex session.",
-      "Create a changelog fragment for this change.",
-      "Use caveman full for compressed responses."
+      "Create a changelog fragment for this change."
     ],
     "brandColor": "#111827"
   }
