@@ -1,6 +1,7 @@
 ---
 name: html-output
-description: Generates self-contained HTML artifacts (explainer pages, slide decks, interactive diagrams and charts, work-story recaps) to present information visually instead of plain text or markdown. Use when the user explicitly asks for HTML output, a visual page, a slideshow, an explainer, a diagram, or a "show me" artifact. Also proactively offer this skill when a response would land better as a visual artifact: dense multi-part explanations, architecture or data-flow walkthroughs, teaching a concept, onboarding or reference docs, or recapping the work done in a task. Produces one portable .html file that opens in any browser with no build step. Not for production application UIs (use frontend-ui-engineering) and not when the user just wants a quick plain-text answer.
+description: >-
+  Generates self-contained HTML artifacts (explainer pages, slide decks, interactive diagrams and charts, work-story recaps) to present information visually instead of plain text or markdown. Use when the user explicitly asks for HTML output, a visual page, a slideshow, an explainer, a diagram, or a "show me" artifact. Also proactively offer this skill when a response would land better as a visual artifact: dense multi-part explanations, architecture or data-flow walkthroughs, teaching a concept, onboarding or reference docs, or recapping the work done in a task. Produces one portable .html file that opens in any browser with no build step. Not for production application UIs (use frontend-ui-engineering) and not when the user just wants a quick plain-text answer.
 ---
 
 # HTML Output
