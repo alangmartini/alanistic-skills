@@ -111,6 +111,7 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Unsure which workflow applies | `using-agent-skills` |
 | Explicit compressed communication | `caveman` *(output-skills)* |
 | Handing work to a fresh session | `handoff` |
+| Making the next run of a skill faster or more accurate | `improve-skill` |
 | Vague idea or product concept | `idea-refine` |
 | New project, feature, or significant change | `spec-driven-development` |
 | Turning a spec into tasks | `planning-and-task-breakdown` |
@@ -136,6 +137,7 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 |---|---|
 | [using-agent-skills](plugins/dev-skills/skills/using-agent-skills/SKILL.md) | Discover which skill applies to a task |
 | [handoff](plugins/dev-skills/skills/handoff/SKILL.md) | Compact current context for a fresh agent session |
+| [improve-skill](plugins/dev-skills/skills/improve-skill/SKILL.md) | Retrospect a finished run for skill and MCP speed and accuracy gaps |
 
 ### Define
 
