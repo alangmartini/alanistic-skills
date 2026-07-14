@@ -90,12 +90,12 @@ plugins/
   output-skills/
     .claude-plugin/plugin.json      # output-skills
     .codex-plugin/plugin.json       # output-skills (Codex)
-    skills/                         # html-output, make-architecture-flow, make-interactive-visualization, caveman
+    skills/                         # html-output, make-workflow-canvas, make-architecture-flow, make-interactive-visualization, caveman
 references/
 docs/
 ```
 
-The `dev-skills` plugin covers engineering workflows. The `output-skills` plugin covers self-contained interactive HTML generation plus the caveman compression mode. Both Codex and Claude Code consume the same `SKILL.md` format, so each plugin ships both manifests.
+The `dev-skills` plugin covers engineering workflows. The `output-skills` plugin covers self-contained interactive HTML generation, editable workflow canvases, and the caveman compression mode. Both Codex and Claude Code consume the same `SKILL.md` format, so each plugin ships both manifests.
 
 Per-agent setup details:
 
@@ -115,8 +115,9 @@ Both Codex and Claude Code read each skill's `name` and `description` metadata t
 | Vague idea or product concept | `idea-refine` |
 | New project, feature, or significant change | `spec-driven-development` |
 | Turning a spec into tasks | `planning-and-task-breakdown` |
+| Creating an editable workflow builder or node canvas | `make-workflow-canvas` *(output-skills)* |
 | Creating a codebase architecture map | `make-architecture-flow` *(output-skills)* |
-| Visualizing diagnostics, incidents, issues, or workflows | `make-interactive-visualization` *(output-skills)* |
+| Visualizing diagnostics, incidents, issues, timelines, or evidence packages | `make-interactive-visualization` *(output-skills)* |
 | Producing a single-file interactive HTML report | `html-output` *(output-skills)* |
 | Implementing code | `incremental-implementation` |
 | Writing or changing tests | `test-driven-development` |
@@ -204,6 +205,7 @@ These ship as a second plugin in the same marketplace, `output-skills`, living a
 | Skill | Purpose |
 |---|---|
 | [html-output](plugins/output-skills/skills/html-output/SKILL.md) | Produce a single-file interactive HTML report from any source material |
+| [make-workflow-canvas](plugins/output-skills/skills/make-workflow-canvas/SKILL.md) | Generate a polished editable workflow or architecture canvas with draggable nodes and typed ports |
 | [make-architecture-flow](plugins/output-skills/skills/make-architecture-flow/SKILL.md) | Generate an interactive architecture map and agent JSON from a codebase |
 | [make-interactive-visualization](plugins/output-skills/skills/make-interactive-visualization/SKILL.md) | Generate self-contained interactive visualizations from complex source material |
 | [caveman](plugins/output-skills/skills/caveman/SKILL.md) | Switch to explicit compressed communication modes |

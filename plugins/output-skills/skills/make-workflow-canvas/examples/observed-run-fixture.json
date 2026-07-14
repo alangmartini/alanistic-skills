@@ -1,0 +1,66 @@
+{
+  "schema_version": "workflow-observed-run/1",
+  "observed_run": {
+    "id": "observed-fixture-1",
+    "kind": "observed",
+    "label": "Observed run fixture",
+    "captured_at": "2026-01-01T00:00:00.000Z",
+    "sanitized": true,
+    "artifact_id": "content-intake-workflow",
+    "artifact_version": "1.0.0",
+    "graph_digest": "b2b43e95eb88417333d6d58941fdbc2e4323552b36831004181890f0dfb1e897",
+    "provenance": {
+      "type": "fixture",
+      "source": "local sanitized fixture"
+    },
+    "verification": {
+      "trusted": true,
+      "algorithm": "SHA-256",
+      "digest": "fcf66818c1411a4ce0a8b036f7beabca287e49743d5a971216621d7afd3a12ff"
+    },
+    "steps": [
+      {
+        "node_id": "node-webhook",
+        "status": "succeeded",
+        "offset_ms": 0,
+        "duration_ms": 12,
+        "error_code": ""
+      },
+      {
+        "node_id": "node-endpoint",
+        "status": "succeeded",
+        "offset_ms": 12,
+        "duration_ms": 34,
+        "error_code": ""
+      },
+      {
+        "node_id": "node-parser",
+        "status": "succeeded",
+        "offset_ms": 46,
+        "duration_ms": 21,
+        "error_code": ""
+      },
+      {
+        "node_id": "node-agent",
+        "status": "succeeded",
+        "offset_ms": 67,
+        "duration_ms": 184,
+        "error_code": ""
+      },
+      {
+        "node_id": "node-trace",
+        "status": "succeeded",
+        "offset_ms": 251,
+        "duration_ms": 18,
+        "error_code": ""
+      },
+      {
+        "node_id": "node-publish",
+        "status": "succeeded",
+        "offset_ms": 251,
+        "duration_ms": 29,
+        "error_code": ""
+      }
+    ]
+  }
+}

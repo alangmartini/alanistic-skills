@@ -16,7 +16,7 @@
     {
       "name": "output-skills",
       "source": "./plugins/output-skills",
-      "description": "Self-contained interactive HTML output skills (architecture maps, visualizations, HTML reports) plus the caveman compression mode."
+      "description": "Self-contained interactive HTML output skills for editable workflow canvases, architecture maps, visualizations, and HTML reports, plus the caveman compression mode."
     }
   ]
 }

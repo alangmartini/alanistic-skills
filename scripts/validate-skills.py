@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import re
 import sys
@@ -164,6 +165,29 @@ def validate_skills(skills_dir: Path) -> None:
             fail(f"{skill_path.relative_to(ROOT)} description is longer than 1024 characters")
 
 
+def validate_workflow_canvas() -> None:
+    validator_path = ROOT / "scripts" / "validate-workflow-canvas.py"
+    if not validator_path.is_file():
+        fail("scripts/validate-workflow-canvas.py is missing")
+
+    spec = importlib.util.spec_from_file_location(
+        "alanistic_validate_workflow_canvas", validator_path
+    )
+    if spec is None or spec.loader is None:
+        fail("could not load scripts/validate-workflow-canvas.py")
+    module = importlib.util.module_from_spec(spec)
+    previous_dont_write_bytecode = sys.dont_write_bytecode
+    sys.dont_write_bytecode = True
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.dont_write_bytecode = previous_dont_write_bytecode
+    try:
+        module.validate_workflow_canvas(ROOT)
+    except module.ValidationError as error:
+        fail(str(error))
+
+
 def main() -> None:
     for plugin in PLUGINS:
         validate_codex_plugin(plugin["root"], plugin["name"])
@@ -171,6 +195,7 @@ def main() -> None:
         validate_skills(plugin["skills"])
     validate_claude_marketplace()
     validate_removed_artifacts()
+    validate_workflow_canvas()
     plugin_count = len(PLUGINS)
     print(
         f"Skill bundle validation passed ({plugin_count} plugins, Codex + Claude Code manifests)."

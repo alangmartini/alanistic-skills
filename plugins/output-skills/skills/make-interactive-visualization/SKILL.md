@@ -1,6 +1,6 @@
 ---
 name: make-interactive-visualization
-description: Creates source-grounded, self-contained interactive visualizations for complex information. Use when a user asks to visualize diagnostics, incidents, issues, traces, workflows, architecture, dependency maps, timelines, investigations, support cases, release plans, or other multi-part material as an HTML artifact or structured visual model.
+description: Creates source-grounded, self-contained interactive visualizations for static flows, diagnostics, incidents, issues, traces, architecture and dependency views, timelines, investigations, support cases, release plans, and evidence packages as HTML artifacts or structured visual models. For editable workflow or node canvases, use `make-workflow-canvas`.
 ---
 
 # Make Interactive Visualization
@@ -9,7 +9,7 @@ description: Creates source-grounded, self-contained interactive visualizations 
 
 Turn complex source material into a polished, interactive, single-file HTML visualization. The artifact should help a human understand structure, flow, causality, priority, or state faster than prose alone.
 
-This skill is general-purpose. For full codebase architecture maps with agent JSON, prefer `make-architecture-flow`. Use this skill for visual diagnostics, issue triage, incidents, support investigations, timelines, process flows, dependency maps, and mixed evidence packages.
+This skill is general-purpose. For full codebase architecture maps with agent JSON, prefer `make-architecture-flow`. For editable workflow or architecture canvases with draggable nodes, typed ports, connectable edges, inspectors, validation, or import and export, use `make-workflow-canvas`. Use this skill for static process flows, visual diagnostics, issue triage, incidents, support investigations, timelines, dependency maps, and mixed evidence packages.
 
 ## Core Principle
 

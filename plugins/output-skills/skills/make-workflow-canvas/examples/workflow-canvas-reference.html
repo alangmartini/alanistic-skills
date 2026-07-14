@@ -1,0 +1,2435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workflow Canvas Reference</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f7f7f5;
+      --surface: #fcfcfb;
+      --surface-strong: #ffffff;
+      --surface-soft: #f1f1ee;
+      --ink: #0b0b0b;
+      --ink-2: #52514e;
+      --muted: #6f6d68;
+      --line: #e1e0d9;
+      --line-strong: #c3c2b7;
+      --accent: #256abf;
+      --accent-soft: #eaf3fd;
+      --good: #0ca30c;
+      --warning: #a96600;
+      --critical: #d03b3b;
+      --series-1: #2a78d6;
+      --series-2: #1baf7a;
+      --series-3: #eda100;
+      --series-4: #008300;
+      --series-5: #4a3aa7;
+      --series-6: #e34948;
+      --series-7: #e87ba4;
+      --series-8: #eb6834;
+      --node-width: 224px;
+      --toolbar-height: 46px;
+      --bottom-height: 220px;
+      --radius: 6px;
+      --shadow: 0 1px 2px rgba(11, 11, 11, .08), 0 8px 24px rgba(11, 11, 11, .04);
+      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body { font-family: var(--sans); color: var(--ink); background: var(--page); font-size: 12px; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .46; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .app {
+      height: 100vh;
+      display: grid;
+      grid-template-rows: var(--toolbar-height) minmax(0, 1fr) var(--bottom-height);
+      background: var(--surface);
+    }
+    .app.bottom-collapsed { grid-template-rows: var(--toolbar-height) minmax(0, 1fr) 34px; }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-strong);
+      padding: 0 10px;
+      gap: 10px;
+      z-index: 20;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 222px;
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      color: #fff;
+      background: #111827;
+      font-size: 11px;
+      letter-spacing: -.02em;
+    }
+
+    .brand-name { color: var(--accent); }
+    .crumb { color: var(--muted); font-weight: 500; }
+    .title-input {
+      min-width: 160px;
+      max-width: 250px;
+      border: 0;
+      background: transparent;
+      font-weight: 650;
+      padding: 4px 5px;
+      border-radius: 4px;
+    }
+
+    .version, .save-state {
+      font-family: var(--mono);
+      color: var(--muted);
+      font-size: 10px;
+      white-space: nowrap;
+    }
+
+    .toolbar-spacer { flex: 1; }
+    .mode-tabs, .toolbar-actions { display: flex; align-items: center; gap: 3px; }
+
+    .tool-button, .mode-button, .icon-button {
+      min-height: 30px;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      background: transparent;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--ink-2);
+      white-space: nowrap;
+    }
+
+    .tool-button:hover, .mode-button:hover, .icon-button:hover { background: var(--surface-soft); color: var(--ink); }
+    .mode-button.active { background: var(--surface-soft); border-color: var(--line); color: var(--ink); }
+    .tool-button.primary { color: #fff; background: #111827; border-color: #111827; }
+    .tool-button.primary:hover { background: #273143; }
+    .tool-button.danger { color: var(--critical); }
+    .shortcut { color: var(--muted); font-family: var(--mono); font-size: 9px; }
+
+    .main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 236px minmax(0, 1fr) 310px;
+      overflow: hidden;
+    }
+
+    .palette, .inspector {
+      min-width: 0;
+      overflow: hidden;
+      background: var(--surface-strong);
+      display: flex;
+      flex-direction: column;
+    }
+    .palette { border-right: 1px solid var(--line); }
+    .inspector { border-left: 1px solid var(--line); }
+
+    .panel-heading {
+      min-height: 42px;
+      padding: 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid var(--line);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--ink-2);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .collapse-button {
+      width: 24px;
+      height: 24px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 4px;
+    }
+
+    .palette-search-wrap { padding: 10px; border-bottom: 1px solid var(--line); }
+    .search-box { position: relative; }
+    .search-box input {
+      width: 100%;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 0 28px 0 30px;
+      background: var(--surface);
+    }
+    .search-box .search-icon { position: absolute; left: 9px; top: 8px; color: var(--muted); }
+    .search-box .search-key { position: absolute; right: 8px; top: 7px; font-family: var(--mono); color: var(--muted); }
+
+    .palette-scroll, .inspector-scroll { flex: 1; min-height: 0; overflow: auto; }
+    .palette-empty { padding: 18px 12px; color: var(--muted); text-align: center; }
+
+    .palette-group { border-bottom: 1px solid rgba(225, 224, 217, .65); }
+    .group-button {
+      width: 100%;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 10px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-2);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: left;
+    }
+    .group-button:hover { background: var(--surface-soft); }
+    .group-caret { width: 10px; color: var(--muted); }
+    .group-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--category-color); }
+    .group-count { margin-left: auto; color: var(--muted); font-family: var(--mono); }
+
+    .palette-item {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      cursor: grab;
+      user-select: none;
+    }
+    .palette-item:hover { background: var(--surface-soft); }
+    .palette-item:active { cursor: grabbing; }
+    .type-icon {
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      color: #fff;
+      background: var(--category-color);
+      font-weight: 800;
+      font-size: 10px;
+    }
+    .palette-label { font-size: 11px; font-weight: 650; line-height: 1.25; }
+    .palette-type { color: var(--muted); font-family: var(--mono); font-size: 9px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .palette-badge { font-family: var(--mono); font-size: 8px; color: var(--ink-2); background: var(--surface-soft); border: 1px solid var(--line); padding: 2px 4px; border-radius: 3px; }
+
+    .canvas-shell { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: var(--surface); }
+    .canvas {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      touch-action: none;
+      cursor: grab;
+      background-color: var(--surface);
+      background-image: radial-gradient(circle, rgba(82, 81, 78, .18) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .canvas.panning { cursor: grabbing; }
+    .canvas.connecting { cursor: crosshair; }
+
+    .world {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4000px;
+      height: 2400px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    .edge-layer, .node-layer { position: absolute; inset: 0; width: 4000px; height: 2400px; overflow: visible; }
+    .edge-layer { pointer-events: none; }
+    .node-layer { pointer-events: none; }
+
+    .edge-visible { fill: none; stroke: #8d8b86; stroke-width: 1.8; marker-end: url(#arrow-data); }
+    .edge-visible.control { stroke: var(--series-5); stroke-dasharray: 6 4; marker-end: url(#arrow-control); }
+    .edge-visible.error { stroke: var(--critical); stroke-dasharray: 3 4; marker-end: url(#arrow-error); }
+    .edge-visible.event { stroke: var(--series-1); marker-end: url(#arrow-event); }
+    .edge-visible.trace { stroke: var(--series-1); stroke-dasharray: 2 5; marker-end: url(#arrow-event); }
+    .edge-visible.selected { stroke-width: 3; filter: drop-shadow(0 0 3px rgba(42, 120, 214, .34)); }
+    .edge-hit { fill: none; stroke: transparent; stroke-width: 14; pointer-events: stroke; cursor: pointer; }
+    .edge-label rect { fill: rgba(252, 252, 251, .94); stroke: var(--line); rx: 4; }
+    .edge-label text { fill: var(--ink-2); font-family: var(--mono); font-size: 9px; }
+    .draft-edge { fill: none; stroke: var(--accent); stroke-width: 2; stroke-dasharray: 5 4; pointer-events: none; }
+
+    .node {
+      position: absolute;
+      width: var(--node-width);
+      min-height: 136px;
+      background: var(--surface-strong);
+      border: 1px solid var(--line-strong);
+      border-left: 3px solid var(--category-color);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      pointer-events: auto;
+      user-select: none;
+      overflow: visible;
+    }
+    .node:hover { border-color: #aaa8a1; }
+    .node:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .node.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(42, 120, 214, .14), var(--shadow); }
+    .node.related { box-shadow: 0 0 0 2px rgba(27, 175, 122, .16), var(--shadow); }
+    .node.dimmed { opacity: .46; }
+    .node.running { border-color: var(--accent); }
+    .node.succeeded { border-color: var(--good); }
+    .node.failed { border-color: var(--critical); }
+
+    .node-head {
+      min-height: 42px;
+      padding: 8px 9px 6px 8px;
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr) auto;
+      gap: 7px;
+      align-items: start;
+      cursor: move;
+    }
+    .node-title { font-size: 11px; font-weight: 720; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .node-type { color: var(--muted); font-family: var(--mono); font-size: 8.5px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .status-chip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 8px; color: var(--ink-2); }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+    .status-dot.active, .status-dot.succeeded { background: var(--good); }
+    .status-dot.running { background: var(--accent); }
+    .status-dot.paused, .status-dot.draft { background: var(--warning); }
+    .status-dot.failing, .status-dot.failed { background: var(--critical); }
+
+    .node-description { min-height: 34px; max-height: 42px; padding: 0 9px 7px 37px; color: var(--ink-2); font-size: 9.5px; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+    .node-meta { min-height: 29px; padding: 6px 8px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .meta-pill { min-width: 0; padding: 2px 5px; border-radius: 3px; background: var(--surface-soft); color: var(--ink-2); font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .meta-pill.mono { font-family: var(--mono); }
+    .latency-pill { margin-left: auto; color: var(--accent); background: var(--accent-soft); font-family: var(--mono); }
+
+    .port {
+      position: absolute;
+      top: var(--port-y);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 16px;
+      font-family: var(--mono);
+      font-size: 8px;
+      color: var(--muted);
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+    .port.input { right: calc(100% - 5px); flex-direction: row-reverse; }
+    .port.output { left: calc(100% - 5px); }
+    .port-dot {
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--surface-strong);
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+      flex: 0 0 auto;
+    }
+    .port.input .port-dot { background: var(--series-2); box-shadow: 0 0 0 1px var(--series-2); }
+    .port-label { max-width: 48px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: rgba(252, 252, 251, .9); padding: 0 2px; }
+    .port.invalid .port-dot { background: var(--critical); box-shadow: 0 0 0 1px var(--critical); }
+    .port:focus-visible { outline: none; }
+    .port:focus-visible .port-dot { box-shadow: 0 0 0 3px var(--surface-strong), 0 0 0 5px var(--accent); }
+
+    .canvas-banner {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 27px;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(252, 252, 251, .92);
+      color: var(--ink-2);
+      box-shadow: 0 2px 10px rgba(11, 11, 11, .05);
+      z-index: 9;
+      pointer-events: none;
+    }
+    .banner-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+    .canvas-banner strong { color: var(--accent); font-size: 10px; }
+    .canvas-banner span { font-size: 9px; }
+
+    .viewport-controls {
+      position: absolute;
+      left: 10px;
+      bottom: 10px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: rgba(252, 252, 251, .95);
+      box-shadow: 0 2px 8px rgba(11, 11, 11, .05);
+    }
+    .viewport-controls button { width: 29px; height: 29px; border: 0; border-right: 1px solid var(--line); background: transparent; }
+    .viewport-controls button:hover { background: var(--surface-soft); }
+    .zoom-readout { min-width: 48px; text-align: center; font-family: var(--mono); color: var(--ink-2); font-size: 9px; }
+
+    .minimap {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 150px;
+      height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: rgba(252, 252, 251, .94);
+      box-shadow: 0 2px 8px rgba(11, 11, 11, .05);
+      z-index: 10;
+      overflow: hidden;
+    }
+    .minimap-title { position: absolute; top: 5px; left: 7px; font-family: var(--mono); font-size: 8px; color: var(--muted); letter-spacing: .08em; }
+    .mini-node { position: absolute; height: 5px; min-width: 7px; border-radius: 1px; background: var(--category-color); opacity: .72; }
+    .mini-viewport { position: absolute; border: 1px solid var(--accent); background: rgba(42, 120, 214, .05); pointer-events: none; }
+
+    .toast-stack { position: absolute; right: 10px; top: 10px; z-index: 30; display: grid; gap: 6px; pointer-events: none; }
+    .toast { min-width: 230px; max-width: 340px; padding: 9px 11px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 5px; background: var(--surface-strong); box-shadow: var(--shadow); color: var(--ink-2); animation: toast-in .16s ease-out; }
+    .toast.error { border-left-color: var(--critical); }
+    .toast.success { border-left-color: var(--good); }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(-4px); } }
+
+    .empty-state { margin: auto; max-width: 230px; padding: 32px 20px; text-align: center; color: var(--muted); }
+    .empty-state strong { display: block; color: var(--ink); margin: 9px 0 5px; }
+
+    .inspector-content { padding: 12px; display: grid; gap: 13px; }
+    .form-section { display: grid; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .form-section:last-child { border-bottom: 0; }
+    .section-title { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); font-weight: 750; }
+    .field { display: grid; gap: 4px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .field label { color: var(--ink-2); font-size: 9px; font-weight: 650; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--surface);
+      padding: 6px 7px;
+      font-size: 10px;
+    }
+    .field textarea { min-height: 66px; resize: vertical; line-height: 1.4; }
+    .field .mono-input { font-family: var(--mono); }
+    .help { color: var(--muted); font-size: 8.5px; line-height: 1.35; }
+    .inspector-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .small-button { height: 28px; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); padding: 0 8px; color: var(--ink-2); }
+    .small-button:hover { background: var(--surface-soft); color: var(--ink); }
+    .small-button.danger { color: var(--critical); }
+
+    .port-editor { display: grid; gap: 6px; }
+    .port-editor-row { display: grid; grid-template-columns: 18px minmax(0, 1fr) minmax(0, 1fr) auto 24px; gap: 5px; align-items: center; }
+    .port-direction { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 3px; font-family: var(--mono); font-size: 8px; color: #fff; background: var(--series-2); }
+    .port-editor-row.output .port-direction { background: var(--accent); }
+    .port-editor-row > input { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 4px; padding: 5px; font-family: var(--mono); font-size: 8.5px; }
+    .port-flags { display: flex; gap: 4px; align-items: center; }
+    .port-flag { display: inline-flex; gap: 2px; align-items: center; color: var(--muted); font-family: var(--mono); font-size: 8px; }
+    .port-flag input { width: 12px; height: 12px; margin: 0; accent-color: var(--accent); }
+    .remove-port { width: 24px; height: 24px; border: 0; border-radius: 4px; background: transparent; color: var(--critical); }
+    .remove-port:hover { background: #fff0ef; }
+
+    .bottom-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: 34px minmax(0, 1fr);
+      border-top: 1px solid var(--line);
+      background: var(--surface-strong);
+      z-index: 15;
+    }
+    .bottom-panel.collapsed { grid-template-rows: 34px 0; }
+    .bottom-tabs { display: flex; align-items: stretch; gap: 0; padding-left: 236px; border-bottom: 1px solid var(--line); }
+    .bottom-tablist { display: flex; align-items: stretch; }
+    .bottom-tab { border: 0; border-right: 1px solid transparent; background: transparent; padding: 0 13px; color: var(--ink-2); }
+    .bottom-tab:hover { background: var(--surface-soft); }
+    .bottom-tab.active { color: var(--ink); background: var(--surface); border-right-color: var(--line); border-left: 1px solid var(--line); }
+    .tab-count { margin-left: 4px; font-family: var(--mono); color: var(--muted); }
+    .bottom-collapse { margin-left: auto; width: 34px; border: 0; border-left: 1px solid var(--line); background: transparent; color: var(--muted); }
+    .bottom-content { min-height: 0; overflow: auto; }
+
+    .issue-list, .diagnostic-list, .log-list { min-width: 760px; }
+    .issue-row, .diagnostic-row, .log-row {
+      min-height: 28px;
+      display: grid;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 12px 4px 246px;
+      border-bottom: 1px solid rgba(225, 224, 217, .55);
+      font-family: var(--mono);
+      font-size: 9px;
+    }
+    .issue-row { grid-template-columns: 56px 210px minmax(0, 1fr); cursor: pointer; }
+    .issue-row:hover { background: var(--surface-soft); }
+    .diagnostic-row { grid-template-columns: 90px 48px 180px minmax(0, 1fr); }
+    .log-row { grid-template-columns: 72px 54px 170px minmax(0, 1fr); }
+    .severity { font-weight: 800; text-transform: uppercase; }
+    .severity.error { color: var(--critical); }
+    .severity.warning { color: var(--warning); }
+    .severity.info { color: var(--accent); }
+    .diagnostic-level.error { color: var(--critical); }
+    .diagnostic-level.warn { color: var(--warning); }
+    .diagnostic-level.info { color: var(--good); }
+    .row-muted { color: var(--muted); }
+    .bottom-empty { padding: 32px 20px 32px 246px; color: var(--muted); }
+    .bottom-toolbar { min-height: 34px; display: flex; justify-content: flex-end; gap: 6px; padding: 4px 12px 4px 246px; border-bottom: 1px solid var(--line); }
+    .json-view { margin: 0; padding: 14px 18px 24px 246px; font-family: var(--mono); font-size: 9px; line-height: 1.5; color: var(--ink-2); white-space: pre-wrap; word-break: break-word; }
+
+    .compact-hidden { display: inline-flex; }
+    body.palette-collapsed .main { grid-template-columns: 44px minmax(0, 1fr) 310px; }
+    body.palette-collapsed .palette-search-wrap, body.palette-collapsed .group-button span:not(.group-dot):not(.group-caret), body.palette-collapsed .group-count, body.palette-collapsed .palette-item > :not(.type-icon) { display: none; }
+    body.palette-collapsed .palette-item { grid-template-columns: 22px; justify-content: center; padding: 7px 10px; }
+    body.palette-collapsed .panel-heading span { display: none; }
+    body.palette-collapsed .bottom-tabs, body.palette-collapsed .issue-row, body.palette-collapsed .diagnostic-row, body.palette-collapsed .log-row, body.palette-collapsed .bottom-toolbar, body.palette-collapsed .json-view, body.palette-collapsed .bottom-empty { padding-left: 44px; }
+    body.inspector-collapsed .main { grid-template-columns: 236px minmax(0, 1fr) 44px; }
+    body.inspector-collapsed .inspector-scroll, body.inspector-collapsed .panel-heading span { display: none; }
+    body.palette-collapsed.inspector-collapsed .main { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+
+    @media (max-width: 1360px) {
+      .brand { min-width: 196px; }
+      .compact-hidden { display: none; }
+      .main { grid-template-columns: 216px minmax(0, 1fr) 282px; }
+      .bottom-tabs, .issue-row, .diagnostic-row, .log-row, .bottom-toolbar, .json-view, .bottom-empty { padding-left: 216px; }
+      body.palette-collapsed .main { grid-template-columns: 44px minmax(0, 1fr) 282px; }
+      body.inspector-collapsed .main { grid-template-columns: 216px minmax(0, 1fr) 44px; }
+      body.palette-collapsed.inspector-collapsed .main { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+    }
+
+    @media (max-width: 1080px) {
+      .brand { min-width: 160px; }
+      .title-input { max-width: 185px; }
+      .mode-button, .tool-button { padding: 0 6px; font-size: 10px; }
+      .main { grid-template-columns: 44px minmax(0, 1fr) 44px; }
+      .palette-search-wrap, .palette .group-button span:not(.group-dot):not(.group-caret), .palette .group-count, .palette-item > :not(.type-icon), .inspector-scroll, .palette .panel-heading span, .inspector .panel-heading span { display: none; }
+      .palette-item { grid-template-columns: 22px; justify-content: center; padding: 7px 10px; }
+      .bottom-tabs, .issue-row, .diagnostic-row, .log-row, .bottom-toolbar, .json-view, .bottom-empty { padding-left: 44px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="toolbar" aria-label="Workflow toolbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">WC</div>
+        <span class="brand-name">WorkflowCanvas</span>
+        <span class="crumb">/</span>
+        <input class="title-input" id="graph-title" aria-label="Workflow title" value="">
+      </div>
+      <span class="version" id="artifact-version"></span>
+      <span class="save-state" id="save-state">local draft</span>
+      <div class="toolbar-spacer"></div>
+      <nav class="mode-tabs" aria-label="Canvas modes" id="mode-tabs">
+        <button class="mode-button active" type="button" data-mode="design" title="Design mode"><span>Design</span></button>
+        <button class="mode-button" type="button" data-mode="contracts" title="Contracts mode"><span>Contracts</span></button>
+        <button class="mode-button" type="button" data-mode="preview" title="Synthetic preview"><span>Preview</span></button>
+        <button class="mode-button" type="button" data-mode="trace" title="Observed trace" disabled><span>Trace</span></button>
+        <button class="mode-button" type="button" data-mode="docs" title="Documentation mode"><span>Docs</span></button>
+      </nav>
+      <div class="toolbar-actions">
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button class="tool-button" id="import-button" type="button" title="Import workflow JSON"><span>Import</span></button>
+        <button class="tool-button" id="export-button" type="button" title="Export workflow JSON"><span>Export</span></button>
+        <button class="tool-button compact-hidden" id="undo-button" type="button" title="Undo (Ctrl+Z)">Undo</button>
+        <button class="tool-button compact-hidden" id="redo-button" type="button" title="Redo (Ctrl+Shift+Z)">Redo</button>
+        <button class="tool-button" id="save-button" type="button" title="Save local draft"><span>Save</span></button>
+        <button class="tool-button" id="validate-button" type="button" title="Validate graph"><span>Validate</span></button>
+        <button class="tool-button primary" id="preview-button" type="button" title="Start synthetic preview"><span>Preview run</span></button>
+      </div>
+    </header>
+
+    <main class="main">
+      <aside class="palette" aria-label="Node palette">
+        <div class="panel-heading"><span>Node palette</span><button class="collapse-button" id="palette-collapse" type="button" aria-label="Collapse node palette">&lt;</button></div>
+        <div class="palette-search-wrap">
+          <div class="search-box">
+            <span class="search-icon" aria-hidden="true">Q</span>
+            <input id="palette-search" type="search" placeholder="Search nodes..." autocomplete="off">
+            <span class="search-key">/</span>
+          </div>
+        </div>
+        <div class="palette-scroll" id="palette-list"></div>
+      </aside>
+
+      <section class="canvas-shell" aria-label="Workflow canvas">
+        <div class="canvas" id="canvas" tabindex="0">
+          <div class="world" id="world">
+            <svg class="edge-layer" id="edge-layer" aria-label="Workflow connections">
+              <defs>
+                <marker id="arrow-data" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#8d8b86"></path></marker>
+                <marker id="arrow-control" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#4a3aa7"></path></marker>
+                <marker id="arrow-error" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#d03b3b"></path></marker>
+                <marker id="arrow-event" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#2a78d6"></path></marker>
+              </defs>
+            </svg>
+            <div class="node-layer" id="node-layer"></div>
+          </div>
+          <div class="canvas-banner" id="canvas-banner"><span class="banner-dot"></span><strong>Design mode</strong><span>Edit workflow structure</span></div>
+          <div class="viewport-controls" aria-label="Viewport controls">
+            <button type="button" id="zoom-out" aria-label="Zoom out">-</button>
+            <span class="zoom-readout" id="zoom-readout">100%</span>
+            <button type="button" id="zoom-in" aria-label="Zoom in">+</button>
+            <button type="button" id="fit-view" aria-label="Fit workflow">Fit</button>
+          </div>
+          <div class="minimap" id="minimap" aria-label="Workflow minimap"><span class="minimap-title">MAP</span></div>
+          <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <aside class="inspector" aria-label="Inspector">
+        <div class="panel-heading"><span id="inspector-heading">Inspector</span><button class="collapse-button" id="inspector-collapse" type="button" aria-label="Collapse inspector">&gt;</button></div>
+        <div class="inspector-scroll" id="inspector-content"></div>
+      </aside>
+    </main>
+
+    <section class="bottom-panel" id="bottom-panel" aria-label="Workflow diagnostics">
+      <div class="bottom-tabs" id="bottom-tabs">
+        <div class="bottom-tablist" role="tablist" aria-label="Workflow details">
+          <button class="bottom-tab active" id="tab-validation" type="button" data-tab="validation" role="tab" aria-controls="bottom-content" aria-selected="true">Validation <span class="tab-count" id="validation-count">0</span></button>
+          <button class="bottom-tab" id="tab-preview" type="button" data-tab="preview" role="tab" aria-controls="bottom-content" aria-selected="false" tabindex="-1">Synthetic preview <span class="tab-count" id="preview-count">0</span></button>
+          <button class="bottom-tab" id="tab-diagnostics" type="button" data-tab="diagnostics" role="tab" aria-controls="bottom-content" aria-selected="false" tabindex="-1">Diagnostics <span class="tab-count" id="diagnostic-count">0</span></button>
+          <button class="bottom-tab" id="tab-json" type="button" data-tab="json" role="tab" aria-controls="bottom-content" aria-selected="false" tabindex="-1">JSON</button>
+        </div>
+        <button class="bottom-collapse" id="bottom-collapse" type="button" aria-label="Collapse diagnostics panel">v</button>
+      </div>
+      <div class="bottom-content" id="bottom-content" role="tabpanel" aria-labelledby="tab-validation"></div>
+    </section>
+  </div>
+
+  <!-- Base64 encoded UTF 8 JSON prevents HTML parser breakout from model text. -->
+  <script type="application/octet-stream" id="workflow-data">
+  eyJzY2hlbWFfdmVyc2lvbiI6IndvcmtmbG93LWNhbnZhcy8xIiwiYXJ0aWZhY3QiOnsiaWQiOiJjb250ZW50LWludGFrZS13b3JrZmxvdyIsInRpdGxlIjoi
+  Q29udGVudCBJbnRha2UgV29ya2Zsb3ciLCJwdXJwb3NlIjoiQSBmYWJyaWNhdGVkIGxvY2FsIHdvcmtmbG93IGZvciBkZW1vbnN0cmF0aW5nIGFuIGVkaXRh
+  YmxlIHdvcmtmbG93IGNhbnZhcy4iLCJ2ZXJzaW9uIjoiMS4wLjAiLCJnZW5lcmF0ZWRfYXQiOiIyMDI2LTAxLTAxVDAwOjAwOjAwLjAwMFoiLCJwcm92ZW5h
+  bmNlIjp7InN0YXR1cyI6InByb3Bvc2VkIiwic291cmNlcyI6W119fSwiY2F0YWxvZyI6eyJjYXRlZ29yaWVzIjpbeyJpZCI6InRyaWdnZXJzIiwibGFiZWwi
+  OiJUcmlnZ2VycyIsImljb24iOiJUIiwiY29sb3IiOiIjZWRhMTAwIn0seyJpZCI6ImluZ3Jlc3MiLCJsYWJlbCI6IkluZ3Jlc3MiLCJpY29uIjoiSSIsImNv
+  bG9yIjoiIzJhNzhkNiJ9LHsiaWQiOiJ0cmFuc2Zvcm1zIiwibGFiZWwiOiJUcmFuc2Zvcm1zIiwiaWNvbiI6IlgiLCJjb2xvciI6IiM0YTNhYTcifSx7Imlk
+  IjoiZGVjaXNpb25zIiwibGFiZWwiOiJEZWNpc2lvbnMiLCJpY29uIjoiRCIsImNvbG9yIjoiIzkwODVlOSJ9LHsiaWQiOiJhZ2VudHMiLCJsYWJlbCI6IkFn
+  ZW50cyIsImljb24iOiJBIiwiY29sb3IiOiIjNmY1NGQ5In0seyJpZCI6ImFjdGlvbnMiLCJsYWJlbCI6IkFjdGlvbnMiLCJpY29uIjoiTyIsImNvbG9yIjoi
+  I2UzNDk0OCJ9LHsiaWQiOiJvYnNlcnZhYmlsaXR5IiwibGFiZWwiOiJPYnNlcnZhYmlsaXR5IiwiaWNvbiI6IkwiLCJjb2xvciI6IiMxYmFmN2EifSx7Imlk
+  Ijoic3RvcmFnZSIsImxhYmVsIjoiU3RvcmFnZSIsImljb24iOiJTIiwiY29sb3IiOiIjMzE1ZjdhIn1dLCJub2RlX3R5cGVzIjpbeyJ0eXBlIjoidHJpZ2dl
+  ci53ZWJob29rIiwibGFiZWwiOiJXZWJob29rIiwiZGVzY3JpcHRpb24iOiJSZWNlaXZlcyBhIHNpZ25lZCBleHRlcm5hbCBldmVudC4iLCJjYXRlZ29yeSI6
+  InRyaWdnZXJzIiwib3duZXIiOiJpbnRlZ3JhdGlvbiIsImJhZGdlIjoiRVhUIiwicG9ydHMiOnsiaW5wdXRzIjpbXSwib3V0cHV0cyI6W3siaWQiOiJldmVu
+  dCIsImxhYmVsIjoiZXZlbnQiLCJzY2hlbWEiOiJldmVudC92MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9XX19LHsidHlwZSI6InRyaWdn
+  ZXIuc2NoZWR1bGUiLCJsYWJlbCI6IlNjaGVkdWxlIiwiZGVzY3JpcHRpb24iOiJTdGFydHMgYSB3b3JrZmxvdyBvbiBhIHJlY3VycmluZyBzY2hlZHVsZS4i
+  LCJjYXRlZ29yeSI6InRyaWdnZXJzIiwib3duZXIiOiJwbGF0Zm9ybSIsImJhZGdlIjoiQ1JPTiIsInBvcnRzIjp7ImlucHV0cyI6W10sIm91dHB1dHMiOlt7
+  ImlkIjoidGljayIsImxhYmVsIjoidGljayIsInNjaGVtYSI6ImV2ZW50L3YxIiwicmVxdWlyZWQiOmZhbHNlLCJtdWx0aXBsZSI6dHJ1ZX1dfX0seyJ0eXBl
+  IjoiaW5ncmVzcy5odHRwIiwibGFiZWwiOiJIVFRQIEVuZHBvaW50IiwiZGVzY3JpcHRpb24iOiJWYWxpZGF0ZXMgYW5kIG5vcm1hbGl6ZXMgYW4gaW5ib3Vu
+  ZCByZXF1ZXN0LiIsImNhdGVnb3J5IjoiaW5ncmVzcyIsIm93bmVyIjoiYmFja2VuZCIsImJhZGdlIjoiRVhFQyIsInBvcnRzIjp7ImlucHV0cyI6W3siaWQi
+  OiJyZXF1ZXN0IiwibGFiZWwiOiJyZXF1ZXN0Iiwic2NoZW1hIjoiZXZlbnQvdjEiLCJyZXF1aXJlZCI6dHJ1ZSwibXVsdGlwbGUiOmZhbHNlfV0sIm91dHB1
+  dHMiOlt7ImlkIjoiYWNjZXB0ZWQiLCJsYWJlbCI6ImFjY2VwdGVkIiwic2NoZW1hIjoiZXZlbnQvdjEiLCJyZXF1aXJlZCI6ZmFsc2UsIm11bHRpcGxlIjp0
+  cnVlfV19fSx7InR5cGUiOiJ0cmFuc2Zvcm0ucGFyc2VyIiwibGFiZWwiOiJQYXJzZXIiLCJkZXNjcmlwdGlvbiI6IkV4dHJhY3RzIHR5cGVkIGZpZWxkcyBm
+  cm9tIGFuIGV2ZW50LiIsImNhdGVnb3J5IjoidHJhbnNmb3JtcyIsIm93bmVyIjoiYmFja2VuZCIsImJhZGdlIjoiUFVSRSIsInBvcnRzIjp7ImlucHV0cyI6
+  W3siaWQiOiJldmVudCIsImxhYmVsIjoiZXZlbnQiLCJzY2hlbWEiOiJldmVudC92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0
+  cHV0cyI6W3siaWQiOiJkb2N1bWVudCIsImxhYmVsIjoiZG9jdW1lbnQiLCJzY2hlbWEiOiJkb2N1bWVudC92MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlw
+  bGUiOnRydWV9XX19LHsidHlwZSI6InRyYW5zZm9ybS52YWxpZGF0b3IiLCJsYWJlbCI6IlZhbGlkYXRvciIsImRlc2NyaXB0aW9uIjoiQ2hlY2tzIHRoZSBk
+  b2N1bWVudCBjb250cmFjdCBhbmQgcmVxdWlyZWQgZmllbGRzLiIsImNhdGVnb3J5IjoidHJhbnNmb3JtcyIsIm93bmVyIjoiYmFja2VuZCIsImJhZGdlIjoi
+  UFVSRSIsInBvcnRzIjp7ImlucHV0cyI6W3siaWQiOiJkb2N1bWVudCIsImxhYmVsIjoiZG9jdW1lbnQiLCJzY2hlbWEiOiJkb2N1bWVudC92MSIsInJlcXVp
+  cmVkIjp0cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0cHV0cyI6W3siaWQiOiJ2YWxpZCIsImxhYmVsIjoidmFsaWQiLCJzY2hlbWEiOiJkb2N1bWVudC92
+  MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9LHsiaWQiOiJpbnZhbGlkIiwibGFiZWwiOiJpbnZhbGlkIiwic2NoZW1hIjoiZXJyb3IvdjEi
+  LCJyZXF1aXJlZCI6ZmFsc2UsIm11bHRpcGxlIjp0cnVlfV19fSx7InR5cGUiOiJkZWNpc2lvbi5yb3V0ZXIiLCJsYWJlbCI6IlJvdXRlciIsImRlc2NyaXB0
+  aW9uIjoiUm91dGVzIHdvcmsgYmFzZWQgb24gZG9jdW1lbnQgYXR0cmlidXRlcy4iLCJjYXRlZ29yeSI6ImRlY2lzaW9ucyIsIm93bmVyIjoib3JjaGVzdHJh
+  dGlvbiIsImJhZGdlIjoiQ1RSTCIsInBvcnRzIjp7ImlucHV0cyI6W3siaWQiOiJkb2N1bWVudCIsImxhYmVsIjoiZG9jdW1lbnQiLCJzY2hlbWEiOiJkb2N1
+  bWVudC92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0cHV0cyI6W3siaWQiOiJwcmltYXJ5IiwibGFiZWwiOiJwcmltYXJ5Iiwi
+  c2NoZW1hIjoiZG9jdW1lbnQvdjEiLCJyZXF1aXJlZCI6ZmFsc2UsIm11bHRpcGxlIjp0cnVlfSx7ImlkIjoicmV2aWV3IiwibGFiZWwiOiJyZXZpZXciLCJz
+  Y2hlbWEiOiJkb2N1bWVudC92MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9XX19LHsidHlwZSI6ImFnZW50LmFzc2lzdGFudCIsImxhYmVs
+  IjoiQXNzaXN0YW50IiwiZGVzY3JpcHRpb24iOiJQcm9kdWNlcyBhIHN0cnVjdHVyZWQgZW5yaWNobWVudCBwcm9wb3NhbC4iLCJjYXRlZ29yeSI6ImFnZW50
+  cyIsIm93bmVyIjoiYWktcGxhdGZvcm0iLCJiYWRnZSI6IkFHRU5UIiwicG9ydHMiOnsiaW5wdXRzIjpbeyJpZCI6ImRvY3VtZW50IiwibGFiZWwiOiJkb2N1
+  bWVudCIsInNjaGVtYSI6ImRvY3VtZW50L3YxIiwicmVxdWlyZWQiOnRydWUsIm11bHRpcGxlIjpmYWxzZX1dLCJvdXRwdXRzIjpbeyJpZCI6InJlc3VsdCIs
+  ImxhYmVsIjoicmVzdWx0Iiwic2NoZW1hIjoicmVzdWx0L3YxIiwicmVxdWlyZWQiOmZhbHNlLCJtdWx0aXBsZSI6dHJ1ZX0seyJpZCI6InRyYWNlIiwibGFi
+  ZWwiOiJ0cmFjZSIsInNjaGVtYSI6InRyYWNlL3YxIiwicmVxdWlyZWQiOmZhbHNlLCJtdWx0aXBsZSI6dHJ1ZX1dfX0seyJ0eXBlIjoiYWN0aW9uLnB1Ymxp
+  c2giLCJsYWJlbCI6IlB1Ymxpc2ggUmVzdWx0IiwiZGVzY3JpcHRpb24iOiJQdWJsaXNoZXMgdGhlIGdlbmVyYXRlZCByZXN1bHQgdG8gYSBkZXN0aW5hdGlv
+  bi4iLCJjYXRlZ29yeSI6ImFjdGlvbnMiLCJvd25lciI6ImludGVncmF0aW9uIiwiYmFkZ2UiOiJSSVNLIiwicG9ydHMiOnsiaW5wdXRzIjpbeyJpZCI6InJl
+  c3VsdCIsImxhYmVsIjoicmVzdWx0Iiwic2NoZW1hIjoicmVzdWx0L3YxIiwicmVxdWlyZWQiOnRydWUsIm11bHRpcGxlIjpmYWxzZX1dLCJvdXRwdXRzIjpb
+  eyJpZCI6InJlY2VpcHQiLCJsYWJlbCI6InJlY2VpcHQiLCJzY2hlbWEiOiJyZWNlaXB0L3YxIiwicmVxdWlyZWQiOmZhbHNlLCJtdWx0aXBsZSI6dHJ1ZX1d
+  fX0seyJ0eXBlIjoib2JzZXJ2ZS5sb2ciLCJsYWJlbCI6IkxvZyBUcmFjZSIsImRlc2NyaXB0aW9uIjoiU3RvcmVzIGEgc2FuaXRpemVkIGV4ZWN1dGlvbiB0
+  cmFjZSBmb3IgcmV2aWV3LiIsImNhdGVnb3J5Ijoib2JzZXJ2YWJpbGl0eSIsIm93bmVyIjoicGxhdGZvcm0iLCJiYWRnZSI6IkxPRyIsInBvcnRzIjp7Imlu
+  cHV0cyI6W3siaWQiOiJ0cmFjZSIsImxhYmVsIjoidHJhY2UiLCJzY2hlbWEiOiJ0cmFjZS92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6dHJ1ZX1d
+  LCJvdXRwdXRzIjpbXX19LHsidHlwZSI6InN0b3JlLnNxbCIsImxhYmVsIjoiU1FMIFN0b3JlIiwiZGVzY3JpcHRpb24iOiJQZXJzaXN0cyBub3JtYWxpemVk
+  IHdvcmtmbG93IHJlY29yZHMuIiwiY2F0ZWdvcnkiOiJzdG9yYWdlIiwib3duZXIiOiJkYXRhIiwiYmFkZ2UiOiJJTyIsInBvcnRzIjp7ImlucHV0cyI6W3si
+  aWQiOiJyZWNvcmQiLCJsYWJlbCI6InJlY29yZCIsInNjaGVtYSI6InJlc3VsdC92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6dHJ1ZX1dLCJvdXRw
+  dXRzIjpbeyJpZCI6InNhdmVkIiwibGFiZWwiOiJzYXZlZCIsInNjaGVtYSI6InJlY2VpcHQvdjEiLCJyZXF1aXJlZCI6ZmFsc2UsIm11bHRpcGxlIjp0cnVl
+  fV19fV19LCJncmFwaCI6eyJtZXRhZGF0YSI6eyJuYW1lIjoiQ29udGVudCBJbnRha2UgV29ya2Zsb3ciLCJkZXNjcmlwdGlvbiI6IkEgZmFicmljYXRlZCBl
+  eGFtcGxlIHRoYXQgcmVjZWl2ZXMsIHZhbGlkYXRlcywgZW5yaWNoZXMsIHB1Ymxpc2hlcywgYW5kIHRyYWNlcyBhIGRvY3VtZW50LiIsIm1vZGUiOiJkZXNp
+  Z24ifSwic2NoZW1hcyI6W3siaWQiOiJldmVudC92MSIsImxhYmVsIjoiRXZlbnQgdjEifSx7ImlkIjoiZG9jdW1lbnQvdjEiLCJsYWJlbCI6IkRvY3VtZW50
+  IHYxIn0seyJpZCI6InJlc3VsdC92MSIsImxhYmVsIjoiUmVzdWx0IHYxIn0seyJpZCI6InJlY2VpcHQvdjEiLCJsYWJlbCI6IlJlY2VpcHQgdjEifSx7Imlk
+  IjoidHJhY2UvdjEiLCJsYWJlbCI6IlRyYWNlIHYxIn0seyJpZCI6ImVycm9yL3YxIiwibGFiZWwiOiJFcnJvciB2MSJ9XSwibm9kZXMiOlt7ImlkIjoibm9k
+  ZS13ZWJob29rIiwidHlwZSI6InRyaWdnZXIud2ViaG9vayIsImxhYmVsIjoiSW5jb21pbmcgV2ViaG9vayIsImRlc2NyaXB0aW9uIjoiQWNjZXB0cyBhIHNp
+  Z25lZCBjb250ZW50IGV2ZW50LiIsImNhdGVnb3J5IjoidHJpZ2dlcnMiLCJvd25lciI6ImludGVncmF0aW9uIiwic3RhdHVzIjoiYWN0aXZlIiwicG9zaXRp
+  b24iOnsieCI6ODAsInkiOjIxMH0sInBvcnRzIjp7ImlucHV0cyI6W10sIm91dHB1dHMiOlt7ImlkIjoiZXZlbnQiLCJsYWJlbCI6ImV2ZW50Iiwic2NoZW1h
+  IjoiZXZlbnQvdjEiLCJyZXF1aXJlZCI6ZmFsc2UsIm11bHRpcGxlIjp0cnVlfV19LCJtZXRhZGF0YSI6eyJjb25maWRlbmNlIjoiaGlnaCIsImZhY3Rfc3Rh
+  dHVzIjoicHJvcG9zZWQiLCJldmlkZW5jZSI6W119fSx7ImlkIjoibm9kZS1lbmRwb2ludCIsInR5cGUiOiJpbmdyZXNzLmh0dHAiLCJsYWJlbCI6IlJlcXVl
+  c3QgRW5kcG9pbnQiLCJkZXNjcmlwdGlvbiI6IlZlcmlmaWVzIGF1dGhlbnRpY2l0eSBhbmQgYWNjZXB0cyB0aGUgZXZlbnQuIiwiY2F0ZWdvcnkiOiJpbmdy
+  ZXNzIiwib3duZXIiOiJiYWNrZW5kIiwic3RhdHVzIjoiYWN0aXZlIiwicG9zaXRpb24iOnsieCI6MzUwLCJ5IjoyMTB9LCJwb3J0cyI6eyJpbnB1dHMiOlt7
+  ImlkIjoicmVxdWVzdCIsImxhYmVsIjoicmVxdWVzdCIsInNjaGVtYSI6ImV2ZW50L3YxIiwicmVxdWlyZWQiOnRydWUsIm11bHRpcGxlIjpmYWxzZX1dLCJv
+  dXRwdXRzIjpbeyJpZCI6ImFjY2VwdGVkIiwibGFiZWwiOiJhY2NlcHRlZCIsInNjaGVtYSI6ImV2ZW50L3YxIiwicmVxdWlyZWQiOmZhbHNlLCJtdWx0aXBs
+  ZSI6dHJ1ZX1dfSwibWV0YWRhdGEiOnsiY29uZmlkZW5jZSI6ImhpZ2giLCJmYWN0X3N0YXR1cyI6InByb3Bvc2VkIiwiZXZpZGVuY2UiOltdfX0seyJpZCI6
+  Im5vZGUtcGFyc2VyIiwidHlwZSI6InRyYW5zZm9ybS5wYXJzZXIiLCJsYWJlbCI6IkRvY3VtZW50IFBhcnNlciIsImRlc2NyaXB0aW9uIjoiRXh0cmFjdHMg
+  dGl0bGUsIGJvZHksIHRhZ3MsIGFuZCBkZXN0aW5hdGlvbi4iLCJjYXRlZ29yeSI6InRyYW5zZm9ybXMiLCJvd25lciI6ImJhY2tlbmQiLCJzdGF0dXMiOiJh
+  Y3RpdmUiLCJwb3NpdGlvbiI6eyJ4Ijo2MjAsInkiOjIxMH0sInBvcnRzIjp7ImlucHV0cyI6W3siaWQiOiJldmVudCIsImxhYmVsIjoiZXZlbnQiLCJzY2hl
+  bWEiOiJldmVudC92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0cHV0cyI6W3siaWQiOiJkb2N1bWVudCIsImxhYmVsIjoiZG9j
+  dW1lbnQiLCJzY2hlbWEiOiJkb2N1bWVudC92MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9XX0sIm1ldGFkYXRhIjp7ImNvbmZpZGVuY2Ui
+  OiJoaWdoIiwiZmFjdF9zdGF0dXMiOiJwcm9wb3NlZCIsImV2aWRlbmNlIjpbXX19LHsiaWQiOiJub2RlLWFnZW50IiwidHlwZSI6ImFnZW50LmFzc2lzdGFu
+  dCIsImxhYmVsIjoiRW5yaWNobWVudCBBc3Npc3RhbnQiLCJkZXNjcmlwdGlvbiI6IkJ1aWxkcyBhIHN0cnVjdHVyZWQgZW5yaWNobWVudCBwcm9wb3NhbC4i
+  LCJjYXRlZ29yeSI6ImFnZW50cyIsIm93bmVyIjoiYWktcGxhdGZvcm0iLCJzdGF0dXMiOiJhY3RpdmUiLCJwb3NpdGlvbiI6eyJ4Ijo4OTAsInkiOjIxMH0s
+  InBvcnRzIjp7ImlucHV0cyI6W3siaWQiOiJkb2N1bWVudCIsImxhYmVsIjoiZG9jdW1lbnQiLCJzY2hlbWEiOiJkb2N1bWVudC92MSIsInJlcXVpcmVkIjp0
+  cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0cHV0cyI6W3siaWQiOiJyZXN1bHQiLCJsYWJlbCI6InJlc3VsdCIsInNjaGVtYSI6InJlc3VsdC92MSIsInJl
+  cXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9LHsiaWQiOiJ0cmFjZSIsImxhYmVsIjoidHJhY2UiLCJzY2hlbWEiOiJ0cmFjZS92MSIsInJlcXVpcmVk
+  IjpmYWxzZSwibXVsdGlwbGUiOnRydWV9XX0sIm1ldGFkYXRhIjp7ImNvbmZpZGVuY2UiOiJoaWdoIiwiZmFjdF9zdGF0dXMiOiJwcm9wb3NlZCIsImV2aWRl
+  bmNlIjpbXX19LHsiaWQiOiJub2RlLXB1Ymxpc2giLCJ0eXBlIjoiYWN0aW9uLnB1Ymxpc2giLCJsYWJlbCI6IlB1Ymxpc2ggUmVzdWx0IiwiZGVzY3JpcHRp
+  b24iOiJQdWJsaXNoZXMgdGhlIGFwcHJvdmVkIHJlc3VsdCB0byBpdHMgZGVzdGluYXRpb24uIiwiY2F0ZWdvcnkiOiJhY3Rpb25zIiwib3duZXIiOiJpbnRl
+  Z3JhdGlvbiIsInN0YXR1cyI6ImFjdGl2ZSIsInBvc2l0aW9uIjp7IngiOjExNjAsInkiOjIxMH0sInBvcnRzIjp7ImlucHV0cyI6W3siaWQiOiJyZXN1bHQi
+  LCJsYWJlbCI6InJlc3VsdCIsInNjaGVtYSI6InJlc3VsdC92MSIsInJlcXVpcmVkIjp0cnVlLCJtdWx0aXBsZSI6ZmFsc2V9XSwib3V0cHV0cyI6W3siaWQi
+  OiJyZWNlaXB0IiwibGFiZWwiOiJyZWNlaXB0Iiwic2NoZW1hIjoicmVjZWlwdC92MSIsInJlcXVpcmVkIjpmYWxzZSwibXVsdGlwbGUiOnRydWV9XX0sIm1l
+  dGFkYXRhIjp7ImNvbmZpZGVuY2UiOiJoaWdoIiwiZmFjdF9zdGF0dXMiOiJwcm9wb3NlZCIsImV2aWRlbmNlIjpbXX19LHsiaWQiOiJub2RlLXRyYWNlIiwi
+  dHlwZSI6Im9ic2VydmUubG9nIiwibGFiZWwiOiJTdG9yZSBBZ2VudCBUcmFjZSIsImRlc2NyaXB0aW9uIjoiUGVyc2lzdHMgYSBzYW5pdGl6ZWQgdHJhY2Ug
+  Zm9yIGxhdGVyIHJldmlldy4iLCJjYXRlZ29yeSI6Im9ic2VydmFiaWxpdHkiLCJvd25lciI6InBsYXRmb3JtIiwic3RhdHVzIjoiYWN0aXZlIiwicG9zaXRp
+  b24iOnsieCI6ODkwLCJ5Ijo0MzB9LCJwb3J0cyI6eyJpbnB1dHMiOlt7ImlkIjoidHJhY2UiLCJsYWJlbCI6InRyYWNlIiwic2NoZW1hIjoidHJhY2UvdjEi
+  LCJyZXF1aXJlZCI6dHJ1ZSwibXVsdGlwbGUiOnRydWV9XSwib3V0cHV0cyI6W119LCJtZXRhZGF0YSI6eyJjb25maWRlbmNlIjoiaGlnaCIsImZhY3Rfc3Rh
+  dHVzIjoicHJvcG9zZWQiLCJldmlkZW5jZSI6W119fV0sImVkZ2VzIjpbeyJpZCI6ImVkZ2Utd2ViaG9vay1lbmRwb2ludCIsInNvdXJjZSI6eyJub2RlIjoi
+  bm9kZS13ZWJob29rIiwicG9ydCI6ImV2ZW50In0sInRhcmdldCI6eyJub2RlIjoibm9kZS1lbmRwb2ludCIsInBvcnQiOiJyZXF1ZXN0In0sImtpbmQiOiJl
+  dmVudCIsImxhYmVsIjoicmVxdWVzdCIsImFzeW5jIjp0cnVlfSx7ImlkIjoiZWRnZS1lbmRwb2ludC1wYXJzZXIiLCJzb3VyY2UiOnsibm9kZSI6Im5vZGUt
+  ZW5kcG9pbnQiLCJwb3J0IjoiYWNjZXB0ZWQifSwidGFyZ2V0Ijp7Im5vZGUiOiJub2RlLXBhcnNlciIsInBvcnQiOiJldmVudCJ9LCJraW5kIjoiZGF0YSIs
+  ImxhYmVsIjoiYWNjZXB0ZWQiLCJhc3luYyI6ZmFsc2V9LHsiaWQiOiJlZGdlLXBhcnNlci1hZ2VudCIsInNvdXJjZSI6eyJub2RlIjoibm9kZS1wYXJzZXIi
+  LCJwb3J0IjoiZG9jdW1lbnQifSwidGFyZ2V0Ijp7Im5vZGUiOiJub2RlLWFnZW50IiwicG9ydCI6ImRvY3VtZW50In0sImtpbmQiOiJkYXRhIiwibGFiZWwi
+  OiJkb2N1bWVudCIsImFzeW5jIjpmYWxzZX0seyJpZCI6ImVkZ2UtYWdlbnQtcHVibGlzaCIsInNvdXJjZSI6eyJub2RlIjoibm9kZS1hZ2VudCIsInBvcnQi
+  OiJyZXN1bHQifSwidGFyZ2V0Ijp7Im5vZGUiOiJub2RlLXB1Ymxpc2giLCJwb3J0IjoicmVzdWx0In0sImtpbmQiOiJkYXRhIiwibGFiZWwiOiJyZXN1bHQi
+  LCJhc3luYyI6ZmFsc2V9LHsiaWQiOiJlZGdlLWFnZW50LXRyYWNlIiwic291cmNlIjp7Im5vZGUiOiJub2RlLWFnZW50IiwicG9ydCI6InRyYWNlIn0sInRh
+  cmdldCI6eyJub2RlIjoibm9kZS10cmFjZSIsInBvcnQiOiJ0cmFjZSJ9LCJraW5kIjoidHJhY2UiLCJsYWJlbCI6InRyYWNlIiwiYXN5bmMiOnRydWV9XX0s
+  InJ1bnRpbWUiOnsicHJldmlldyI6eyJraW5kIjoic3ludGhldGljIiwibGFiZWwiOiJTeW50aGV0aWMgcHJldmlldyIsInN0ZXBzIjpbeyJub2RlX2lkIjoi
+  bm9kZS13ZWJob29rIiwib2Zmc2V0X21zIjowLCJkdXJhdGlvbl9tcyI6ODB9LHsibm9kZV9pZCI6Im5vZGUtZW5kcG9pbnQiLCJvZmZzZXRfbXMiOjgwLCJk
+  dXJhdGlvbl9tcyI6MTIwfSx7Im5vZGVfaWQiOiJub2RlLXBhcnNlciIsIm9mZnNldF9tcyI6MjAwLCJkdXJhdGlvbl9tcyI6OTV9LHsibm9kZV9pZCI6Im5v
+  ZGUtYWdlbnQiLCJvZmZzZXRfbXMiOjI5NSwiZHVyYXRpb25fbXMiOjYyMH0seyJub2RlX2lkIjoibm9kZS10cmFjZSIsIm9mZnNldF9tcyI6OTE1LCJkdXJh
+  dGlvbl9tcyI6NzV9LHsibm9kZV9pZCI6Im5vZGUtcHVibGlzaCIsIm9mZnNldF9tcyI6OTE1LCJkdXJhdGlvbl9tcyI6MTQwfV19LCJvYnNlcnZlZF9ydW5z
+  IjpbXX19
+  </script>
+
+  <script>
+  (() => {
+    "use strict";
+
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const IMPORT_LIMIT_BYTES = 1024 * 1024;
+    const HISTORY_LIMIT = 50;
+    const DIAGNOSTIC_LIMIT = 200;
+    const NODE_WIDTH = 224;
+    const NODE_HEIGHT = 136;
+    const GRID = 8;
+    const WORLD_WIDTH = 4000;
+    const WORLD_HEIGHT = 2400;
+    const ALLOWED_DIAGNOSTIC_FIELDS = new Set(["node_id", "edge_id", "port_id", "error_code", "count", "duration_ms"]);
+    const MODES = new Set(["design", "contracts", "preview", "trace", "docs"]);
+    const EDGE_KINDS = new Set(["data", "control", "error", "event", "trace"]);
+    const NODE_STATUSES = new Set(["active", "draft", "paused", "failing", "unknown"]);
+    const SAFE_ERROR_CODES = new Set(["embedded_model_invalid", "unsupported_schema_version", "invalid_observed_run", "import_validation_failed", "observed_graph_changed", "storage_artifact_mismatch", "untrusted_observed_claim", "window_error", "file_too_large"]);
+    const SAFE_ERROR_NAMES = new Set(["SyntaxError", "QuotaExceededError", "SecurityError", "InvalidStateError", "NotAllowedError", "TypeError"]);
+    const OBSERVED_DIGEST_ALGORITHM = "SHA-256";
+    const TRUSTED_OBSERVED_DIGESTS = new Set([
+      "fcf66818c1411a4ce0a8b036f7beabca287e49743d5a971216621d7afd3a12ff"
+    ]);
+    let fieldSequence = 0;
+
+    const el = id => document.getElementById(id);
+    const dom = {
+      body: document.body,
+      app: el("app"),
+      canvas: el("canvas"),
+      world: el("world"),
+      nodes: el("node-layer"),
+      edges: el("edge-layer"),
+      palette: el("palette-list"),
+      paletteSearch: el("palette-search"),
+      inspector: el("inspector-content"),
+      inspectorHeading: el("inspector-heading"),
+      banner: el("canvas-banner"),
+      minimap: el("minimap"),
+      zoomReadout: el("zoom-readout"),
+      bottomPanel: el("bottom-panel"),
+      bottomTabs: el("bottom-tabs"),
+      bottomContent: el("bottom-content"),
+      validationCount: el("validation-count"),
+      previewCount: el("preview-count"),
+      diagnosticCount: el("diagnostic-count"),
+      importFile: el("import-file"),
+      graphTitle: el("graph-title"),
+      artifactVersion: el("artifact-version"),
+      saveState: el("save-state"),
+      toastStack: el("toast-stack"),
+      modeTabs: el("mode-tabs"),
+      undoButton: el("undo-button"),
+      redoButton: el("redo-button")
+    };
+
+    const deepClone = value => JSON.parse(JSON.stringify(value));
+    const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
+    const integer = (value, fallback = 0) => {
+      const normalized = Math.trunc(finite(value, fallback));
+      return Object.is(normalized, -0) ? 0 : normalized;
+    };
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const snap = value => Math.round(value / GRID) * GRID;
+    const cleanString = (value, fallback = "", max = 240) => typeof value === "string" ? value.slice(0, max) : fallback;
+    const safeId = value => cleanString(value, "", 96).replace(/[^a-zA-Z0-9._:/-]/g, "-");
+    const isFormField = target => target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement || (target instanceof HTMLElement && target.isContentEditable);
+
+    function parseInitialModel() {
+      try {
+        const encoded = el("workflow-data").textContent.replace(/\s+/g, "");
+        const bytes = Uint8Array.from(atob(encoded), character => character.charCodeAt(0));
+        return JSON.parse(new TextDecoder().decode(bytes));
+      } catch (_error) {
+        throw new Error("embedded_model_invalid");
+      }
+    }
+
+    function normalizeClaimStatus(value, evidence, trustedClaims) {
+      if (value === "observed") return trustedClaims && evidence.length ? "observed" : "inferred";
+      return ["inferred", "proposed", "unknown"].includes(value) ? value : "unknown";
+    }
+
+    function normalizeNodeMetadata(metadata, trustedClaims) {
+      const input = metadata && typeof metadata === "object" ? metadata : {};
+      const evidence = Array.isArray(input.evidence) ? input.evidence.slice(0, 20).map(item => cleanString(item, "", 200)).filter(Boolean) : [];
+      return {
+        confidence: ["high", "medium", "low"].includes(input.confidence) ? input.confidence : "medium",
+        fact_status: normalizeClaimStatus(input.fact_status, evidence, trustedClaims),
+        evidence
+      };
+    }
+
+    function normalizePort(port, index) {
+      return {
+        id: safeId(port && port.id) || `port-${index + 1}`,
+        label: cleanString(port && port.label, `port ${index + 1}`, 48),
+        schema: safeId(port && port.schema) || "any",
+        required: Boolean(port && port.required),
+        multiple: Boolean(port && port.multiple)
+      };
+    }
+
+    function normalizeModel(input, options = {}) {
+      if (!input || typeof input !== "object" || input.schema_version !== "workflow-canvas/1") throw new Error("unsupported_schema_version");
+      const trustedClaims = options.trustedClaims === true;
+      const artifact = input.artifact && typeof input.artifact === "object" ? input.artifact : {};
+      const catalog = input.catalog && typeof input.catalog === "object" ? input.catalog : {};
+      const graph = input.graph && typeof input.graph === "object" ? input.graph : {};
+      const runtime = input.runtime && typeof input.runtime === "object" ? input.runtime : {};
+      const artifactProvenance = artifact.provenance && typeof artifact.provenance === "object" ? artifact.provenance : {};
+      const artifactSources = Array.isArray(artifactProvenance.sources) ? artifactProvenance.sources.slice(0, 30).map(item => cleanString(item, "", 200)).filter(Boolean) : [];
+      const categories = Array.isArray(catalog.categories) ? catalog.categories.slice(0, 24).map((category, index) => ({
+        id: safeId(category.id) || `category-${index + 1}`,
+        label: cleanString(category.label, `Category ${index + 1}`, 48),
+        icon: cleanString(category.icon, "N", 2),
+        color: /^#[0-9a-fA-F]{6}$/.test(category.color || "") ? category.color : "#2a78d6"
+      })) : [];
+      const categoryIds = new Set(categories.map(category => category.id));
+      const nodeTypes = Array.isArray(catalog.node_types) ? catalog.node_types.slice(0, 120).map((type, index) => ({
+        type: safeId(type.type) || `node.type.${index + 1}`,
+        label: cleanString(type.label, `Node type ${index + 1}`, 72),
+        description: cleanString(type.description, "", 180),
+        category: safeId(type.category) || (categories[0] ? categories[0].id : "uncategorized"),
+        owner: cleanString(type.owner, "unassigned", 48),
+        badge: cleanString(type.badge, "NODE", 10),
+        ports: {
+          inputs: Array.isArray(type.ports && type.ports.inputs) ? type.ports.inputs.slice(0, 12).map(normalizePort) : [],
+          outputs: Array.isArray(type.ports && type.ports.outputs) ? type.ports.outputs.slice(0, 12).map(normalizePort) : []
+        }
+      })) : [];
+      const typeIds = new Set(nodeTypes.map(type => type.type));
+      const schemas = Array.isArray(graph.schemas) ? graph.schemas.slice(0, 120).map((schema, index) => ({
+        id: safeId(schema.id) || `schema/${index + 1}`,
+        label: cleanString(schema.label, `Schema ${index + 1}`, 72)
+      })) : [];
+      const nodes = Array.isArray(graph.nodes) ? graph.nodes.slice(0, 300).map((node, index) => ({
+        id: safeId(node.id) || `node-${index + 1}`,
+        type: safeId(node.type) || (nodeTypes[0] ? nodeTypes[0].type : "unknown.node"),
+        label: cleanString(node.label, `Node ${index + 1}`, 96),
+        description: cleanString(node.description, "", 240),
+        category: safeId(node.category) || (categories[0] ? categories[0].id : "uncategorized"),
+        owner: cleanString(node.owner, "unassigned", 48),
+        status: cleanString(node.status, "unknown", 16),
+        position: {
+          x: clamp(integer(node.position && node.position.x, 80 + index * 32), 0, WORLD_WIDTH - NODE_WIDTH),
+          y: clamp(integer(node.position && node.position.y, 80 + index * 24), 0, WORLD_HEIGHT - NODE_HEIGHT)
+        },
+        ports: {
+          inputs: Array.isArray(node.ports && node.ports.inputs) ? node.ports.inputs.slice(0, 12).map(normalizePort) : [],
+          outputs: Array.isArray(node.ports && node.ports.outputs) ? node.ports.outputs.slice(0, 12).map(normalizePort) : []
+        },
+        metadata: normalizeNodeMetadata(node.metadata, trustedClaims)
+      })) : [];
+      for (const node of nodes) node.position.y = clamp(node.position.y, 0, WORLD_HEIGHT - nodeHeight(node));
+      const edges = Array.isArray(graph.edges) ? graph.edges.slice(0, 800).map((edge, index) => ({
+        id: safeId(edge.id) || `edge-${index + 1}`,
+        source: { node: safeId(edge.source && edge.source.node), port: safeId(edge.source && edge.source.port) },
+        target: { node: safeId(edge.target && edge.target.node), port: safeId(edge.target && edge.target.port) },
+        kind: safeId(edge.kind) || "data",
+        label: cleanString(edge.label, "", 48),
+        async: Boolean(edge.async)
+      })) : [];
+      const preview = runtime.preview && typeof runtime.preview === "object" ? runtime.preview : { kind: "synthetic", label: "Synthetic preview", steps: [] };
+      const observedRuns = Array.isArray(runtime.observed_runs) ? runtime.observed_runs.slice(0, 20).map(normalizeObservedRun).filter(Boolean) : [];
+      return {
+        schema_version: "workflow-canvas/1",
+        artifact: {
+          id: safeId(artifact.id) || "workflow-canvas",
+          title: cleanString(artifact.title, "Workflow Canvas", 120),
+          purpose: cleanString(artifact.purpose, "", 300),
+          version: cleanString(artifact.version, "1.0.0", 32),
+          generated_at: cleanString(artifact.generated_at, new Date(0).toISOString(), 40),
+          provenance: {
+            status: normalizeClaimStatus(artifactProvenance.status, artifactSources, trustedClaims),
+            sources: artifactSources
+          }
+        },
+        catalog: { categories, node_types: nodeTypes },
+        graph: {
+          metadata: {
+            name: cleanString(graph.metadata && graph.metadata.name, cleanString(artifact.title, "Workflow Canvas", 120), 120),
+            description: cleanString(graph.metadata && graph.metadata.description, "", 300),
+            mode: cleanString(graph.metadata && graph.metadata.mode, "design", 16)
+          },
+          schemas,
+          nodes,
+          edges
+        },
+        runtime: {
+          preview: {
+            kind: "synthetic",
+            label: "Synthetic preview",
+            steps: Array.isArray(preview.steps) ? preview.steps.slice(0, 300).map((step, index) => ({
+              node_id: safeId(step.node_id),
+              offset_ms: clamp(integer(step.offset_ms, index * 80), 0, 3600000),
+              duration_ms: clamp(integer(step.duration_ms, 80), 1, 3600000)
+            })) : []
+          },
+          observed_runs: observedRuns
+        }
+      };
+    }
+
+    function hasExactKeys(value, required, optional = []) {
+      if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+      const allowed = new Set(required.concat(optional));
+      const keys = Object.keys(value);
+      return required.every(key => Object.prototype.hasOwnProperty.call(value, key)) && keys.every(key => allowed.has(key));
+    }
+
+    function normalizeObservedRun(run) {
+      const runKeys = ["id", "kind", "label", "captured_at", "sanitized", "artifact_id", "artifact_version", "graph_digest", "provenance", "verification", "steps"];
+      const claimsObserved = run && (run.kind === "observed" || (run.kind === "unverified" && run.claimed_kind === "observed"));
+      if (!hasExactKeys(run, runKeys, ["claimed_kind"]) || !claimsObserved || run.sanitized !== true) return null;
+      if (!hasExactKeys(run.provenance, ["type", "source"])) return null;
+      if (!hasExactKeys(run.verification, ["trusted", "algorithm", "digest"], ["status"])) return null;
+      if (!Array.isArray(run.steps) || !run.steps.length || run.steps.length > 300) return null;
+      if (!run.steps.every(step => hasExactKeys(step, ["node_id", "status", "offset_ms", "duration_ms", "error_code"]))) return null;
+      if (!cleanString(run.provenance.type, "", 24) || !cleanString(run.provenance.source, "", 120) || Number.isNaN(Date.parse(run.captured_at))) return null;
+      return {
+        id: safeId(run.id) || `observed-${Date.now()}`,
+        kind: "unverified",
+        claimed_kind: "observed",
+        label: cleanString(run.label, "Observed run", 96),
+        captured_at: new Date(run.captured_at).toISOString(),
+        sanitized: true,
+        artifact_id: safeId(run.artifact_id),
+        artifact_version: cleanString(run.artifact_version, "", 32),
+        graph_digest: cleanString(run.graph_digest, "", 64).toLowerCase(),
+        provenance: { type: cleanString(run.provenance.type, "unknown", 24), source: cleanString(run.provenance.source, "unknown", 120) },
+        verification: {
+          trusted: run.verification.trusted === true,
+          algorithm: cleanString(run.verification.algorithm, "", 16),
+          digest: cleanString(run.verification.digest, "", 64).toLowerCase(),
+          status: "unverified"
+        },
+        steps: run.steps.map(step => ({
+          node_id: safeId(step.node_id),
+          status: ["pending", "running", "succeeded", "failed", "skipped"].includes(step.status) ? step.status : "pending",
+          offset_ms: clamp(integer(step.offset_ms, 0), 0, 3600000),
+          duration_ms: clamp(integer(step.duration_ms, 0), 0, 3600000),
+          error_code: safeId(step.error_code)
+        }))
+      };
+    }
+
+    const compareText = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+    const byId = (left, right) => compareText(left.id, right.id);
+
+    function graphDigestPayload(model) {
+      return {
+        schema_version: "workflow-canvas-graph/1",
+        artifact: { id: model.artifact.id, version: model.artifact.version, title: model.artifact.title, purpose: model.artifact.purpose },
+        graph: {
+          metadata: {
+            name: model.graph.metadata.name,
+            description: model.graph.metadata.description,
+            mode: model.graph.metadata.mode
+          },
+          schemas: model.graph.schemas.map(schema => ({ id: schema.id, label: schema.label })).sort(byId),
+          nodes: model.graph.nodes.map(node => ({
+            id: node.id,
+            type: node.type,
+            label: node.label,
+            description: node.description,
+            category: node.category,
+            owner: node.owner,
+            status: node.status,
+            position: { x: integer(node.position.x), y: integer(node.position.y) },
+            ports: {
+              inputs: node.ports.inputs.map(port => ({ id: port.id, label: port.label, schema: port.schema, required: port.required, multiple: port.multiple })).sort(byId),
+              outputs: node.ports.outputs.map(port => ({ id: port.id, label: port.label, schema: port.schema, required: port.required, multiple: port.multiple })).sort(byId)
+            },
+            metadata: {
+              confidence: node.metadata.confidence,
+              fact_status: node.metadata.fact_status,
+              evidence: node.metadata.evidence.slice().sort(compareText)
+            }
+          })).sort(byId),
+          edges: model.graph.edges.map(edge => ({
+            id: edge.id,
+            source: { node: edge.source.node, port: edge.source.port },
+            target: { node: edge.target.node, port: edge.target.port },
+            kind: edge.kind,
+            label: edge.label,
+            async: edge.async
+          })).sort(byId)
+        }
+      };
+    }
+
+    async function sha256Hex(value) {
+      if (!window.crypto || !window.crypto.subtle || typeof TextEncoder !== "function") return "";
+      const encoded = new TextEncoder().encode(JSON.stringify(value));
+      const digest = await window.crypto.subtle.digest(OBSERVED_DIGEST_ALGORITHM, encoded);
+      return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    function observedDigestPayload(run) {
+      return {
+        schema_version: "workflow-observed-run/1",
+        observed_run: {
+          id: run.id,
+          kind: "observed",
+          label: run.label,
+          captured_at: run.captured_at,
+          sanitized: true,
+          artifact_id: run.artifact_id,
+          artifact_version: run.artifact_version,
+          graph_digest: run.graph_digest,
+          provenance: { type: run.provenance.type, source: run.provenance.source },
+          steps: run.steps.map(step => ({
+            node_id: step.node_id,
+            status: step.status,
+            offset_ms: integer(step.offset_ms),
+            duration_ms: integer(step.duration_ms),
+            error_code: step.error_code || ""
+          }))
+        }
+      };
+    }
+
+    async function observedDigest(run) {
+      return sha256Hex(observedDigestPayload(run));
+    }
+
+    async function workflowGraphDigest(model) {
+      return sha256Hex(graphDigestPayload(model));
+    }
+
+    async function verifyObservedRun(run, model) {
+      if (!run || !model) return run || null;
+      const verification = run.verification;
+      const claimedDigest = verification.digest;
+      const activeNodeIds = new Set(model.graph.nodes.map(node => node.id));
+      const eligible = verification.trusted === true && verification.algorithm === OBSERVED_DIGEST_ALGORITHM && /^[0-9a-f]{64}$/.test(claimedDigest) && TRUSTED_OBSERVED_DIGESTS.has(claimedDigest) && run.artifact_id === model.artifact.id && run.artifact_version === model.artifact.version && /^[0-9a-f]{64}$/.test(run.graph_digest) && run.steps.every(step => activeNodeIds.has(step.node_id));
+      if (!eligible) return run;
+      const activeGraphDigest = await workflowGraphDigest(model);
+      if (!activeGraphDigest || activeGraphDigest !== run.graph_digest) return run;
+      const computedDigest = await observedDigest(run);
+      if (!computedDigest || computedDigest !== claimedDigest) return run;
+      return {
+        ...run,
+        kind: "observed",
+        verification: { ...verification, status: "verified" }
+      };
+    }
+
+    async function verifyObservedRuns(runs, model) {
+      return Promise.all(runs.map(run => verifyObservedRun(run, model)));
+    }
+
+    function verifiedObservedRuns() {
+      return state.model.runtime.observed_runs.filter(run => run.kind === "observed" && run.verification && run.verification.status === "verified");
+    }
+
+    const diagnosticTokens = new Map();
+    let diagnosticTokenSequence = 0;
+    const embeddedModel = normalizeModel(parseInitialModel(), { trustedClaims: true });
+    const EMBEDDED_ARTIFACT_ID = embeddedModel.artifact.id;
+    const LOCAL_STORAGE_KEY = `workflow-canvas:${EMBEDDED_ARTIFACT_ID}:v1`;
+
+    const state = {
+      model: embeddedModel,
+      selected: null,
+      view: { x: 40, y: 30, scale: 1 },
+      history: [],
+      future: [],
+      issues: [],
+      diagnostics: [],
+      bottomTab: "validation",
+      bottomCollapsed: false,
+      collapsedGroups: new Set(),
+      mode: "design",
+      connection: null,
+      drag: null,
+      pan: null,
+      preview: { active: false, startedAt: 0, statuses: new Map(), logs: [], frameId: null, events: [], eventIndex: 0 },
+      observedRunId: null,
+      rendering: false
+    };
+
+    function diagnosticToken(kind, value) {
+      const mapKey = `${kind}:${String(value)}`;
+      if (!diagnosticTokens.has(mapKey)) {
+        const prefix = kind === "node_id" ? "n" : kind === "edge_id" ? "e" : "p";
+        diagnosticTokens.set(mapKey, `${prefix}-${++diagnosticTokenSequence}`);
+      }
+      return diagnosticTokens.get(mapKey);
+    }
+
+    function diagnostic(event, level = "info", fields = {}) {
+      const record = { ts: new Date().toISOString(), level: ["info", "warn", "error"].includes(level) ? level : "info", event: safeId(event) || "unknown_event" };
+      for (const [key, value] of Object.entries(fields || {})) {
+        if (!ALLOWED_DIAGNOSTIC_FIELDS.has(key)) continue;
+        if (["count", "duration_ms"].includes(key)) record[key] = clamp(finite(value, 0), 0, 3600000);
+        else if (["node_id", "edge_id", "port_id"].includes(key)) record[key] = diagnosticToken(key, value);
+        else record[key] = safeId(value);
+      }
+      state.diagnostics.push(record);
+      if (state.diagnostics.length > DIAGNOSTIC_LIMIT) state.diagnostics.splice(0, state.diagnostics.length - DIAGNOSTIC_LIMIT);
+      dom.diagnosticCount.textContent = String(state.diagnostics.length);
+      if (state.bottomTab === "diagnostics") renderBottom();
+    }
+
+    function errorCode(error) {
+      const message = error && typeof error === "object" && typeof error.message === "string" ? error.message : "";
+      if (SAFE_ERROR_CODES.has(message)) return message;
+      const name = error && typeof error === "object" && typeof error.name === "string" ? error.name : "";
+      if (SAFE_ERROR_NAMES.has(name)) return name.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+      return "unexpected_error";
+    }
+
+    function categoryById(id) { return state.model.catalog.categories.find(category => category.id === id); }
+    function nodeTypeById(type) { return state.model.catalog.node_types.find(item => item.type === type); }
+    function nodeById(id) { return state.model.graph.nodes.find(node => node.id === id); }
+    function edgeById(id) { return state.model.graph.edges.find(edge => edge.id === id); }
+    function portByRef(nodeId, portId, direction) {
+      const node = nodeById(nodeId);
+      if (!node) return null;
+      const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+      return list.find(port => port.id === portId) || null;
+    }
+
+    function categoryColor(id) { const category = categoryById(id); return category ? category.color : "#2a78d6"; }
+    function categoryIcon(id) { const category = categoryById(id); return category ? category.icon : "N"; }
+    function nodeHeight(node) { return Math.max(NODE_HEIGHT, 82 + Math.max(node.ports.inputs.length, node.ports.outputs.length) * 20); }
+    function uniqueId(prefix, existing) {
+      let index = 1;
+      let candidate = `${prefix}-${index}`;
+      while (existing.has(candidate)) { index += 1; candidate = `${prefix}-${index}`; }
+      return candidate;
+    }
+
+    function designSnapshot() {
+      return { artifact_title: state.model.artifact.title, graph: deepClone(state.model.graph) };
+    }
+    function restoreDesign(snapshot) {
+      state.model.artifact.title = snapshot.artifact_title;
+      state.model.graph = snapshot.graph;
+    }
+    function invalidateObservedRuns(reason = "observed_graph_changed") {
+      let changed = false;
+      state.model.runtime.observed_runs = state.model.runtime.observed_runs.map(run => {
+        if (run.kind !== "observed" || !run.verification || run.verification.status !== "verified") return run;
+        changed = true;
+        return { ...run, kind: "unverified", claimed_kind: "observed", verification: { ...run.verification, status: "unverified" } };
+      });
+      if (!changed) return false;
+      state.observedRunId = null;
+      if (state.mode === "trace") state.mode = "design";
+      diagnostic("observed_verification_failed", "warn", { error_code: reason });
+      return true;
+    }
+    function pushHistory() {
+      state.history.push(designSnapshot());
+      if (state.history.length > HISTORY_LIMIT) state.history.shift();
+      state.future = [];
+      updateHistoryButtons();
+    }
+    function mutate(action, eventName, fields = {}) {
+      pushHistory();
+      action();
+      invalidateObservedRuns();
+      state.issues = validateGraph();
+      diagnostic(eventName, "info", fields);
+      renderAll();
+    }
+    function mutateLive(action, eventName, fields = {}) {
+      pushHistory();
+      action();
+      invalidateObservedRuns();
+      state.issues = validateGraph();
+      diagnostic(eventName, "info", fields);
+      renderToolbar();
+      renderNodes();
+      renderEdges();
+      renderMinimap();
+      renderBottom();
+      updateHistoryButtons();
+    }
+    function undo() {
+      if (!state.history.length) return;
+      state.future.push(designSnapshot());
+      restoreDesign(state.history.pop());
+      invalidateObservedRuns();
+      state.selected = null;
+      state.issues = validateGraph();
+      diagnostic("history_undo");
+      renderAll();
+    }
+    function redo() {
+      if (!state.future.length) return;
+      state.history.push(designSnapshot());
+      restoreDesign(state.future.pop());
+      invalidateObservedRuns();
+      state.selected = null;
+      state.issues = validateGraph();
+      diagnostic("history_redo");
+      renderAll();
+    }
+    function updateHistoryButtons() {
+      dom.undoButton.disabled = state.history.length === 0;
+      dom.redoButton.disabled = state.future.length === 0;
+    }
+
+    function validateGraph(model = state.model) {
+      const issues = [];
+      const graph = model.graph;
+      const nodeIds = new Set();
+      const edgeIds = new Set();
+      const schemaIds = new Set();
+      const typeIds = new Set();
+      const categoryIds = new Set();
+      const nodesById = new Map();
+      if (!MODES.has(graph.metadata.mode)) issues.push(issue("error", "invalid_graph_mode", `Unsupported graph mode: ${graph.metadata.mode}`, "graph", model.artifact.id));
+      for (const schema of graph.schemas) {
+        if (schemaIds.has(schema.id)) issues.push(issue("error", "duplicate_schema_id", `Duplicate schema ID: ${schema.id}`, "graph", model.artifact.id));
+        schemaIds.add(schema.id);
+      }
+      for (const category of model.catalog.categories) {
+        if (categoryIds.has(category.id)) issues.push(issue("error", "duplicate_category_id", `Duplicate category ID: ${category.id}`, "graph", model.artifact.id));
+        categoryIds.add(category.id);
+      }
+      for (const type of model.catalog.node_types) {
+        if (typeIds.has(type.type)) issues.push(issue("error", "duplicate_node_type", `Duplicate node type: ${type.type}`, "graph", model.artifact.id));
+        typeIds.add(type.type);
+        if (!categoryIds.has(type.category)) issues.push(issue("error", "unknown_type_category", `${type.label} uses an unknown category.`, "graph", model.artifact.id));
+        const local = new Set();
+        for (const direction of ["inputs", "outputs"]) {
+          for (const port of type.ports[direction]) {
+            if (local.has(port.id)) issues.push(issue("error", "duplicate_type_port_id", `${type.label} has duplicate port ID ${port.id}.`, "graph", model.artifact.id));
+            local.add(port.id);
+            if (port.schema !== "any" && !schemaIds.has(port.schema)) issues.push(issue("error", "unknown_type_schema", `${type.label}.${port.label} references unknown schema ${port.schema}.`, "graph", model.artifact.id));
+          }
+        }
+      }
+      for (const node of graph.nodes) {
+        if (nodeIds.has(node.id)) issues.push(issue("error", "duplicate_node_id", `Duplicate node ID: ${node.id}`, "node", node.id));
+        nodeIds.add(node.id);
+        if (!nodesById.has(node.id)) nodesById.set(node.id, node);
+        if (!typeIds.has(node.type)) issues.push(issue("error", "unknown_node_type", `${node.label} uses an unknown node type.`, "node", node.id));
+        if (!categoryIds.has(node.category)) issues.push(issue("error", "unknown_category", `${node.label} uses an unknown category.`, "node", node.id));
+        if (!NODE_STATUSES.has(node.status)) issues.push(issue("error", "invalid_node_status", `${node.label} has an invalid status.`, "node", node.id));
+        const local = new Set();
+        for (const direction of ["inputs", "outputs"]) {
+          for (const port of node.ports[direction]) {
+            if (local.has(port.id)) issues.push(issue("error", "duplicate_port_id", `${node.label} has duplicate port ID ${port.id}.`, "node", node.id));
+            local.add(port.id);
+            if (port.schema !== "any" && !schemaIds.has(port.schema)) issues.push(issue("error", "unknown_schema", `${node.label}.${port.label} references unknown schema ${port.schema}.`, "node", node.id));
+          }
+        }
+      }
+      const incoming = new Map();
+      const connectionKeys = new Set();
+      for (const edge of graph.edges) {
+        if (edgeIds.has(edge.id)) issues.push(issue("error", "duplicate_edge_id", `Duplicate edge ID: ${edge.id}`, "edge", edge.id));
+        edgeIds.add(edge.id);
+        if (!EDGE_KINDS.has(edge.kind)) issues.push(issue("error", "invalid_edge_kind", `${edge.id} has an invalid edge kind.`, "edge", edge.id));
+        const sourceNode = nodesById.get(edge.source.node);
+        const targetNode = nodesById.get(edge.target.node);
+        const sourcePort = sourceNode ? sourceNode.ports.outputs.find(port => port.id === edge.source.port) : null;
+        const targetPort = targetNode ? targetNode.ports.inputs.find(port => port.id === edge.target.port) : null;
+        if (!sourceNode || !targetNode) {
+          issues.push(issue("error", "missing_edge_node", `${edge.id} references a missing node.`, "edge", edge.id));
+          continue;
+        }
+        if (!sourcePort || !targetPort) {
+          issues.push(issue("error", "missing_edge_port", `${edge.id} references a missing or wrong-direction port.`, "edge", edge.id));
+          continue;
+        }
+        const key = `${edge.source.node}:${edge.source.port}>${edge.target.node}:${edge.target.port}`;
+        if (connectionKeys.has(key)) issues.push(issue("error", "duplicate_connection", `${edge.id} duplicates an existing connection.`, "edge", edge.id));
+        connectionKeys.add(key);
+        if (edge.source.node === edge.target.node) issues.push(issue("error", "self_connection", `${edge.id} connects a node to itself.`, "edge", edge.id));
+        const targetKey = `${edge.target.node}:${edge.target.port}`;
+        incoming.set(targetKey, (incoming.get(targetKey) || 0) + 1);
+        if (sourcePort.schema !== "any" && targetPort.schema !== "any" && sourcePort.schema !== targetPort.schema) issues.push(issue("error", "schema_mismatch", `${sourceNode.label}.${sourcePort.label} (${sourcePort.schema}) cannot connect to ${targetNode.label}.${targetPort.label} (${targetPort.schema}).`, "edge", edge.id));
+      }
+      for (const node of graph.nodes) {
+        for (const port of node.ports.inputs) {
+          const count = incoming.get(`${node.id}:${port.id}`) || 0;
+          if (port.required && count === 0) issues.push(issue("error", "required_input_unconnected", `${node.label}.${port.label} is required but has no incoming edge.`, "node", node.id));
+          if (!port.multiple && count > 1) issues.push(issue("error", "input_multiplicity", `${node.label}.${port.label} accepts one incoming edge but has ${count}.`, "node", node.id));
+        }
+      }
+      if (model === state.model) dom.validationCount.textContent = String(issues.length);
+      diagnostic("validation_completed", issues.some(item => item.severity === "error") ? "warn" : "info", { count: issues.length });
+      return issues;
+    }
+
+    function issue(severity, code, message, kind, id) {
+      return { id: `${code}:${id}`, severity, code, message, entity: { kind, id } };
+    }
+
+    function create(tag, className, text) {
+      const node = document.createElement(tag);
+      if (className) node.className = className;
+      if (text !== undefined) node.textContent = text;
+      return node;
+    }
+    function svg(tag, attributes = {}) {
+      const node = document.createElementNS(SVG_NS, tag);
+      for (const [key, value] of Object.entries(attributes)) {
+        const normalized = String(value);
+        if (key === "d") node.setAttribute("d", normalized);
+        else if (key === "class") node.setAttribute("class", normalized);
+        else if (key === "data-edge-id") node.setAttribute("data-edge-id", normalized);
+        else if (key === "tabindex") node.setAttribute("tabindex", normalized);
+        else if (key === "role") node.setAttribute("role", normalized);
+        else if (key === "aria-label") node.setAttribute("aria-label", normalized);
+        else if (key === "transform") node.setAttribute("transform", normalized);
+        else if (key === "width") node.setAttribute("width", normalized);
+        else if (key === "height") node.setAttribute("height", normalized);
+        else if (key === "x") node.setAttribute("x", normalized);
+        else if (key === "y") node.setAttribute("y", normalized);
+        else if (key === "text-anchor") node.setAttribute("text-anchor", normalized);
+        else throw new Error("unsupported_svg_attribute");
+      }
+      return node;
+    }
+
+    function renderAll() {
+      if (state.rendering) return;
+      state.rendering = true;
+      const started = performance.now();
+      diagnostic("render_started");
+      try {
+        applyView();
+        renderToolbar();
+        renderPalette();
+        renderNodes();
+        renderEdges();
+        renderInspector();
+        renderMinimap();
+        renderBottom();
+        updateHistoryButtons();
+        diagnostic("render_completed", "info", { duration_ms: Math.round(performance.now() - started), count: state.model.graph.nodes.length });
+      } catch (error) {
+        diagnostic("render_failed", "error", { error_code: errorCode(error) });
+        showToast("Rendering failed. Open Diagnostics for the safe error code.", "error");
+      } finally {
+        state.rendering = false;
+      }
+    }
+
+    function renderToolbar() {
+      dom.graphTitle.value = state.model.graph.metadata.name;
+      dom.artifactVersion.textContent = `v${state.model.artifact.version}`;
+      const observedAvailable = verifiedObservedRuns().length > 0;
+      for (const button of dom.modeTabs.querySelectorAll("[data-mode]")) {
+        const mode = button.dataset.mode;
+        button.classList.toggle("active", state.mode === mode);
+        if (mode === "trace") button.disabled = !observedAvailable;
+      }
+      const bannerText = {
+        design: ["Design mode", "Edit workflow structure"],
+        contracts: ["Contracts", "Inspect typed port compatibility"],
+        preview: ["Synthetic preview", "Generated locally; no nodes execute"],
+        trace: ["Observed trace", observedAvailable ? observedRunLabel() : "No observed run supplied"],
+        docs: ["Documentation", "Inspect provenance and source notes"]
+      }[state.mode];
+      dom.banner.replaceChildren();
+      dom.banner.append(create("span", "banner-dot"), create("strong", "", bannerText[0]), create("span", "", bannerText[1]));
+    }
+
+    function renderPalette() {
+      const query = dom.paletteSearch.value.trim().toLowerCase();
+      const fragment = document.createDocumentFragment();
+      let matched = 0;
+      for (const category of state.model.catalog.categories) {
+        const types = state.model.catalog.node_types.filter(type => type.category === category.id && (!query || `${type.label} ${type.type} ${type.description} ${category.label}`.toLowerCase().includes(query)));
+        if (!types.length) continue;
+        matched += types.length;
+        const group = create("section", "palette-group");
+        const button = create("button", "group-button");
+        button.type = "button";
+        button.style.setProperty("--category-color", category.color);
+        const collapsed = state.collapsedGroups.has(category.id) && !query;
+        button.append(create("span", "group-caret", collapsed ? ">" : "v"), create("span", "group-dot"), create("span", "", category.label), create("span", "group-count", String(types.length)));
+        button.addEventListener("click", () => {
+          if (state.collapsedGroups.has(category.id)) state.collapsedGroups.delete(category.id); else state.collapsedGroups.add(category.id);
+          renderPalette();
+        });
+        group.append(button);
+        if (!collapsed) {
+          for (const type of types) {
+            const item = create("div", "palette-item");
+            item.draggable = true;
+            item.tabIndex = 0;
+            item.setAttribute("role", "button");
+            item.setAttribute("aria-label", `Add ${type.label}`);
+            item.style.setProperty("--category-color", category.color);
+            const icon = create("span", "type-icon", category.icon);
+            const text = create("span");
+            text.append(create("div", "palette-label", type.label), create("div", "palette-type", type.type));
+            item.append(icon, text, create("span", "palette-badge", type.badge));
+            item.addEventListener("dragstart", event => {
+              event.dataTransfer.effectAllowed = "copy";
+              event.dataTransfer.setData("application/x-workflow-node-type", type.type);
+            });
+            item.addEventListener("keydown", event => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                const rect = dom.canvas.getBoundingClientRect();
+                addNodeFromType(type.type, screenToWorld(rect.left + rect.width / 2, rect.top + rect.height / 2));
+              }
+            });
+            group.append(item);
+          }
+        }
+        fragment.append(group);
+      }
+      if (!matched) fragment.append(create("div", "palette-empty", "No node types match this search."));
+      dom.palette.replaceChildren(fragment);
+    }
+
+    function activeRunStatuses() {
+      if (state.mode === "preview") return state.preview.statuses;
+      if (state.mode === "trace") {
+        const run = observedRun();
+        return new Map((run ? run.steps : []).map(step => [step.node_id, step.status]));
+      }
+      return new Map();
+    }
+
+    function renderNodes() {
+      const fragment = document.createDocumentFragment();
+      const selectedNode = state.selected && state.selected.kind === "node" ? state.selected.id : null;
+      const related = new Set();
+      if (selectedNode) {
+        for (const edge of state.model.graph.edges) {
+          if (edge.source.node === selectedNode) related.add(edge.target.node);
+          if (edge.target.node === selectedNode) related.add(edge.source.node);
+        }
+      }
+      const statuses = activeRunStatuses();
+      for (const node of state.model.graph.nodes) {
+        const category = categoryById(node.category) || { color: "#2a78d6", icon: "N" };
+        const card = create("article", "node");
+        card.dataset.nodeId = node.id;
+        card.tabIndex = 0;
+        card.setAttribute("role", "button");
+        card.setAttribute("aria-label", `Select node ${node.label}`);
+        card.style.transform = `translate(${node.position.x}px, ${node.position.y}px)`;
+        card.style.height = `${nodeHeight(node)}px`;
+        card.style.setProperty("--category-color", category.color);
+        const runtimeStatus = statuses.get(node.id);
+        if (node.id === selectedNode) card.classList.add("selected");
+        else if (selectedNode && related.has(node.id)) card.classList.add("related");
+        else if (selectedNode) card.classList.add("dimmed");
+        if (runtimeStatus) card.classList.add(runtimeStatus);
+
+        const head = create("div", "node-head");
+        const icon = create("span", "type-icon", category.icon);
+        icon.style.setProperty("--category-color", category.color);
+        const titleWrap = create("div");
+        titleWrap.append(create("div", "node-title", node.label), create("div", "node-type", node.type));
+        const status = create("span", "status-chip");
+        const shownStatus = runtimeStatus || node.status;
+        status.append(create("span", `status-dot ${shownStatus}`), create("span", "", shownStatus));
+        head.append(icon, titleWrap, status);
+        head.addEventListener("pointerdown", event => startNodeDrag(event, node));
+        card.addEventListener("pointerdown", event => {
+          if (event.button !== 0 || event.target.closest(".port")) return;
+          selectEntity("node", node.id);
+        });
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            event.stopPropagation();
+            selectEntity("node", node.id);
+          }
+        });
+
+        const description = create("div", "node-description", node.description || "No description.");
+        const meta = create("div", "node-meta");
+        meta.append(create("span", "meta-pill", node.owner), create("span", "meta-pill mono", node.metadata.fact_status));
+        const step = runtimeStep(node.id);
+        if (step) meta.append(create("span", "meta-pill latency-pill", `${step.duration_ms}ms`));
+        card.append(head, description, meta);
+
+        addPorts(card, node, "input");
+        addPorts(card, node, "output");
+        fragment.append(card);
+      }
+      dom.nodes.replaceChildren(fragment);
+    }
+
+    function addPorts(card, node, direction) {
+      const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+      list.forEach((port, index) => {
+        const row = create("div", `port ${direction}`);
+        row.style.setProperty("--port-y", `${54 + index * 20}px`);
+        row.dataset.nodeId = node.id;
+        row.dataset.portId = port.id;
+        row.dataset.direction = direction;
+        row.tabIndex = 0;
+        row.setAttribute("role", "button");
+        row.setAttribute("aria-label", `${direction} port ${port.label}, schema ${port.schema}`);
+        row.title = `${port.label}: ${port.schema}`;
+        row.append(create("span", "port-dot"), create("span", "port-label", port.label));
+        row.addEventListener("pointerdown", event => {
+          event.stopPropagation();
+          if (direction === "output") startConnection(event, node, port);
+          else showToast("Connections start from an output port.", "error");
+        });
+        row.addEventListener("keydown", event => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          event.stopPropagation();
+          if (direction === "output") startKeyboardConnection(node, port);
+          else finishKeyboardConnection(node, port);
+        });
+        card.append(row);
+      });
+    }
+
+    function portPoint(nodeId, portId, direction) {
+      const node = nodeById(nodeId);
+      if (!node) return { x: 0, y: 0 };
+      const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+      const index = Math.max(0, list.findIndex(port => port.id === portId));
+      return { x: node.position.x + (direction === "output" ? NODE_WIDTH : 0), y: node.position.y + 62 + index * 20 };
+    }
+
+    function edgePath(source, target) {
+      const distance = Math.max(48, Math.abs(target.x - source.x) * .46);
+      return `M ${source.x} ${source.y} C ${source.x + distance} ${source.y}, ${target.x - distance} ${target.y}, ${target.x} ${target.y}`;
+    }
+
+    function renderEdges() {
+      const defs = dom.edges.querySelector("defs");
+      const fragment = document.createDocumentFragment();
+      const selectedEdge = state.selected && state.selected.kind === "edge" ? state.selected.id : null;
+      for (const edge of state.model.graph.edges) {
+        const source = portPoint(edge.source.node, edge.source.port, "output");
+        const target = portPoint(edge.target.node, edge.target.port, "input");
+        const d = edgePath(source, target);
+        const visible = svg("path", { d, class: `edge-visible ${edge.kind}${selectedEdge === edge.id ? " selected" : ""}`, "data-edge-id": edge.id });
+        const hit = svg("path", { d, class: "edge-hit", tabindex: "0", role: "button", "aria-label": `Select edge ${edge.label || edge.id}`, "data-edge-id": edge.id });
+        hit.addEventListener("click", event => { event.stopPropagation(); selectEntity("edge", edge.id); });
+        hit.addEventListener("keydown", event => { if (event.key === "Enter" || event.key === " ") selectEntity("edge", edge.id); });
+        fragment.append(visible, hit);
+        if (edge.label) {
+          const mid = { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
+          const group = svg("g", { class: "edge-label", transform: `translate(${mid.x - 26} ${mid.y - 10})`, "data-edge-id": edge.id });
+          group.append(svg("rect", { width: 52, height: 18 }), svg("text", { x: 26, y: 12, "text-anchor": "middle" }));
+          group.lastChild.textContent = edge.label;
+          fragment.append(group);
+        }
+      }
+      if (state.connection) {
+        const draft = svg("path", { class: "draft-edge", d: edgePath(state.connection.sourcePoint, state.connection.pointerPoint) });
+        fragment.append(draft);
+      }
+      dom.edges.replaceChildren(defs, fragment);
+    }
+
+    function elementsForEdge(edgeId) {
+      return Array.from(dom.edges.querySelectorAll("[data-edge-id]")).filter(element => element.dataset.edgeId === edgeId);
+    }
+
+    function updateEdgeGeometry(edge) {
+      const source = portPoint(edge.source.node, edge.source.port, "output");
+      const target = portPoint(edge.target.node, edge.target.port, "input");
+      const d = edgePath(source, target);
+      const mid = { x: (source.x + target.x) / 2, y: (source.y + target.y) / 2 };
+      for (const element of elementsForEdge(edge.id)) {
+        if (element.tagName.toLowerCase() === "path") element.setAttribute("d", d);
+        else if (element.classList.contains("edge-label")) element.setAttribute("transform", `translate(${mid.x - 26} ${mid.y - 10})`);
+      }
+    }
+
+    function updateConnectedEdges(nodeId) {
+      for (const edge of state.model.graph.edges) {
+        if (edge.source.node === nodeId || edge.target.node === nodeId) updateEdgeGeometry(edge);
+      }
+    }
+
+    function updateNodeGeometry(node) {
+      const card = Array.from(dom.nodes.children).find(element => element.dataset.nodeId === node.id);
+      if (card) card.style.transform = `translate(${node.position.x}px, ${node.position.y}px)`;
+    }
+
+    function updateDraftEdge() {
+      const draft = dom.edges.querySelector(".draft-edge");
+      if (draft && state.connection) draft.setAttribute("d", edgePath(state.connection.sourcePoint, state.connection.pointerPoint));
+    }
+
+    function renderInspector() {
+      const content = create("div", "inspector-content");
+      if (!state.selected) {
+        dom.inspectorHeading.textContent = "Inspector";
+        const empty = create("div", "empty-state");
+        empty.append(create("div", "type-icon", "i"), create("strong", "", "Nothing selected"), create("span", "", "Click a node or edge to edit its configuration."));
+        dom.inspector.replaceChildren(empty);
+        return;
+      }
+      if (state.selected.kind === "node") renderNodeInspector(content, nodeById(state.selected.id));
+      else renderEdgeInspector(content, edgeById(state.selected.id));
+      dom.inspector.replaceChildren(content);
+    }
+
+    function field(labelText, value, onChange, options = {}) {
+      const wrap = create("div", "field");
+      const label = create("label", "", labelText);
+      const control = options.multiline ? document.createElement("textarea") : options.choices ? document.createElement("select") : document.createElement("input");
+      control.id = `inspector-field-${++fieldSequence}`;
+      label.htmlFor = control.id;
+      if (options.choices) {
+        for (const choice of options.choices) {
+          const option = document.createElement("option");
+          option.value = choice;
+          option.textContent = choice;
+          control.append(option);
+        }
+      }
+      control.value = value == null ? "" : String(value);
+      if (options.mono) control.classList.add("mono-input");
+      if (options.readonly) control.readOnly = true;
+      if (!options.readonly) control.addEventListener(options.live ? "input" : "change", event => onChange(event.target.value));
+      wrap.append(label, control);
+      if (options.help) wrap.append(create("div", "help", options.help));
+      return wrap;
+    }
+
+    function renderNodeInspector(content, node) {
+      if (!node) { state.selected = null; renderInspector(); return; }
+      dom.inspectorHeading.textContent = "Node inspector";
+      const identity = create("section", "form-section");
+      identity.append(create("div", "section-title", "Identity"));
+      identity.append(field("Label", node.label, value => mutateLive(() => { node.label = cleanString(value, node.label, 96); }, "node_updated", { node_id: node.id }), { live: true }));
+      identity.append(field("Machine type", node.type, () => {}, { readonly: true, mono: true }));
+      identity.append(field("Diagnostic ref", diagnosticToken("node_id", node.id), () => {}, { readonly: true, mono: true, help: "Session-local token used in sanitized diagnostics." }));
+      identity.append(field("Description", node.description, value => mutate(() => { node.description = cleanString(value, "", 240); }, "node_updated", { node_id: node.id }), { multiline: true }));
+      const row = create("div", "field-row");
+      row.append(field("Owner", node.owner, value => mutate(() => { node.owner = cleanString(value, "unassigned", 48); }, "node_updated", { node_id: node.id })), field("Status", node.status, value => mutate(() => { node.status = NODE_STATUSES.has(value) ? value : "unknown"; }, "node_updated", { node_id: node.id }), { choices: Array.from(NODE_STATUSES) }));
+      identity.append(row);
+
+      const provenance = create("section", "form-section");
+      provenance.append(create("div", "section-title", "Provenance"));
+      const provenanceRow = create("div", "field-row");
+      provenanceRow.append(field("Fact status", node.metadata.fact_status, value => mutate(() => {
+        if (value === "observed" && !node.metadata.evidence.length) {
+          node.metadata.fact_status = "inferred";
+          showToast("Observed status requires source evidence. Kept as inferred.", "error");
+        } else node.metadata.fact_status = value;
+      }, "node_updated", { node_id: node.id }), { choices: ["observed", "inferred", "proposed", "unknown"] }), field("Confidence", node.metadata.confidence, value => mutate(() => { node.metadata.confidence = value; }, "node_updated", { node_id: node.id }), { choices: ["high", "medium", "low"] }));
+      provenance.append(provenanceRow, create("div", "help", node.metadata.evidence.length ? `${node.metadata.evidence.length} evidence reference(s)` : "No source evidence attached to this fabricated example."));
+
+      const ports = create("section", "form-section");
+      ports.append(create("div", "section-title", "Typed ports"));
+      ports.append(renderPortEditor(node, "input"), renderPortEditor(node, "output"));
+      const portActions = create("div", "inspector-actions");
+      const addInput = create("button", "small-button", "Add input");
+      const addOutput = create("button", "small-button", "Add output");
+      addInput.type = addOutput.type = "button";
+      addInput.addEventListener("click", () => addPort(node, "input"));
+      addOutput.addEventListener("click", () => addPort(node, "output"));
+      portActions.append(addInput, addOutput);
+      ports.append(portActions);
+
+      const actions = create("section", "form-section");
+      actions.append(create("div", "section-title", "Actions"));
+      const actionRow = create("div", "inspector-actions");
+      const duplicate = create("button", "small-button", "Duplicate");
+      const remove = create("button", "small-button danger", "Delete node");
+      duplicate.type = remove.type = "button";
+      duplicate.addEventListener("click", () => duplicateNode(node));
+      remove.addEventListener("click", () => deleteSelected());
+      actionRow.append(duplicate, remove);
+      actions.append(actionRow);
+      content.append(identity, provenance, ports, actions);
+    }
+
+    function renderPortEditor(node, direction) {
+      const wrap = create("div", "port-editor");
+      const heading = create("div", "help", direction === "input" ? "Inputs" : "Outputs");
+      wrap.append(heading);
+      const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+      if (!list.length) wrap.append(create("div", "help", `No ${direction} ports.`));
+      list.forEach(port => {
+        const row = create("div", `port-editor-row ${direction}`);
+        row.append(create("span", "port-direction", direction === "input" ? "IN" : "OUT"));
+        const label = document.createElement("input");
+        label.value = port.label;
+        label.setAttribute("aria-label", `${direction} port label`);
+        const schema = document.createElement("input");
+        schema.value = port.schema;
+        schema.setAttribute("aria-label", `${direction} port schema`);
+        label.addEventListener("change", event => mutate(() => { port.label = cleanString(event.target.value, port.label, 48); }, "node_updated", { node_id: node.id, port_id: port.id }));
+        schema.addEventListener("change", event => mutate(() => { port.schema = safeId(event.target.value) || "any"; }, "node_updated", { node_id: node.id, port_id: port.id }));
+        const flags = create("span", "port-flags");
+        for (const [key, text] of [["required", "req"], ["multiple", "multi"]]) {
+          const flag = create("label", "port-flag");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = port[key];
+          checkbox.setAttribute("aria-label", `${direction} port ${key}`);
+          checkbox.addEventListener("change", event => mutate(() => { port[key] = event.target.checked; }, "node_updated", { node_id: node.id, port_id: port.id }));
+          flag.append(checkbox, document.createTextNode(text));
+          flags.append(flag);
+        }
+        const remove = create("button", "remove-port", "x");
+        remove.type = "button";
+        remove.setAttribute("aria-label", `Remove ${port.label} port`);
+        remove.addEventListener("click", () => removePort(node, direction, port.id));
+        row.append(label, schema, flags, remove);
+        wrap.append(row);
+      });
+      return wrap;
+    }
+
+    function renderEdgeInspector(content, edge) {
+      if (!edge) { state.selected = null; renderInspector(); return; }
+      dom.inspectorHeading.textContent = "Edge inspector";
+      const sourceNode = nodeById(edge.source.node);
+      const targetNode = nodeById(edge.target.node);
+      const identity = create("section", "form-section");
+      identity.append(create("div", "section-title", "Connection"));
+      identity.append(field("Edge ID", edge.id, () => {}, { readonly: true, mono: true }));
+      identity.append(field("Diagnostic ref", diagnosticToken("edge_id", edge.id), () => {}, { readonly: true, mono: true, help: "Session-local token used in sanitized diagnostics." }));
+      identity.append(field("Label", edge.label, value => mutateLive(() => { edge.label = cleanString(value, "", 48); }, "edge_updated", { edge_id: edge.id }), { live: true }));
+      identity.append(field("Kind", edge.kind, value => mutate(() => { edge.kind = EDGE_KINDS.has(value) ? value : "data"; }, "edge_updated", { edge_id: edge.id }), { choices: Array.from(EDGE_KINDS) }));
+      const route = create("section", "form-section");
+      route.append(create("div", "section-title", "Route"), create("div", "help", `${sourceNode ? sourceNode.label : edge.source.node}.${edge.source.port}`), create("div", "help", `to ${targetNode ? targetNode.label : edge.target.node}.${edge.target.port}`));
+      const actions = create("section", "form-section");
+      actions.append(create("div", "section-title", "Actions"));
+      const remove = create("button", "small-button danger", "Delete edge");
+      remove.type = "button";
+      remove.addEventListener("click", deleteSelected);
+      actions.append(remove);
+      content.append(identity, route, actions);
+    }
+
+    function renderMinimap() {
+      const title = dom.minimap.querySelector(".minimap-title") || create("span", "minimap-title", "MAP");
+      const fragment = document.createDocumentFragment();
+      fragment.append(title);
+      const bounds = graphBounds(80);
+      const width = Math.max(1, bounds.maxX - bounds.minX);
+      const height = Math.max(1, bounds.maxY - bounds.minY);
+      const scale = Math.min(130 / width, 70 / height);
+      for (const node of state.model.graph.nodes) {
+        const mini = create("div", "mini-node");
+        mini.style.setProperty("--category-color", categoryColor(node.category));
+        mini.style.left = `${10 + (node.position.x - bounds.minX) * scale}px`;
+        mini.style.top = `${15 + (node.position.y - bounds.minY) * scale}px`;
+        mini.style.width = `${Math.max(7, NODE_WIDTH * scale)}px`;
+        mini.style.height = `${Math.max(5, nodeHeight(node) * scale)}px`;
+        fragment.append(mini);
+      }
+      const canvasRect = dom.canvas.getBoundingClientRect();
+      const viewLeft = -state.view.x / state.view.scale;
+      const viewTop = -state.view.y / state.view.scale;
+      const viewport = create("div", "mini-viewport");
+      viewport.style.left = `${10 + (viewLeft - bounds.minX) * scale}px`;
+      viewport.style.top = `${15 + (viewTop - bounds.minY) * scale}px`;
+      viewport.style.width = `${Math.max(8, canvasRect.width / state.view.scale * scale)}px`;
+      viewport.style.height = `${Math.max(8, canvasRect.height / state.view.scale * scale)}px`;
+      fragment.append(viewport);
+      dom.minimap.replaceChildren(fragment);
+    }
+
+    function renderBottom() {
+      dom.bottomPanel.classList.toggle("collapsed", state.bottomCollapsed);
+      dom.app.classList.toggle("bottom-collapsed", state.bottomCollapsed);
+      for (const button of dom.bottomTabs.querySelectorAll("[data-tab]")) {
+        const active = button.dataset.tab === state.bottomTab;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+        button.tabIndex = active ? 0 : -1;
+      }
+      dom.bottomContent.setAttribute("aria-labelledby", `tab-${state.bottomTab}`);
+      dom.validationCount.textContent = String(state.issues.length);
+      dom.previewCount.textContent = String(state.preview.logs.length);
+      dom.diagnosticCount.textContent = String(state.diagnostics.length);
+      if (state.bottomCollapsed) { dom.bottomContent.replaceChildren(); return; }
+      if (state.bottomTab === "validation") renderValidationBottom();
+      else if (state.bottomTab === "preview") renderPreviewBottom();
+      else if (state.bottomTab === "diagnostics") renderDiagnosticsBottom();
+      else renderJsonBottom();
+    }
+
+    function renderValidationBottom() {
+      if (!state.issues.length) {
+        dom.bottomContent.replaceChildren(create("div", "bottom-empty", "No validation issues. The graph contract is internally consistent."));
+        return;
+      }
+      const list = create("div", "issue-list");
+      for (const item of state.issues) {
+        const row = create("div", "issue-row");
+        row.tabIndex = 0;
+        row.append(create("span", `severity ${item.severity}`, item.severity), create("span", "row-muted", item.code), create("span", "", item.message));
+        row.addEventListener("click", () => focusIssue(item));
+        row.addEventListener("keydown", event => { if (event.key === "Enter") focusIssue(item); });
+        list.append(row);
+      }
+      dom.bottomContent.replaceChildren(list);
+    }
+
+    function renderPreviewBottom() {
+      const fragment = document.createDocumentFragment();
+      if (!state.preview.logs.length) {
+        fragment.append(create("div", "bottom-empty", "No synthetic preview has run. Preview data is generated locally and never executes workflow nodes."));
+      } else {
+        const list = create("div", "log-list");
+        for (const log of state.preview.logs) {
+          const row = create("div", "log-row");
+          row.append(create("span", "row-muted", `+${String(log.offset_ms).padStart(4, "0")}ms`), create("span", "severity info", "SYNTH"), create("span", "row-muted", log.node_id), create("span", "", log.message));
+          list.append(row);
+        }
+        fragment.append(list);
+      }
+      dom.bottomContent.replaceChildren(fragment);
+    }
+
+    function renderDiagnosticsBottom() {
+      const fragment = document.createDocumentFragment();
+      const toolbar = create("div", "bottom-toolbar");
+      const clear = create("button", "small-button", "Clear diagnostics");
+      const exportButton = create("button", "small-button", "Export sanitized JSON");
+      clear.type = exportButton.type = "button";
+      clear.addEventListener("click", () => { state.diagnostics = []; renderBottom(); });
+      exportButton.addEventListener("click", exportDiagnostics);
+      toolbar.append(clear, exportButton);
+      fragment.append(toolbar);
+      if (!state.diagnostics.length) fragment.append(create("div", "bottom-empty", "No diagnostic events."));
+      else {
+        const list = create("div", "diagnostic-list");
+        for (const record of state.diagnostics.slice().reverse()) {
+          const details = Object.entries(record).filter(([key]) => !["ts", "level", "event"].includes(key)).map(([key, value]) => `${key}=${value}`).join(" ");
+          const row = create("div", "diagnostic-row");
+          row.append(create("span", "row-muted", record.ts.slice(11, 23)), create("span", `diagnostic-level ${record.level}`, record.level.toUpperCase()), create("span", "", record.event), create("span", "row-muted", details));
+          list.append(row);
+        }
+        fragment.append(list);
+      }
+      dom.bottomContent.replaceChildren(fragment);
+    }
+
+    function renderJsonBottom() {
+      const pre = create("pre", "json-view", JSON.stringify(exportableModel(), null, 2));
+      dom.bottomContent.replaceChildren(pre);
+    }
+
+    function selectEntity(kind, id) {
+      state.selected = { kind, id };
+      diagnostic("selection_changed", "info", kind === "node" ? { node_id: id } : { edge_id: id });
+      renderNodes();
+      renderEdges();
+      renderInspector();
+    }
+
+    function focusIssue(item) {
+      if (item.entity.kind === "graph") {
+        state.selected = null;
+        renderNodes();
+        renderEdges();
+        renderInspector();
+        showToast("This issue applies to the graph model rather than a single canvas entity.");
+        return;
+      }
+      selectEntity(item.entity.kind, item.entity.id);
+      if (item.entity.kind === "node") centerNode(item.entity.id);
+    }
+
+    function applyView() {
+      dom.world.style.transform = `translate(${state.view.x}px, ${state.view.y}px) scale(${state.view.scale})`;
+      dom.zoomReadout.textContent = `${Math.round(state.view.scale * 100)}%`;
+    }
+
+    function screenToWorld(clientX, clientY) {
+      const rect = dom.canvas.getBoundingClientRect();
+      return { x: (clientX - rect.left - state.view.x) / state.view.scale, y: (clientY - rect.top - state.view.y) / state.view.scale };
+    }
+
+    function setZoom(nextScale, anchorX, anchorY) {
+      const rect = dom.canvas.getBoundingClientRect();
+      const screenX = anchorX == null ? rect.left + rect.width / 2 : anchorX;
+      const screenY = anchorY == null ? rect.top + rect.height / 2 : anchorY;
+      const before = screenToWorld(screenX, screenY);
+      state.view.scale = clamp(nextScale, .35, 2);
+      state.view.x = screenX - rect.left - before.x * state.view.scale;
+      state.view.y = screenY - rect.top - before.y * state.view.scale;
+      applyView();
+      renderMinimap();
+    }
+
+    function graphBounds(padding = 0) {
+      if (!state.model.graph.nodes.length) return { minX: 0, minY: 0, maxX: 1000, maxY: 700 };
+      return {
+        minX: Math.min(...state.model.graph.nodes.map(node => node.position.x)) - padding,
+        minY: Math.min(...state.model.graph.nodes.map(node => node.position.y)) - padding,
+        maxX: Math.max(...state.model.graph.nodes.map(node => node.position.x + NODE_WIDTH)) + padding,
+        maxY: Math.max(...state.model.graph.nodes.map(node => node.position.y + nodeHeight(node))) + padding
+      };
+    }
+
+    function fitView() {
+      const rect = dom.canvas.getBoundingClientRect();
+      const bounds = graphBounds(72);
+      const width = Math.max(1, bounds.maxX - bounds.minX);
+      const height = Math.max(1, bounds.maxY - bounds.minY);
+      state.view.scale = clamp(Math.min(rect.width / width, rect.height / height), .35, 1.35);
+      state.view.x = (rect.width - width * state.view.scale) / 2 - bounds.minX * state.view.scale;
+      state.view.y = (rect.height - height * state.view.scale) / 2 - bounds.minY * state.view.scale;
+      applyView();
+      renderMinimap();
+    }
+
+    function centerNode(id) {
+      const node = nodeById(id);
+      if (!node) return;
+      const rect = dom.canvas.getBoundingClientRect();
+      state.view.x = rect.width / 2 - (node.position.x + NODE_WIDTH / 2) * state.view.scale;
+      state.view.y = rect.height / 2 - (node.position.y + nodeHeight(node) / 2) * state.view.scale;
+      applyView();
+      renderMinimap();
+    }
+
+    function tryPointerCapture(element, pointerId) {
+      if (!element || typeof element.setPointerCapture !== "function") return;
+      try {
+        element.setPointerCapture(pointerId);
+      } catch (_error) {
+        diagnostic("pointer_capture_failed", "warn", { error_code: "invalid_pointer_state" });
+      }
+    }
+
+    function startNodeDrag(event, node) {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      const point = screenToWorld(event.clientX, event.clientY);
+      tryPointerCapture(dom.canvas, event.pointerId);
+      selectEntity("node", node.id);
+      state.drag = { nodeId: node.id, offsetX: point.x - node.position.x, offsetY: point.y - node.position.y, moved: false };
+    }
+
+    function moveNodeDrag(event) {
+      if (!state.drag) return;
+      const node = nodeById(state.drag.nodeId);
+      if (!node) return;
+      const point = screenToWorld(event.clientX, event.clientY);
+      const x = clamp(snap(point.x - state.drag.offsetX), 0, WORLD_WIDTH - NODE_WIDTH);
+      const y = clamp(snap(point.y - state.drag.offsetY), 0, WORLD_HEIGHT - nodeHeight(node));
+      if (x === node.position.x && y === node.position.y) return;
+      if (!state.drag.moved) {
+        pushHistory();
+        state.drag.moved = true;
+        if (invalidateObservedRuns()) renderToolbar();
+      }
+      node.position.x = x;
+      node.position.y = y;
+      updateNodeGeometry(node);
+      updateConnectedEdges(node.id);
+    }
+
+    function endNodeDrag() {
+      if (!state.drag) return;
+      if (state.drag.moved) diagnostic("node_moved", "info", { node_id: state.drag.nodeId });
+      state.drag = null;
+      renderMinimap();
+    }
+
+    function startConnection(event, node, port) {
+      if (event.button !== 0) return;
+      event.preventDefault();
+      dom.canvas.classList.add("connecting");
+      const sourcePoint = portPoint(node.id, port.id, "output");
+      state.connection = { sourceNode: node.id, sourcePort: port.id, sourcePoint, pointerPoint: screenToWorld(event.clientX, event.clientY), keyboard: false };
+      renderEdges();
+    }
+
+    function startKeyboardConnection(node, port) {
+      const sourcePoint = portPoint(node.id, port.id, "output");
+      state.connection = { sourceNode: node.id, sourcePort: port.id, sourcePoint, pointerPoint: { x: sourcePoint.x + 96, y: sourcePoint.y }, keyboard: true };
+      dom.canvas.classList.add("connecting");
+      renderEdges();
+      showToast(`Connection started from ${port.label}. Focus an input port and press Enter.`);
+    }
+
+    function finishKeyboardConnection(node, port) {
+      if (!state.connection || !state.connection.keyboard) {
+        showToast("Choose an output port first.", "error");
+        return;
+      }
+      const connection = state.connection;
+      state.connection = null;
+      dom.canvas.classList.remove("connecting");
+      connectPorts(connection.sourceNode, connection.sourcePort, node.id, port.id);
+    }
+
+    function moveConnection(event) {
+      if (!state.connection || state.connection.keyboard) return;
+      state.connection.pointerPoint = screenToWorld(event.clientX, event.clientY);
+      updateDraftEdge();
+    }
+
+    function endConnection(event) {
+      if (!state.connection || state.connection.keyboard) return;
+      const targetElement = document.elementFromPoint(event.clientX, event.clientY);
+      const portElement = targetElement && targetElement.closest ? targetElement.closest(".port") : null;
+      const connection = state.connection;
+      state.connection = null;
+      dom.canvas.classList.remove("connecting");
+      if (!portElement || portElement.dataset.direction !== "input") {
+        diagnostic("edge_rejected", "warn", { node_id: connection.sourceNode, port_id: connection.sourcePort, error_code: "missing_input_target" });
+        showToast("Drop the connection on an input port.", "error");
+        renderEdges();
+        return;
+      }
+      connectPorts(connection.sourceNode, connection.sourcePort, portElement.dataset.nodeId, portElement.dataset.portId);
+    }
+
+    function connectPorts(sourceNodeId, sourcePortId, targetNodeId, targetPortId) {
+      const sourcePort = portByRef(sourceNodeId, sourcePortId, "output");
+      const targetPort = portByRef(targetNodeId, targetPortId, "input");
+      const rejection = connectionRejection(sourceNodeId, sourcePortId, targetNodeId, targetPortId, sourcePort, targetPort);
+      if (rejection) {
+        diagnostic("edge_rejected", "warn", { node_id: targetNodeId, port_id: targetPortId, error_code: rejection.code });
+        showToast(rejection.message, "error");
+        renderEdges();
+        return;
+      }
+      const existing = new Set(state.model.graph.edges.map(edge => edge.id));
+      const edgeId = uniqueId("edge", existing);
+      mutate(() => state.model.graph.edges.push({ id: edgeId, source: { node: sourceNodeId, port: sourcePortId }, target: { node: targetNodeId, port: targetPortId }, kind: "data", label: sourcePort.label, async: false }), "edge_connected", { edge_id: edgeId, node_id: targetNodeId, port_id: targetPortId });
+      selectEntity("edge", edgeId);
+      showToast("Connection created.", "success");
+    }
+
+    function connectionRejection(sourceNodeId, sourcePortId, targetNodeId, targetPortId, sourcePort, targetPort) {
+      if (!sourcePort || !targetPort) return { code: "missing_port", message: "One of the selected ports no longer exists." };
+      if (sourceNodeId === targetNodeId) return { code: "self_connection", message: "A node cannot connect to itself." };
+      if (state.model.graph.edges.some(edge => edge.source.node === sourceNodeId && edge.source.port === sourcePortId && edge.target.node === targetNodeId && edge.target.port === targetPortId)) return { code: "duplicate_connection", message: "This exact connection already exists." };
+      if (!targetPort.multiple && state.model.graph.edges.some(edge => edge.target.node === targetNodeId && edge.target.port === targetPortId)) return { code: "input_multiplicity", message: "This input accepts only one connection." };
+      if (sourcePort.schema !== "any" && targetPort.schema !== "any" && sourcePort.schema !== targetPort.schema) return { code: "schema_mismatch", message: `Schema mismatch: ${sourcePort.schema} cannot connect to ${targetPort.schema}.` };
+      return null;
+    }
+
+    function addNodeFromType(typeId, point) {
+      const type = nodeTypeById(typeId);
+      if (!type) { showToast("Unknown node type.", "error"); return; }
+      const ids = new Set(state.model.graph.nodes.map(node => node.id));
+      const id = uniqueId(`node-${safeId(type.label).toLowerCase() || "item"}`, ids);
+      const node = {
+        id,
+        type: type.type,
+        label: type.label,
+        description: type.description,
+        category: type.category,
+        owner: type.owner,
+        status: "draft",
+        position: { x: clamp(snap(point.x - NODE_WIDTH / 2), 0, WORLD_WIDTH - NODE_WIDTH), y: clamp(snap(point.y - NODE_HEIGHT / 2), 0, WORLD_HEIGHT - NODE_HEIGHT) },
+        ports: deepClone(type.ports),
+        metadata: { confidence: "medium", fact_status: "proposed", evidence: [] }
+      };
+      node.position.y = clamp(node.position.y, 0, WORLD_HEIGHT - nodeHeight(node));
+      mutate(() => state.model.graph.nodes.push(node), "node_created", { node_id: id });
+      selectEntity("node", id);
+    }
+
+    function duplicateNode(node) {
+      const ids = new Set(state.model.graph.nodes.map(item => item.id));
+      const clone = deepClone(node);
+      clone.id = uniqueId(`${node.id}-copy`, ids);
+      clone.label = `${node.label} copy`.slice(0, 96);
+      clone.position.x = clamp(node.position.x + 32, 0, WORLD_WIDTH - NODE_WIDTH);
+      clone.position.y = clamp(node.position.y + 32, 0, WORLD_HEIGHT - nodeHeight(clone));
+      mutate(() => state.model.graph.nodes.push(clone), "node_created", { node_id: clone.id });
+      selectEntity("node", clone.id);
+    }
+
+    function addPort(node, direction) {
+      const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+      const ids = new Set(list.map(port => port.id));
+      const id = uniqueId(direction, ids);
+      mutate(() => list.push({ id, label: id, schema: "any", required: direction === "input", multiple: false }), "node_updated", { node_id: node.id, port_id: id });
+      selectEntity("node", node.id);
+    }
+
+    function removePort(node, direction, portId) {
+      mutate(() => {
+        const list = direction === "input" ? node.ports.inputs : node.ports.outputs;
+        const index = list.findIndex(port => port.id === portId);
+        if (index >= 0) list.splice(index, 1);
+        state.model.graph.edges = state.model.graph.edges.filter(edge => !(direction === "input" ? edge.target.node === node.id && edge.target.port === portId : edge.source.node === node.id && edge.source.port === portId));
+      }, "node_updated", { node_id: node.id, port_id: portId });
+      selectEntity("node", node.id);
+    }
+
+    function deleteSelected() {
+      if (!state.selected) return;
+      const selected = { ...state.selected };
+      if (selected.kind === "node") {
+        mutate(() => {
+          state.model.graph.nodes = state.model.graph.nodes.filter(node => node.id !== selected.id);
+          state.model.graph.edges = state.model.graph.edges.filter(edge => edge.source.node !== selected.id && edge.target.node !== selected.id);
+          state.selected = null;
+        }, "node_deleted", { node_id: selected.id });
+      } else {
+        mutate(() => { state.model.graph.edges = state.model.graph.edges.filter(edge => edge.id !== selected.id); state.selected = null; }, "edge_deleted", { edge_id: selected.id });
+      }
+    }
+
+    function startPan(event) {
+      if (event.button !== 0 || event.target.closest(".node") || event.target.closest(".edge-hit") || event.target.closest(".port")) return;
+      dom.canvas.classList.add("panning");
+      state.pan = { startX: event.clientX, startY: event.clientY, viewX: state.view.x, viewY: state.view.y };
+      tryPointerCapture(dom.canvas, event.pointerId);
+      state.selected = null;
+      renderNodes();
+      renderEdges();
+      renderInspector();
+    }
+
+    function movePan(event) {
+      if (!state.pan) return;
+      state.view.x = state.pan.viewX + event.clientX - state.pan.startX;
+      state.view.y = state.pan.viewY + event.clientY - state.pan.startY;
+      applyView();
+      renderMinimap();
+    }
+
+    function endPan() { state.pan = null; dom.canvas.classList.remove("panning"); }
+
+    function runtimeStep(nodeId) {
+      if (state.mode === "preview") return state.model.runtime.preview.steps.find(step => step.node_id === nodeId);
+      if (state.mode === "trace") { const run = observedRun(); return run && run.steps.find(step => step.node_id === nodeId); }
+      return null;
+    }
+    function observedRun() {
+      const runs = verifiedObservedRuns();
+      return runs.find(run => run.id === state.observedRunId) || runs[0] || null;
+    }
+    function observedRunLabel() { const run = observedRun(); return run ? `${run.label} · verified ${run.provenance.type}` : "No verified observed run supplied"; }
+
+    function resetSyntheticPreview() {
+      stopPreviewTimers();
+      state.preview.startedAt = 0;
+      state.preview.statuses = new Map();
+      state.preview.logs = [];
+    }
+
+    function startSyntheticPreview() {
+      resetSyntheticPreview();
+      state.mode = "preview";
+      state.preview.active = true;
+      state.preview.startedAt = performance.now();
+      state.bottomTab = "preview";
+      const steps = state.model.runtime.preview.steps;
+      const total = Math.max(0, ...steps.map(step => step.offset_ms + step.duration_ms));
+      const playbackScale = total > 5000 ? 5000 / total : 1;
+      state.preview.events = steps.flatMap(step => [
+        { at_ms: step.offset_ms, kind: "start", step },
+        { at_ms: step.offset_ms + step.duration_ms, kind: "end", step }
+      ]).sort((left, right) => left.at_ms - right.at_ms || (left.kind === right.kind ? 0 : left.kind === "start" ? -1 : 1));
+      state.preview.eventIndex = 0;
+      diagnostic("preview_started", "info", { count: steps.length });
+
+      const advancePreview = now => {
+        if (!state.preview.active) return;
+        const logicalElapsed = playbackScale > 0 ? (now - state.preview.startedAt) / playbackScale : total;
+        let changed = false;
+        while (state.preview.eventIndex < state.preview.events.length && state.preview.events[state.preview.eventIndex].at_ms <= logicalElapsed) {
+          const event = state.preview.events[state.preview.eventIndex++];
+          if (event.kind === "start") {
+            state.preview.statuses.set(event.step.node_id, "running");
+            state.preview.logs.push({ offset_ms: event.step.offset_ms, node_id: event.step.node_id, message: `Synthetic preview started for ${event.step.node_id}.` });
+          } else {
+            state.preview.statuses.set(event.step.node_id, "succeeded");
+            state.preview.logs.push({ offset_ms: event.step.offset_ms + event.step.duration_ms, node_id: event.step.node_id, message: `Synthetic preview completed in ${event.step.duration_ms}ms.` });
+          }
+          changed = true;
+        }
+        const completed = state.preview.eventIndex >= state.preview.events.length;
+        if (completed) {
+          state.preview.active = false;
+          state.preview.frameId = null;
+          state.preview.events = [];
+          state.preview.eventIndex = 0;
+          diagnostic("preview_completed", "info", { count: steps.length, duration_ms: total });
+        } else {
+          state.preview.frameId = window.requestAnimationFrame(advancePreview);
+        }
+        if (changed || completed) renderAll();
+      };
+
+      state.preview.frameId = window.requestAnimationFrame(advancePreview);
+      renderAll();
+    }
+
+    function stopPreviewTimers() {
+      if (state.preview.frameId !== null) window.cancelAnimationFrame(state.preview.frameId);
+      state.preview.frameId = null;
+      state.preview.events = [];
+      state.preview.eventIndex = 0;
+      state.preview.active = false;
+    }
+
+    function exportableModel() {
+      const model = deepClone(state.model);
+      model.graph.metadata.name = state.model.graph.metadata.name;
+      return model;
+    }
+
+    function saveLocal() {
+      try {
+        if (state.model.artifact.id !== EMBEDDED_ARTIFACT_ID) throw new Error("storage_artifact_mismatch");
+        const saved = exportableModel();
+        saved.runtime.observed_runs = [];
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saved));
+        dom.saveState.textContent = `saved ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
+        diagnostic("storage_save_succeeded", "info", { count: saved.graph.nodes.length });
+        showToast("Local draft saved without observed runs.", "success");
+      } catch (error) {
+        const code = errorCode(error);
+        diagnostic("storage_save_failed", "error", { error_code: code });
+        dom.saveState.textContent = "memory only";
+        showToast(code === "storage_artifact_mismatch" ? "Local save is limited to the embedded workflow artifact." : "Local storage is unavailable. The editor remains in memory.", "error");
+      }
+    }
+
+    function loadLocal() {
+      try {
+        const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.artifact || parsed.artifact.id !== EMBEDDED_ARTIFACT_ID) throw new Error("storage_artifact_mismatch");
+        const loaded = normalizeModel(parsed);
+        if (loaded.artifact.id !== EMBEDDED_ARTIFACT_ID) throw new Error("storage_artifact_mismatch");
+        const candidateIssues = validateGraph(loaded);
+        if (candidateIssues.some(item => item.severity === "error")) throw new Error("import_validation_failed");
+        loaded.runtime.observed_runs = [];
+        state.model = loaded;
+        state.issues = validateGraph();
+        diagnostic("storage_load_succeeded", "info", { count: loaded.graph.nodes.length });
+        dom.saveState.textContent = "restored local";
+      } catch (error) {
+        diagnostic("storage_load_failed", "error", { error_code: errorCode(error) });
+        dom.saveState.textContent = "local restore failed";
+      }
+    }
+
+    function downloadJson(filename, value) {
+      const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+
+    function exportModel() {
+      downloadJson(`${state.model.artifact.id}.workflow.json`, exportableModel());
+      diagnostic("export_succeeded", "info", { count: state.model.graph.nodes.length });
+      showToast("Workflow JSON exported.", "success");
+    }
+
+    function exportDiagnostics() {
+      downloadJson("workflow-canvas.diagnostics.json", { schema_version: "workflow-canvas-diagnostics/1", records: state.diagnostics });
+    }
+
+    async function importFile(file) {
+      diagnostic("import_started");
+      if (!file || file.size > IMPORT_LIMIT_BYTES) {
+        diagnostic("import_failed", "error", { error_code: "file_too_large" });
+        showToast("Import rejected. JSON must be 1 MB or smaller.", "error");
+        return;
+      }
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        if (parsed.schema_version === "workflow-observed-run/1") {
+          if (!hasExactKeys(parsed, ["schema_version", "observed_run"])) throw new Error("invalid_observed_run");
+          const normalizedRun = normalizeObservedRun(parsed.observed_run);
+          if (!normalizedRun) throw new Error("invalid_observed_run");
+          const run = await verifyObservedRun(normalizedRun, state.model);
+          state.model.runtime.observed_runs = state.model.runtime.observed_runs.filter(item => item.id !== run.id).concat(run);
+          diagnostic("import_succeeded", "info", { count: run.steps.length });
+          if (run.verification.status === "verified") {
+            resetSyntheticPreview();
+            state.observedRunId = run.id;
+            state.mode = "trace";
+            showToast(`Verified observed ${run.provenance.type} imported. Trace is now available.`, "success");
+          } else {
+            state.observedRunId = observedRun() ? observedRun().id : null;
+            if (state.mode === "trace") state.mode = "design";
+            diagnostic("observed_verification_failed", "warn", { error_code: "untrusted_observed_claim" });
+            showToast("Observed claim imported as unverified evidence. Trace remains disabled.", "error");
+          }
+        } else {
+          const normalized = normalizeModel(parsed);
+          const candidateIssues = validateGraph(normalized);
+          if (candidateIssues.some(item => item.severity === "error")) throw new Error("import_validation_failed");
+          normalized.runtime.observed_runs = await verifyObservedRuns(normalized.runtime.observed_runs, normalized);
+          resetSyntheticPreview();
+          if (state.mode === "preview") state.mode = "design";
+          state.model = normalized;
+          state.history = [];
+          state.future = [];
+          state.selected = null;
+          const verifiedRun = verifiedObservedRuns()[0] || null;
+          state.observedRunId = verifiedRun ? verifiedRun.id : null;
+          if (!verifiedRun && state.mode === "trace") state.mode = "design";
+          const unverifiedCount = normalized.runtime.observed_runs.filter(run => run.verification.status !== "verified").length;
+          diagnostic("model_loaded", "info", { count: normalized.graph.nodes.length });
+          diagnostic("import_succeeded", "info", { count: normalized.graph.nodes.length });
+          showToast(unverifiedCount ? `Workflow model imported with ${unverifiedCount} unverified observed claim(s).` : "Workflow model imported.", unverifiedCount ? "error" : "success");
+        }
+        state.issues = validateGraph();
+        renderAll();
+        fitView();
+      } catch (error) {
+        diagnostic("import_failed", "error", { error_code: errorCode(error) });
+        showToast("Import rejected. The file does not satisfy the workflow contract.", "error");
+      } finally {
+        dom.importFile.value = "";
+      }
+    }
+
+    function showToast(message, kind = "info") {
+      const toast = create("div", `toast ${kind}`, message);
+      dom.toastStack.append(toast);
+      window.setTimeout(() => toast.remove(), 3200);
+    }
+
+    function bindEvents() {
+      dom.paletteSearch.addEventListener("input", renderPalette);
+      dom.canvas.addEventListener("dragover", event => { if (event.dataTransfer.types.includes("application/x-workflow-node-type")) { event.preventDefault(); event.dataTransfer.dropEffect = "copy"; } });
+      dom.canvas.addEventListener("drop", event => { const type = event.dataTransfer.getData("application/x-workflow-node-type"); if (!type) return; event.preventDefault(); addNodeFromType(type, screenToWorld(event.clientX, event.clientY)); });
+      dom.canvas.addEventListener("pointerdown", startPan);
+      window.addEventListener("pointermove", event => { moveNodeDrag(event); moveConnection(event); movePan(event); });
+      window.addEventListener("pointerup", event => { endNodeDrag(); endConnection(event); endPan(); });
+      dom.canvas.addEventListener("wheel", event => {
+        event.preventDefault();
+        if (event.ctrlKey || event.metaKey) setZoom(state.view.scale * (event.deltaY > 0 ? .9 : 1.1), event.clientX, event.clientY);
+        else { state.view.x -= event.deltaX || 0; state.view.y -= event.deltaY; applyView(); renderMinimap(); }
+      }, { passive: false });
+      el("zoom-in").addEventListener("click", () => setZoom(state.view.scale * 1.15));
+      el("zoom-out").addEventListener("click", () => setZoom(state.view.scale / 1.15));
+      el("fit-view").addEventListener("click", fitView);
+      el("palette-collapse").addEventListener("click", () => { dom.body.classList.toggle("palette-collapsed"); window.setTimeout(() => { fitView(); }, 0); });
+      el("inspector-collapse").addEventListener("click", () => { dom.body.classList.toggle("inspector-collapsed"); window.setTimeout(() => { fitView(); }, 0); });
+      el("bottom-collapse").addEventListener("click", () => { state.bottomCollapsed = !state.bottomCollapsed; renderBottom(); });
+      dom.bottomTabs.addEventListener("click", event => { const button = event.target.closest("[data-tab]"); if (!button) return; state.bottomTab = button.dataset.tab; state.bottomCollapsed = false; renderBottom(); });
+      dom.bottomTabs.addEventListener("keydown", event => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        const tabs = Array.from(dom.bottomTabs.querySelectorAll("[data-tab]"));
+        const current = Math.max(0, tabs.indexOf(document.activeElement));
+        const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 : (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+        event.preventDefault();
+        tabs[next].click();
+        tabs[next].focus();
+      });
+      dom.modeTabs.addEventListener("click", event => {
+        const button = event.target.closest("[data-mode]");
+        if (!button || button.disabled) return;
+        state.mode = button.dataset.mode;
+        if (state.mode === "preview" && !state.preview.logs.length) startSyntheticPreview(); else renderAll();
+      });
+      el("preview-button").addEventListener("click", startSyntheticPreview);
+      el("validate-button").addEventListener("click", () => { state.issues = validateGraph(); state.bottomTab = "validation"; state.bottomCollapsed = false; renderAll(); showToast(state.issues.length ? `${state.issues.length} validation issue(s) found.` : "Validation passed.", state.issues.length ? "error" : "success"); });
+      el("save-button").addEventListener("click", saveLocal);
+      el("export-button").addEventListener("click", exportModel);
+      el("import-button").addEventListener("click", () => dom.importFile.click());
+      dom.importFile.addEventListener("change", event => importFile(event.target.files[0]));
+      el("undo-button").addEventListener("click", undo);
+      el("redo-button").addEventListener("click", redo);
+      dom.graphTitle.addEventListener("change", event => mutate(() => { state.model.graph.metadata.name = cleanString(event.target.value, "Workflow Canvas", 120); state.model.artifact.title = state.model.graph.metadata.name; }, "node_updated"));
+      window.addEventListener("keydown", event => {
+        if (event.key === "/" && !isFormField(event.target)) { event.preventDefault(); dom.paletteSearch.focus(); }
+        if ((event.key === "Delete" || event.key === "Backspace") && !isFormField(event.target)) { event.preventDefault(); deleteSelected(); }
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !isFormField(event.target)) { event.preventDefault(); event.shiftKey ? redo() : undo(); }
+        if (event.key === "Escape") { state.connection = null; dom.canvas.classList.remove("connecting"); renderEdges(); }
+      });
+      window.addEventListener("resize", () => { renderMinimap(); });
+      window.addEventListener("error", event => diagnostic("unhandled_error", "error", { error_code: errorCode(event.error || new Error("window_error")) }));
+      window.addEventListener("unhandledrejection", event => diagnostic("unhandled_rejection", "error", { error_code: errorCode(event.reason) }));
+    }
+
+    async function init() {
+      diagnostic("app_init");
+      diagnostic("model_loaded", "info", { count: state.model.graph.nodes.length });
+      loadLocal();
+      state.model.runtime.observed_runs = await verifyObservedRuns(state.model.runtime.observed_runs, state.model);
+      const verifiedRun = verifiedObservedRuns()[0] || null;
+      state.observedRunId = verifiedRun ? verifiedRun.id : null;
+      state.issues = validateGraph();
+      bindEvents();
+      renderAll();
+      window.setTimeout(fitView, 0);
+    }
+
+    init().catch(error => {
+      diagnostic("unhandled_rejection", "error", { error_code: errorCode(error) });
+      showToast("Initialization failed. Open Diagnostics for the safe error code.", "error");
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 {
   "name": "output-skills",
-  "version": "1.0.4",
-  "description": "Skills for generating self-contained interactive HTML output and compressed caveman responses, packaged for OpenAI Codex.",
+  "version": "1.1.0",
+  "description": "Skills for generating self-contained interactive HTML output, including editable workflow canvases, and compressed caveman responses, packaged for OpenAI Codex.",
   "author": {
     "name": "Alan Martini",
     "url": "https://github.com/alangmartini"
@@ -16,13 +16,15 @@
     "interactive",
     "visualization",
     "architecture",
+    "workflow",
+    "node-editor",
     "output"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Output Skills",
-    "shortDescription": "Self-contained interactive HTML artifacts and compressed caveman responses.",
-    "longDescription": "A focused bundle of output-format skills: single-file interactive HTML reports, source-grounded architecture maps, polished data and concept visualizations, plus the caveman compression mode for ultra-terse fact-only responses.",
+    "shortDescription": "Interactive HTML artifacts, workflow canvases, and compressed caveman responses.",
+    "longDescription": "A focused bundle of output-format skills: editable single-file workflow canvases, interactive HTML reports, source-grounded architecture maps, polished data and concept visualizations, plus the caveman compression mode for ultra-terse fact-only responses.",
     "developerName": "Alan Martini",
     "category": "Productivity",
     "capabilities": [
@@ -31,6 +33,7 @@
     ],
     "websiteURL": "https://github.com/alangmartini/alanistic-skills",
     "defaultPrompt": [
+      "Build an editable workflow canvas with draggable nodes and typed ports.",
       "Build an interactive architecture map of this repository.",
       "Turn this concept into a polished interactive visualization.",
       "Render this analysis as a single-file HTML report.",

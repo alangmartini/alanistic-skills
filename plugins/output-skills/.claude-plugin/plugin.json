@@ -1,7 +1,7 @@
 {
   "name": "output-skills",
-  "version": "1.0.4",
-  "description": "Skills for generating self-contained interactive HTML output (single-file dashboards, architecture maps, visualizations) and compressed caveman responses.",
+  "version": "1.1.0",
+  "description": "Skills for generating self-contained interactive HTML output, including editable workflow canvases, architecture maps, visualizations, and compressed caveman responses.",
   "author": {
     "name": "Alan Martini",
     "url": "https://github.com/alangmartini"
@@ -16,6 +16,8 @@
     "interactive",
     "visualization",
     "architecture",
+    "workflow",
+    "node-editor",
     "output"
   ]
 }
